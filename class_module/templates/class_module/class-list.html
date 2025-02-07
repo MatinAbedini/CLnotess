@@ -1,0 +1,62 @@
+{% extends "shared/_layout.html" %}
+{% load static %}
+
+{% block title %}لیست کلاس ها{% endblock %}
+{% block content_title %}لیست کلاس ها{% endblock %}
+{% block breadcrumb_option %}
+    <li><a href="index.html">Dashboard</a></li>
+    <li class="active"><span>Classs</span></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default card-view">
+                <div class="panel-heading">
+                    <div class="pull-right">
+                        <h6 class="panel-title txt-dark">لیست کلاس ها</h6>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-wrapper collapse in">
+                    <div class="panel-body">
+                        <div class="table-wrap">
+                            <div class="table-responsive">
+                            <table class="table table-hover table-bordered mb-0">
+                                <thead>
+                                <tr>
+                                    <th scope="col" style="font-size: medium; font-weight: normal;">اسم</th>
+                                    <th class="text-nowrap" style="font-size: medium; font-weight: normal;">عملیات ها</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% if classes is not None %}
+                                        {% for class in classes %}
+                                            <tr>
+                                                <td>{{ class }}</td>
+
+                                                <td class="text-nowrap">
+                                                    <a href="{{ class.get_absolute_url }}" class="mr-25" data-toggle="tooltip" data-original-title="مشاهده">
+                                                        <i class="fa fa-eye text-inverse m-r-10"></i>
+                                                    </a>
+                                                    <a href="edit/{{ class.uuid }}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
+                                                        <i class="fa fa-pencil text-inverse m-r-10"></i>
+                                                    </a>
+                                                    <a href="edit/{{ class.uuid }}" data-toggle="tooltip" data-original-title="حذف کردن">
+                                                        <i class="fa fa-close text-danger"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

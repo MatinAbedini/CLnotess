@@ -1,0 +1,52 @@
+{% load static %}
+{% load render_partial %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>CLnotess | {% block title %}{% endblock %}</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="description" content="CLnotess is a web application for managing classes." />
+        <meta name="keywords" content="CLnotess, class, school, class managing, school managing" />
+        <meta name="author" content="Matin Abedini"/>
+
+        <!-- Favicon -->
+        <link rel="shortcut icon" href="favicon.ico">
+        <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+        <!-- CSS -->
+        {% include "shared/includes/css-references.html" %}
+        {% block css_references %}{% endblock %}
+    </head>
+    <body>
+        <div class="wrapper {{ user.settings.sidebar_navbar_theme }} theme-6-active pimary-color-pink">
+            {% render_partial "home_module.views.navbar_partial" %}
+            {% render_partial "home_module.views.left_sidebar_partial" %}
+            {% render_partial "home_module.views.right_sidebar_partial" %}
+
+            <!-- Main Content -->
+            <div class="page-wrapper">
+                <div class="container-fluid">
+                    <!-- Title -->
+                    <div class="row heading-bg">
+						<div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+                            <h5 class="txt-dark">{% block content_title %}{% endblock %}</h5>
+                        </div>
+                        <!-- Breadcrumb -->
+                        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+                            <ol class="breadcrumb">
+                                {% block breadcrumb_option %}{% endblock %}
+                            </ol>
+                        </div>
+                    </div>
+                    {% block content %}{% endblock %}
+                    {% render_partial "home_module.views.footer_partial" %}
+                </div>
+            </div>
+        </div>
+        <!-- JS -->
+        {% include "shared/includes/js-references.html" %}
+        {% block js_references %}{% endblock %}
+    </body>
+</html>

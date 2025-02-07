@@ -1,0 +1,170 @@
+{% extends "shared/_layout.html" %}
+{% load static %}
+
+{% block title %}جزئیات تکلیف{% endblock %}
+{% block content_title %}جزئیات تکلیف{% endblock %}
+
+{% block breadcrumb_option %}
+    <li><a href="index.html">Dashboard</a></li>
+    <li><a href="index.html">Homeworks</a></li>
+    <li class="active"><span>Details</span></li>
+{% endblock %}
+
+{% block content %}
+    <!-- {% comment %} <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <div class="panel panel-default card-view">
+                <div class="panel-wrapper collapse in row">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-md-3">
+                                {% if homework.status == 1%}
+                                    <a class="btn btn-block btn-warning">درحال انجام</a>
+                                {% elif homework.status == 2 %}
+                                    <a class="btn btn-block btn-danger">انجام نشده</a>
+                                {% else %}
+                                    <a class="btn btn-block btn-warning">درحال انجام</a>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <h4>{{ homework.homework.title }}</h4>
+                            </div>
+                            <div class="col-md-3">
+                                {% if homework.status == 1 %}
+                                    <a class="btn btn-block btn-danger">انجام نشده</a>
+                                {% elif homework.status == 2 %}
+                                    <a class="btn btn-block btn-success">انجام شده</a>
+                                {% else %}
+                                    <a class="btn btn-block btn-warning">انجام شده</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="light-grey-hr mt-20 mb-20">
+                    <div class="panel-body">
+                        <div class="panel-content">
+                            <div class="row">
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis at sunt quod consectetur! Provident in eligendi, laborum consequatur dicta ut? Optio, neque delectus esse consequatur deserunt eligendi minima dicta cupiditate.</p>
+                            </div>
+                            <div class="row">
+                                <div class="card push-left">
+                                    fhdsjkafhdsjkadsafhdsaj
+                                </div>
+                                <div class="card push-right">
+                                    fdsjfdsjafsdjkahjkdasfhjkdsa
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-footer mt-40">
+                            <div class="col-md-2">
+                                <a class="btn btn-block btn-success">انجام شده</a>
+                            </div>
+                            <div class="col-md-2">
+                                <a class="btn btn-block btn-warning">درحال انجام</a>
+                            </div>
+                            <div class="col-md-2">
+                                <a class="btn btn-block btn-danger">انجام نشده</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> {% endcomment %} -->
+    <!-- Row -->
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-6 col-sm-12 col-lg-offset-3 col-md-offset-3">
+            <div class="panel panel-default contact-card card-view">
+                <div class="row">
+                    <div class="panel-heading row">
+                        <div class="emp-detail pl-15 pr-15">
+                            <div class="col-md-3 col-sm-12 mt-20 mb-20">
+                                {% if homework.status == 1 %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-warning" href="{% url "in-progress-homework-page" homework.uuid %}">درحال انجام</a>
+                                {% elif homework.status == 2 %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-success" href="{% url "done-homework-page" homework.uuid %}">انجام شده</a>
+                                {% else %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-success" href="{% url "done-homework-page" homework.uuid %}">انجام شده</a>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 col-sm-12 mt-20 mb-20">
+                                <a class="btn btn-block btn-default btn-rounded btn-outline disabled">{{ homework.homework.title }}</a>
+                            </div>
+                            <div class="col-md-3 col-sm-12 mt-20 mb-20">
+                                {% if homework.status == 1 %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-danger" href="{% url "not-done-homework-page" homework.uuid %}">انجام نشده</a>
+                                {% elif homework.status == 2 %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-danger" href="{% url "not-done-homework-page" homework.uuid %}">انجام نشده</a>
+                                {% else %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-warning" href="{% url "in-progress-homework-page" homework.uuid %}">درحال انجام</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="light-grey-hr mt-20 mb-20">
+                    <div class="panel-wrapper collapse in">
+                        <div class="panel-body">
+                            <div class="user-others-details pl-15 pr-15" style="color: black;">
+                                <div class="row justify-content-center">
+                                    <div class="mr-50 ml-50" dir="rtl">
+                                        <p>{{ homework.homework.description }}</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                            <p>درس</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>علوم</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                            <p>برای تاریخ</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ homework.homework.for_date.year }} / {{ homework.homework.for_date.month }} / {{ homework.homework.for_date.day }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                            <p>استاد</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ homework.homework.created_by.get_full_name }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="light-grey-hr mt-20 mb-20"/>
+                            <div class="emp-detail pl-15 pr-15">
+                                {% if homework.homework.created_by == user %}
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-success" href="{% url "create-result-homework-page" %}">ثبت نتیجه تکلیف</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="
+                                            btn btn-block btn-outline btn-rounded btn-0
+                                            {% if homework.homework.created_by != user %}
+                                                disabled btn-default
+                                            {% else %}
+                                                btn-primary
+                                            {% endif %}"
+                                            href="{% url "edit-homework-page" homework.uuid %}">
+                                            ویرایش
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-homework-page" homework.homework.uuid %}">حذف</a>
+                                    </div>
+                                {% else %}
+                                    <div class="col-md-12 col-sm-12 mt-20 mb-20">
+                                        <a class="btn btn-block btn-rounded btn-0 btn-success" href="{% url "create-result-homework-page" %}">ثبت نتیجه تکلیف</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
