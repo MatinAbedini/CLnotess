@@ -1,0 +1,59 @@
+{% extends 'shared/_layout.html' %}
+{% load static %}
+
+{% block title %}Update Exam{% endblock %}
+{% block content %}
+    <main class="app-main">
+        <div class="app-content-header">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h3 class="mb-0">Update Exam</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="app-content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <form method="post">
+                                    {% csrf_token %}
+
+                                    <div class="mb-3">
+                                        {{ form.title.label }}
+                                        {{ form.title }}
+                                        {{ form.title.errors }}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ form.description.label }}
+                                        {{ form.description }}
+                                        {{ form.description.errors }}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ form.for_date.label }}
+                                        {{ form.for_date }}
+                                        {{ form.for_date.errors }}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ form.duration.label }}
+                                        {{ form.duration }}
+                                        {{ form.duration.errors }}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ form.assigned_to.label }}
+                                        {{ form.assigned_to }}
+                                        {{ form.assigned_to.errors }}
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

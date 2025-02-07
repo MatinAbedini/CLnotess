@@ -1,0 +1,57 @@
+{% extends "shared/_layout.html" %}
+{% load static %}
+
+{% block title %}Exam Results list{% endblock %}
+{% block content %}
+    <main class="app-main">
+        <div class="app-content-header">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h3 class="mb-0">Exam Results List</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="app-content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                {% if exams is not None %}
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">title</th>
+                                                <th scope="col">teacher</th>
+                                                <th scope="col">difficulty</th>
+                                                <th scope="col">status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for exam in exams %}
+                                                <tr>
+                                                    <th scope="row">
+                                                        <a href="{{ exam.get_absolute_url }}">
+                                                            {{ exam.id }}
+                                                        </a>
+                                                    </th>
+                                                    <td>{{ exam.title }}</td>
+                                                    <td>{{ exam.created_by }}</td>
+                                                    <td>{{ exam.difficulty }}</td>
+                                                    <td>{{ exam.status }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

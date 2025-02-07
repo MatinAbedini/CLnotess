@@ -1,0 +1,15 @@
+{% extends "shared/_layout.html" %}
+
+{% block content %}
+    <h1>{{ exam.title }}</h1>
+
+    <br>
+    <hr>
+
+    <h2>description: {{ exam.description }}</h2>
+    <h2>creation date: {{ exam.creation_date }}</h2>
+    <h2>for date: {{ exam.for_date }}</h2>
+    <h2>created by: {{ exam.creation_date }}</h2>
+    <h2>status: {{ exam.status }}</h2>
+
+{% endblock %}

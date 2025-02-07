@@ -1,0 +1,54 @@
+{% extends 'shared/_layout.html' %}
+{% load static %}
+
+{% block title %}Update Exam Result{% endblock %}
+{% block content %}
+    <main class="app-main">
+        <div class="app-content-header">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h3 class="mb-0">Update Exam Result</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="app-content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <form method="post">
+                                    {% csrf_token %}
+
+                                    <div class="mb-3">
+                                        {{ form.exam.label }}
+                                        {{ form.exam }}
+                                        {{ form.exam.errors }}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ form.student.label }}
+                                        {{ form.student }}
+                                        {{ form.student.errors }}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ form.correct_answers.label }}
+                                        {{ form.correct_answers}}
+                                        {{ form.correct_answers.errors }}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ form.incorrect_answers.label }}
+                                        {{ form.incorrect_answers }}
+                                        {{ form.incorrect_answers.errors }}
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
