@@ -21,7 +21,7 @@ class RegisterView(FormView):
     success_url = reverse_lazy("index-page")
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
+        if request.user.is_authenticated:
             return HttpResponseForbidden("شما به این صفحه دسترسی ندارید.")
 
         return super().dispatch(request, *args, **kwargs)
@@ -56,11 +56,11 @@ class RegisterView(FormView):
                 user.save()
 
                 # Send activation email to user
-                email_context = {"active-code": user.active_code}
+                email_context = {"user": user}
                 send_mail_service(
                     "فعال سازی حساب کاربری",
                     "emails/activation-email.html",
-                    list(user.email),
+                    [user.email],
                     email_context
                 )
 
@@ -97,5 +97,5 @@ def activation_view(request, active_code):
 @login_required
 def logout_view(request):
     logout(request)
-    
+
     return render(request, "account_module/logout.html")
