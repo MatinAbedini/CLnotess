@@ -13,7 +13,7 @@ class HomeworkForm(forms.ModelForm):
 
     class Meta:
         model = Homework
-        fields = ("title", "description", "for_date", "difficulty")
+        fields = ("title", "description", "for_date")
         widgets = {
             "title": forms.TextInput(attrs={
                 "class": "form-control"
@@ -26,42 +26,26 @@ class HomeworkForm(forms.ModelForm):
                 "class": "form-control",
                 "data-mask": "99/99/9999",
             }),
-            "difficulty": forms.Select(attrs={
-                "class": "form-control"
-            }),
         }
 
 
 class HomeworkResultForm(forms.ModelForm):
-    student = forms.ChoiceField(
-        required=True,
-        widget=forms.Select(attrs={
-            "class": "form-select"
-        })
-    )
     homework = forms.ChoiceField(
         required=True,
         widget=forms.Select(attrs={
-            "class": "form-select"
+            "class": "form-control"
         })
     )
 
-    class Meta:
-        model = HomeworkResult
-        fields = ("result", "status")
-        widgets = {
-            "result": forms.FileInput(attrs={
-                "class": "form-control",
-                "type": "file"
-            }),
-            "status": forms.TextInput(attrs={"class": "form-select"}),
-        }
-
+    # class Meta:
+    #     model = HomeworkResult
+    #     fields = ("result",)
+    #     widgets = {"result": forms.FileInput(attrs={"class": "form-control"})}
 
     def __init__(self, *args, **kwargs):
-        show_status = kwargs.pop("show_status", False)
+        show_homework = kwargs.pop("show_homework", False)
 
         super().__init__(*args, **kwargs)
 
-        if not show_status:
-            self.fields.pop("status")
+        if not show_homework:
+            self.fields.pop("homework")

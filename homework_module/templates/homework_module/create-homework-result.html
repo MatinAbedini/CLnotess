@@ -1,49 +1,46 @@
 {% extends 'shared/_layout.html' %}
 {% load static %}
 
-{% block title %}Create Exam Result{% endblock %}
-{% block content %}
-    <main class="app-main">
-        <div class="app-content-header">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <h3 class="mb-0">Create Exam Result</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="app-content">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <form method="post" enctype="multipart/form-data">
-                                    {% csrf_token %}
+{% block title %}ثبت نتیجه تکلیف{% endblock %}
+{% block content_title %}ثبت نتیجه تکلیف{% endblock %}
 
-                                    <div class="mb-3">
-                                        {{ form.homework.label }}
-                                        {{ form.homework }}
-                                        {{ form.homework.errors }}
+{% block breadcrumb_option %}
+    <li><a href="index.html">Dashboard</a></li>
+    <li><a href="index.html">Homeworks</a></li>
+    <li><a href="index.html">Results</a></li>
+    <li class="active"><span>Create</span></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <div class="panel panel-default card-view">
+                <div class="panel-wrapper collapse in">
+                    <div class="panel-body">
+                        <div class="form-wrap">
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="form-group">
+                                        {% if form.homework is not None %}
+                                            <div class="form-group col-md-6">
+                                                <label class="control-label mb-10 text-left" id="id_homework">تکلیف</label>
+                                                {{ form.homework }}
+                                            </div>
+                                        {% endif %}
+                                        <div class="form-group col-md-6">
+                                            <label class="control-label mb-10" id="id_result">نتیجه</label>
+                                            {{ form.result }}
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        {{ form.student.label }}
-                                        {{ form.student }}
-                                        {{ form.student.errors }}
-                                    </div>
-                                    <div class="mb-3">
-                                        {{ form.result.label }}
-                                        {{ form.result}}
-                                        {{ form.result.errors }}
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                </form>
-                            </div>
+                                </div>
+                                {{ form.errors }}
+                                <input type="submit" value="ذخیره" class="btn btn-block btn-success mt-40">
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 {% endblock %}

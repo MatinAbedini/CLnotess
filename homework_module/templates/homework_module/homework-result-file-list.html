@@ -1,0 +1,60 @@
+{% extends "shared/_layout.html" %}
+{% load poll_extras %}
+{% load static %}
+
+{% block title %}لیست تکالیف{% endblock %}
+{% block content_title %}لیست تکالیف{% endblock %}
+{% block breadcrumb_option %}
+    <li><a href="index.html">Dashboard</a></li>
+    <li class="active"><span>Homework Result Files</span></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <!-- Bordered Table -->
+        <div class="col-sm-12">
+            <div class="panel panel-default card-view">
+                <div class="panel-heading">
+                    <div class="pull-right">
+                        <h6 class="panel-title txt-dark">لیست تکلیف ها</h6>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-wrapper collapse in">
+                    <div class="panel-body">
+                        <div class="table-wrap">
+                            <div class="table-responsive">
+                            <table class="table table-hover table-bordered mb-0">
+                                <thead>
+                                <tr>
+                                    <th scope="col" style="font-size: medium; font-weight: normal;">شماره</th>
+                                    <th scope="col" style="font-size: medium; font-weight: normal;">نوع</th>
+                                    <th class="text-nowrap" style="font-size: medium; font-weight: normal;">عملیات ها</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% if files is not None %}
+                                        {% for result in files %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ result.file_result.path|get_file_type }}</td>
+                                                <td class="text-nowrap">
+                                                    <a href="" data-toggle="tooltip" data-original-title="دانلود کردن">
+                                                        <i class="fa fa-download text-primary"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Bordered Table -->
+
+    </div>
+{% endblock %}

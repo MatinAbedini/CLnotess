@@ -95,7 +95,6 @@
                                     <th scope="col" style="font-size: medium; font-weight: normal;">موضوع</th>
                                     <th scope="col" style="font-size: medium; font-weight: normal;">معلم</th>
                                     <th scope="col" style="font-size: medium; font-weight: normal;">وضعیت</th>
-                                    <th scope="col" style="font-size: medium; font-weight: normal;">تغییر وضعیت</th>
                                     <th class="text-nowrap" style="font-size: medium; font-weight: normal;">عملیات ها</th>
                                 </tr>
                                 </thead>
@@ -104,65 +103,57 @@
                                         {% for homework in homeworks %}
                                             <tr>
                                                 <td>{{ homework.homework.title }}</td>
-                                                <td>{{ homework.homework.created_by }}</td>
+                                                <td>{{ homework.homework.created_by.get_full_name }}</td>
                                                 <td>
-                                                    {% if homework.status == 1 %}
-                                                        <span class="label label-success" style="font-size: smaller;">
-                                                            انجام شده
-                                                        </span>
-
-                                                    {% elif homework.status == 2 %}
-                                                        <span class="label label-warning" style="font-size: smaller;">
-                                                            درحال انجام
-                                                        </span>
-
-                                                    {% else %}
-                                                        <span class="label label-danger" style="font-size: smaller;">
-                                                            انجام نشده
-                                                        </span>
-
-                                                    {% endif %}
-                                                </td>
-
-                                                <td>
-                                                    {% if homework.status == 1 %}
-                                                        <a href="{% url "in-progress-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="درحال انجام">
-                                                            <i class="fa fa-check txt-warning m-r-10"></i>
-                                                        </a>
-
-                                                        <a href="{% url "not-done-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="انجام نشده">
-                                                            <i class="fa fa-close text-danger"></i>
-                                                        </a>
-                                                    {% elif homework.status == 2 %}
-                                                        <a href="{% url "done-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام شده">
-                                                            <i class="fa fa-check txt-success m-r-10"></i>
-                                                        </a>
-
-                                                        <a href="{% url "not-done-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="انجام نشده">
-                                                            <i class="fa fa-close text-danger"></i>
-                                                        </a>
-                                                    {% else %}
-                                                        <a href="{% url "done-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام شده">
-                                                            <i class="fa fa-check txt-success m-r-10"></i>
-                                                        </a>
-
-                                                        <a href="{% url "in-progress-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="درحال انجام">
-                                                            <i class="fa fa-check text-warning"></i>
-                                                        </a>
-                                                    {% endif %}
+                                                    <span
+                                                        class="label
+                                                            {% if homework.status == 1 %} label-success
+                                                            {% elif homework.status == 2 %} label-warning
+                                                            {% else %} label-danger
+                                                            {% endif %}"
+                                                        style="font-size: smaller;">
+                                                        {{ homework.get_status_display }}
+                                                    </span>
                                                 </td>
 
                                                 <td class="text-nowrap">
                                                     <a href="{{ homework.get_absolute_url }}" class="mr-25" data-toggle="tooltip" data-original-title="مشاهده">
                                                         <i class="fa fa-eye text-inverse m-r-10"></i>
                                                     </a>
-                                                    <a href="{% url "edit-homework-page" uuid=homework.homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
-                                                        <i class="fa fa-pencil text-inverse m-r-10"></i>
-                                                    </a>
+
                                                     {% if homework.homework.created_by == user %}
-                                                        <a href="edit/{{ homework.uuid }}" data-toggle="tooltip" data-original-title="حذف کردن">
-                                                            <i class="fa fa-close text-danger"></i>
+                                                        <a href="{% url "edit-homework-page" homework.homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
+                                                            <i class="fa fa-pencil text-inverse m-r-10"></i>
                                                         </a>
+                                                        <a href="{% url "delete-homework-page" homework.homework.uuid %}" data-toggle="tooltip" data-original-title="حذف کردن">
+                                                            <i class="fa fa-close text-danger"></i>
+                                                        </a
+                                                    {% else %}
+                                                        {% if homework.status == 1 %}
+                                                            <a href="{% url "in-progress-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="درحال انجام">
+                                                                <i class="fa fa-check txt-warning m-r-10"></i>
+                                                            </a>
+
+                                                            <a href="{% url "not-done-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="انجام نشده">
+                                                                <i class="fa fa-close text-danger"></i>
+                                                            </a>
+                                                        {% elif homework.status == 2 %}
+                                                            <a href="{% url "done-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام شده">
+                                                                <i class="fa fa-check txt-success m-r-10"></i>
+                                                            </a>
+
+                                                            <a href="{% url "not-done-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="انجام نشده">
+                                                                <i class="fa fa-close text-danger"></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <a href="{% url "done-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام شده">
+                                                                <i class="fa fa-check txt-success m-r-10"></i>
+                                                            </a>
+
+                                                            <a href="{% url "in-progress-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="درحال انجام">
+                                                                <i class="fa fa-check text-warning"></i>
+                                                            </a>
+                                                        {% endif %}
                                                     {% endif %}
                                                 </td>
                                             </tr>

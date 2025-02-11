@@ -1,8 +1,8 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator, MaxValueValidator
 from account_module import models as account_models
-from django.db import models
 from django.urls import reverse
+from django.db import models
 from uuid import uuid4
 
 
@@ -23,7 +23,7 @@ class Homework(models.Model):
         verbose_name=_("ساخته شده توسط"),
         related_name="created_homeworks",
         on_delete=models.SET_NULL,
-        # editable=False,
+        editable=False,
         null=True,
         db_index=True,
     )
@@ -40,26 +40,8 @@ class Homework(models.Model):
         validators=(MinValueValidator(1), MaxValueValidator(3))
     )
 
-
     def __str__(self) -> str:
         return f"{self.title}"
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
-        homework_created_for_exists = (
-            HomeworkCreatedFor.objects.filter(
-                homework=self,
-                assigned_to=self.created_by
-            )
-            .exists()
-         )
-        
-        if not homework_created_for_exists:
-            HomeworkCreatedFor(
-                assigned_to=self.created_by,
-                homework=self
-            ).save()
 
     def get_absolute_url(self) -> str:
         return reverse("homework-detail-page", args=[self.uuid])
@@ -70,27 +52,14 @@ class Homework(models.Model):
 
 
 class HomeworkCreatedFor(models.Model):
+    creation_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
+    modify_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
     uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
-
-
-    homework = models.ForeignKey(
-        "Homework",
-        verbose_name=_("تکلیف"),
-        related_name="for_class",
-        on_delete=models.CASCADE
-    )
-
-    assigned_to = models.ForeignKey(
-        "account_module.Account",
-        verbose_name=_("دانش آموز"),
-        related_name="assigned_homewrok",
-        on_delete=models.CASCADE,
-    )
 
     status = models.IntegerField(
         verbose_name=_("وضعیت"),
-        default=3,
         db_index=True,
+        default=3,
         validators=(
             MinValueValidator(1),
             MaxValueValidator(3),
@@ -102,6 +71,35 @@ class HomeworkCreatedFor(models.Model):
         ],
     )
 
+    homework = models.ForeignKey(
+        "Homework",
+        verbose_name=_("تکلیف"),
+        related_name="for_class",
+        on_delete=models.CASCADE
+    )
+
+    result = models.OneToOneField(
+        "HomeworkResult",
+        verbose_name=_("نتیجه تکلیف"),
+        related_name="homework",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+
+    feedback = models.OneToOneField(
+        "HomeworkFeedback",
+        verbose_name=_("بازخورد تکلیف"),
+        related_name="homework",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+
+    assigned_to = models.ForeignKey(
+        "account_module.Account",
+        verbose_name=_("دانش آموز"),
+        related_name="assigned_homework",
+        on_delete=models.CASCADE,
+    )
 
     def __str__(self) -> str:
         return f"{self.homework.title} - {self.assigned_to}"
@@ -115,36 +113,13 @@ class HomeworkCreatedFor(models.Model):
 
 
 class HomeworkResult(models.Model):
-    is_active = models.BooleanField(verbose_name=_("فعال / غیرفعال"), default=True, db_index=True)
-    is_delete = models.BooleanField(verbose_name=_("حذف شده / نشده"), default=False, db_index=True)
-    uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
+    description = models.TextField(verbose_name=_("توضیحات نتیجه تکلیف"), max_length=1500, null=True, blank=True)
+    creation_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
+    modify_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
 
-
-    homework = models.ForeignKey(
-        "Homework",
-        verbose_name=_("امتحان"),
-        related_name=_("student_results"),
-        on_delete=models.CASCADE,
-        db_index=True
-        )
-
-    student = models.ForeignKey(
-        "account_module.Account",
-        verbose_name=_("دانش آموز"),
-        related_name=_("homework_results"),
-        on_delete=models.CASCADE,
-        db_index=True
-    )
-
-    result = models.FileField(
-        verbose_name=_("نتیجه تکلیف"),
-        upload_to="homework_module/homework_results/",
-        null=False,
-        blank=False
-    )
-
-    status = models.IntegerField(
-        verbose_name=_("نتیجه"),
+    result_status = models.IntegerField(
+        verbose_name=_("وضعیت نتیجه تکلیف"),
         default=2,
         db_index=True,
         validators=(
@@ -152,18 +127,51 @@ class HomeworkResult(models.Model):
             MaxValueValidator(2),
         ),
         choices=[
-            (1, _("ناقص")),
-            (2, _("کامل")),
+            (1, _("کامل")),
+            (2, _("در انتظار")),
+            (3, _("ناقص")),
         ],
     )
 
+    class Meta:
+        verbose_name = _("نتیجه تکلیف")
+        verbose_name_plural = _("نتیجه تکالیف")
+
+
+class HomeworkFeedback(models.Model):
+    description = models.TextField(verbose_name=_("توضیحات بازخورد تکلیف"), max_length=1500, null=True, blank=True)
+    creation_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
+    modify_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    is_delete = models.BooleanField(verbose_name=_("حذف شده / نشده"), default=False, db_index=True)
+    uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
 
     class Meta:
-        verbose_name = _("نتیجه امتحان")
-        verbose_name_plural = _("نتیجه امتحانات")
+        verbose_name = _("بازخورد تکلیف")
+        verbose_name_plural = _("بازخورد تکالیف")
 
-    def __str__(self) -> str:
-        return  f"{self.student} - {self.homework}"
 
-    def get_absolute_url(self):
-        return reverse("homework-result-detail-page", kwargs={"uuid": self.uuid})
+class HomeworkResultFile(models.Model):
+    creation_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
+    modify_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
+
+    homework = models.ForeignKey(
+        "HomeworkResult",
+        verbose_name=_("تکلیف"),
+        related_name="results",
+        on_delete=models.CASCADE,
+        db_index=True,
+    )
+
+    result_file = models.FileField(
+        verbose_name=_("فایل های نتیجه تکلیف"),
+        upload_to="homework_module/homework_results/",
+        db_index=True,
+    )
+
+    def __str__(self):
+        return f"{self.homework}"
+
+    class Meta:
+        verbose_name = _("فایل نتیجه تکلیف")
+        verbose_name_plural = _("فایل های نتیجه تکلیف")

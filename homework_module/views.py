@@ -1,15 +1,15 @@
-from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, UpdateView
-from django.http import HttpRequest, HttpResponseForbidden
-from django.views.generic.edit import FormView, CreateView
-from django.utils.translation import gettext_lazy as _
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.views.generic.edit import FormView, CreateView
+from django.http import FileResponse, HttpRequest
+from django.utils.translation import gettext_lazy as _
 from django.urls import reverse, reverse_lazy
-
-from .models import Homework, HomeworkCreatedFor, HomeworkResult
-from .forms import HomeworkForm, HomeworkResultForm
 from account_module.models import Account
 from class_module.models import Class
+from .models import *
+from .forms import *
+
 
 # Create your views here.
 
@@ -23,7 +23,7 @@ class HomeworkCreateView(FormView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید")
+            return redirect(reverse("login-page"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -33,25 +33,24 @@ class HomeworkCreateView(FormView):
                 teachers__teacher=self.request.user,
                 is_active=True,
                 is_delete=False
-            ).only("class_name", "school_name", "uuid")
+            ).only("class_name", "school_name", "id")
         )
 
-        form = super().get_form(form_class)
-        class_choices = [(class_.uuid, class_.name) for class_ in classes]
+        form: HomeworkForm = super().get_form(form_class)
+        class_choices = [(class_.uuid, class_.__str__) for class_ in classes]
         form.fields["assigned_to"].choices = class_choices
+
         return form
 
     def form_valid(self, form: HomeworkForm):
         new_homework: Homework = form.save(commit=False)
         assigned_to_list: list[str] = form.cleaned_data.get("assigned_to")
-        user: Account = self.request.user
-        new_homework.created_by = user
 
         classes = Class.objects.filter(
             uuid__in=assigned_to_list,
             is_active=True,
             is_delete=False
-        ).prefetch_related("students")
+        ).prefetch_related("assigned_to")
 
         if not classes.exists():
             return super().form_valid(form)
@@ -59,13 +58,14 @@ class HomeworkCreateView(FormView):
         homework_assigned_to_list = [
             HomeworkCreatedFor(
                 homework=new_homework,
-                student=student,
-                status=1
+                assigned_to=student,
+                status=3
             )
             for class_ in classes
-            for student in class_.students.all()
+            for student in class_.assigned_to.all()
         ]
 
+        new_homework.created_by = self.request.user
         new_homework.save()
         HomeworkCreatedFor.objects.bulk_create(homework_assigned_to_list)
 
@@ -83,7 +83,7 @@ class HomeworkUpdateView(UpdateView):
 
     def dispatch(self, request: HttpRequest, *args, **kwargs):
         if not request.user.is_authenticated and self:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید")
+            return redirect(reverse("login-page"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -106,7 +106,7 @@ class HomeworkUpdateView(UpdateView):
         )
 
         form = super().get_form(form_class)
-        class_choices = [(class_.uuid, class_.name) for class_ in classes]
+        class_choices = [(class_.uuid, class_) for class_ in classes]
         form.fields["assigned_to"].choices = class_choices
         return form
 
@@ -121,7 +121,7 @@ class HomeworkListView(ListView):
 
     def dispatch(self, request: HttpRequest, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید")
+            return redirect(reverse("login-page"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -147,7 +147,7 @@ class HomeworkDetailView(DetailView):
 
     def dispatch(self, request: HttpRequest, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید")
+            return redirect(reverse("login-page"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -171,11 +171,23 @@ class HomeworkResultCreateView(CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید.")
+            return redirect(reverse("login_page"))
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_form_kwargs(self):
+        # Show homework field if uuid is in url (kwargs)
+        kwargs = super().get_form_kwargs()
+        kwargs["show_homework"] = True
+
+        return kwargs
+
     def get_form(self, form_class=None):
+        # If uuid is not in url (kwargs), show homework field
+        if "uuid" in self.kwargs:
+            return super().get_form(form_class)
+
+        # Save User and assigned homeworks to the user
         user = self.request.user
         homeworks = (
             Homework.objects.filter(
@@ -186,30 +198,24 @@ class HomeworkResultCreateView(CreateView):
             .only("title", "uuid")
         )
 
-        students = (
-            set(
-                Account.objects.filter(
-                    assigned_classes__teachers__teacher=user,
-                    is_active=True,
-                )
-                .only("username", "active_code")
-            )
-        )
-
+        # Add assigned homeworks to homework field as choices
         form = super().get_form(form_class)
         homework_choices = [(homework.uuid, homework.title) for homework in homeworks]
-        student_choices = [
-            (student.active_code, student.username)
-            for student in students
-        ]
-
         form.fields["homework"].choices = homework_choices
-        form.fields["student"].choices = student_choices
 
         return form
 
     def form_valid(self, form):
         homework_result = form.save(commit=False)
+
+        # If uuid is not in url (kwargs), show homework field
+        # if "uuid" in self.kwargs:
+        #     homework = Homework.objects.get(
+        #         uuid=self.kwargs["uuid"],
+        #         is_active=True,
+        #         is_delete=False
+        #     )
+
         homework_result.homework = (
             Homework.objects.get(
                 uuid=form.cleaned_data.get("homework"),
@@ -217,14 +223,10 @@ class HomeworkResultCreateView(CreateView):
                 is_delete=False
             )
         )
-        homework_result.student = (
-            Account.objects.get(
-                active_code=form.cleaned_data.get("student"),
-                is_active=True
-            )
-        )
 
         return super().form_valid(form)
+        print(form.cleaned_data)
+        return super().form_invalid(form)
 
 
 class HomeworkResultUpdateView(UpdateView):
@@ -239,7 +241,7 @@ class HomeworkResultUpdateView(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید.")
+            return redirect(reverse("login_page"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -304,16 +306,112 @@ class HomeworkResultUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class HomeworkResultDetailView(DetailView):
+class HomeworkResultFileListView(ListView):
+    model = HomeworkResultFile
+    template_name = "homework_module/homework-result-file-list.html"
+    context_object_name = "files"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(reverse("login_page"))
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        base_query = (
+            HomeworkResultFile.objects.filter(
+                is_delete=False
+            )
+            .prefetch_related("homework")
+            .only("result_file", "homework")
+        )
+
+        uuid = self.kwargs.get("uuid")
+
+        if uuid is not None:
+            base_query.filter(uuid=uuid)
+
+        return base_query
+
+
+class HomeworkFeedbackCreateView(CreateView):
+    form_class = HomeworkResultForm
+    template_name =  "homework_module/create-homework-result.html"
+    success_url = reverse_lazy("index-page")
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(reverse("login_page"))
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        # Show homework field if uuid is in url (kwargs)
+        kwargs = super().get_form_kwargs()
+        kwargs["show_homework"] = True
+
+        return kwargs
+
+    def get_form(self, form_class=None):
+        # If uuid is not in url (kwargs), show homework field
+        if "uuid" in self.kwargs:
+            return super().get_form(form_class)
+
+        # Save User and assigned homeworks to the user
+        user = self.request.user
+        homeworks = (
+            Homework.objects.filter(
+                created_by=user,
+                is_active=True,
+                is_delete=False
+            )
+            .only("title", "uuid")
+        )
+
+        # Add assigned homeworks to homework field as choices
+        form = super().get_form(form_class)
+        homework_choices = [(homework.uuid, homework.title) for homework in homeworks]
+        form.fields["homework"].choices = homework_choices
+
+        return form
+
+    def form_valid(self, form):
+        homework_result = form.save(commit=False)
+
+        # If uuid is not in url (kwargs), show homework field
+        # if "uuid" in self.kwargs:
+        #     homework = Homework.objects.get(
+        #         uuid=self.kwargs["uuid"],
+        #         is_active=True,
+        #         is_delete=False
+        #     )
+
+        homework_result.homework = (
+            Homework.objects.get(
+                uuid=form.cleaned_data.get("homework"),
+                is_active=True,
+                is_delete=False
+            )
+        )
+
+        return super().form_valid(form)
+        print(form.cleaned_data)
+        return super().form_invalid(form)
+
+
+class HomeworkFeedbackUpdateView(UpdateView):
     model = HomeworkResult
-    template_name = "homework_module/homework-result.html"
+    form_class = HomeworkResultForm
+    template_name = "homework_module/edit-homework-result.html"
+    success_url = reverse_lazy("index-page")
     context_object_name = "homework_result"
     slug_field = "uuid"
     slug_url_kwarg = "uuid"
 
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید.")
+            return redirect(reverse("login_page"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -326,25 +424,82 @@ class HomeworkResultDetailView(DetailView):
 
         return base_query
 
+    def get_form(self, form_class=None):
+        user = self.request.user
 
-class HomeworkResultListView(ListView):
-    model = HomeworkResult
-    template_name = "homework_module/homework-result-list.html"
-    context_object_name = "homework_results"
+        homeworks = (
+            Homework.objects.filter(
+                created_by=user,
+                is_active=True,
+                is_delete=False
+            )
+            .only("title", "uuid")
+        )
+        students = (
+            set(
+                Account.objects.filter(
+                    assigned_classes__teachers__teacher=user,
+                    is_active=True,
+                )
+                .only("username", "active_code")
+            )
+        )
+
+        form = super().get_form(form_class)
+        homework_choices = [(homework.uuid, homework.title) for homework in homeworks]
+        student_choices = [
+            (student.active_code, student.username)
+            for student in students
+        ]
+
+        form.fields["homework"].choices = homework_choices
+        form.fields["student"].choices = student_choices
+
+        return form
+
+    def form_valid(self, form):
+        homework_result = form.save(commit=False)
+        homework_result.homework = (
+            Homework.objects.get(
+                uuid=form.cleaned_data.get("homework"),
+                is_active=True,
+                is_delete=False
+            )
+        )
+        homework_result.student = (
+            Account.objects.get(
+                active_code=form.cleaned_data.get("student"),
+                is_active=True
+            )
+        )
+
+        return super().form_valid(form)
+
+
+class HomeworkFeedbackFileListView(ListView):
+    model = HomeworkResultFile
+    template_name = "homework_module/homework-result-file-list.html"
+    context_object_name = "files"
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید.")
+            return redirect(reverse("login_page"))
 
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        base_query = super().get_queryset()
-        base_query = base_query.filter(
-            student=self.request.user,
-            is_active=True,
-            is_delete=False
+        base_query = (
+            HomeworkResultFile.objects.filter(
+                is_delete=False
+            )
+            .prefetch_related("homework")
+            .only("result_file", "homework")
         )
+
+        uuid = self.kwargs.get("uuid")
+
+        if uuid is not None:
+            base_query.filter(uuid=uuid)
 
         return base_query
 
@@ -497,3 +652,35 @@ def delete_homework(request, uuid):
         return redirect(reverse("homework-list-page"))
 
     return redirect(previous_url)
+
+@login_required
+def download_homework_result(request, uuid):
+    """
+    Delete a homework (Change is_delete to false),
+    And Finds homework using entered uuid in the url,
+    if:
+        1. User is authenticated
+        2. The homework is assigned to user
+    """
+
+    # Save the user
+    # Save homework, if its assigned to user
+    result = get_object_or_404(HomeworkResult, uuid=uuid)
+
+    return FileResponse(result.result_file.open('rb'), as_attachment=True)
+
+@login_required
+def download_homework_feedback(request, uuid):
+    """
+    Delete a homework (Change is_delete to false),
+    And Finds homework using entered uuid in the url,
+    if:
+        1. User is authenticated
+        2. The homework is assigned to user
+    """
+
+    # Save the user
+    # Save homework, if its assigned to user
+    result = get_object_or_404(HomeworkResult, uuid=uuid)
+
+    return FileResponse(result.result_file.open('rb'), as_attachment=True)
