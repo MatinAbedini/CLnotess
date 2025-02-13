@@ -5,41 +5,43 @@ class ExamForm(forms.ModelForm):
     assigned_to = forms.MultipleChoiceField(
         required=True,
         widget=forms.SelectMultiple(attrs={
-            "class": "form-control"
+            "class": "form-control",
+            "dir": "rtl",
         })
     )
 
     class Meta:
         model = Exam
-        fields = ("title", "description", "for_date", "duration", "difficulty")
+        fields = ("title", "description", "for_date", "duration", "difficulty", "questions")
         widgets = {
             "title": forms.TextInput(attrs={
-                "class": "form-control"
+                "class": "form-control",
+                "dir": "rtl",
             }),
             "description": forms.Textarea(attrs={
                 "class": "form-control",
                 "rows": "3",
+                "dir": "rtl",
             }),
-            "for_date": forms.DateInput(attrs={
+            "for_date": forms.TextInput(attrs={
                 "class": "form-control",
-                "data-mask": "99/99/9999",
+                "data-mask": "9999-99-99",
+                "data-plugin":"touchSpin",
             }),
-            "duration": forms.TimeInput(attrs={
+            "duration": forms.NumberInput(attrs={
                 "class": "form-control",
-                "data-mask": "99/99",
+                "dir": "rtl",
             }),
             "difficulty": forms.Select(attrs={
-                "class": "form-control"
+                "class": "form-control",
+                "dir": "rtl",
+            }),
+            "questions": forms.NumberInput(attrs={
+                "class": "form-control",
+                "data-plugin":"touchSpin",
+                "dir": "rtl",
             }),
         }
-
-    def __init__(self, *args, **kwargs):
-        show_difficulty = kwargs.pop("show_difficulty", False)
-
-        super().__init__(*args, **kwargs)
-
-        if not show_difficulty:
-            self.fields.pop("difficulty")
 
 
 class ExamResultForm(forms.ModelForm):

@@ -1,59 +1,71 @@
 {% extends 'shared/_layout.html' %}
 {% load static %}
 
-{% block title %}Update Exam{% endblock %}
-{% block content %}
-    <main class="app-main">
-        <div class="app-content-header">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <h3 class="mb-0">Update Exam</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="app-content">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <form method="post">
-                                    {% csrf_token %}
+{% block title %}ویرایش امتحان{% endblock %}
+{% block content_title %}ویرایش{% endblock %}
 
-                                    <div class="mb-3">
-                                        {{ form.title.label }}
-                                        {{ form.title }}
-                                        {{ form.title.errors }}
+{% block breadcrumb_option %}
+    <li><a href="index.html">Dashboard</a></li>
+    <li><a href="index.html">Exams</a></li>
+    <li class="active"><span>Create</span></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <div class="panel panel-default card-view">
+                <div class="panel-wrapper collapse in">
+                    <div class="panel-body">
+                        <div class="form-wrap">
+                            <form method="post">
+                                {% csrf_token %}
+
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="form-group col-md-6">
+                                            <label class="control-label mb-10 text-left" for="id_title">موضوع</label>
+                                            {{ form.title }}
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="control-label mb-10 text-left" id="difficulty">سختی</label>
+                                            {{ form.difficulty }}
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        {{ form.description.label }}
-                                        {{ form.description }}
-                                        {{ form.description.errors }}
-                                    </div>
-                                    <div class="mb-3">
-                                        {{ form.for_date.label }}
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-4">
+                                        <label class="control-label mb-10" id="id_for_date">برای تاریخ</label>
                                         {{ form.for_date }}
-                                        {{ form.for_date.errors }}
+                                        <span class="text-muted">روز / ماه / سال</span>
                                     </div>
-                                    <div class="mb-3">
-                                        {{ form.duration.label }}
+                                    <div class="form-group col-md-4">
+                                        <label class="control-label mb-10" id="id_questions">تعداد سوالات</label>
+                                        {{ form.questions }}
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="control-label mb-10" id="id_duration">مدت زمان</label>
                                         {{ form.duration }}
-                                        {{ form.duration.errors }}
+                                        <span class="text-muted">دقیقه / ساعت</span>
                                     </div>
-                                    <div class="mb-3">
-                                        {{ form.assigned_to.label }}
-                                        {{ form.assigned_to }}
-                                        {{ form.assigned_to.errors }}
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label mb-10 text-left" for="id_assigned_to">برای کلاس</label>
+                                    {{ form.assigned_to }}
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label class="control-label mb-10 text-left" for="id_description">توضیحات</label>
+                                        {{ form.description }}
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                </form>
-                            </div>
+                                </div>
+                                <input type="submit" value="ذخیره" class="btn btn-block btn-success mt-40">
+
+                                {{ form.errors }}
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 {% endblock %}

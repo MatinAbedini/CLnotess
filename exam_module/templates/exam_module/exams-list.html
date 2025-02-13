@@ -33,9 +33,6 @@
                                         <li>
                                             <a href="profile.html">انجام نشده</a>
                                         </li>
-                                        <li>
-                                            <a href="profile.html">درحال انجام</a>
-                                        </li>
                                     </ul>
                                 </li>
                             </ul>
@@ -94,8 +91,8 @@
                                 <tr>
                                     <th scope="col" style="font-size: medium; font-weight: normal;">موضوع</th>
                                     <th scope="col" style="font-size: medium; font-weight: normal;">معلم</th>
+                                    <th scope="col" style="font-size: medium; font-weight: normal;">سختی</th>
                                     <th scope="col" style="font-size: medium; font-weight: normal;">وضعیت</th>
-                                    <th scope="col" style="font-size: medium; font-weight: normal;">تغییر وضعیت</th>
                                     <th class="text-nowrap" style="font-size: medium; font-weight: normal;">عملیات ها</th>
                                 </tr>
                                 </thead>
@@ -103,64 +100,39 @@
                                     {% if exams is not None %}
                                         {% for exam in exams %}
                                             <tr>
-                                                <td>{{ exam.exam.title }}</td>
-                                                <td>{{ exam.exam.created_by }}</td>
+                                                <td>{{ exam.title }}</td>
+                                                <td>{{ exam.created_by.get_full_name }}</td>
                                                 <td>
-                                                    {% if exam.status == 1 %}
-                                                        <span class="label label-success" style="font-size: smaller;">
-                                                            انجام شده
-                                                        </span>
-
-                                                    {% elif exam.status == 2 %}
-                                                        <span class="label label-warning" style="font-size: smaller;">
-                                                            درحال انجام
-                                                        </span>
-
-                                                    {% else %}
-                                                        <span class="label label-danger" style="font-size: smaller;">
-                                                            انجام نشده
-                                                        </span>
-
-                                                    {% endif %}
+                                                    <span
+                                                        class="label
+                                                            {% if exam.difficulty == 1 %} label-success
+                                                            {% elif exam.difficulty == 2 %} label-warning
+                                                            {% else %} label-danger
+                                                            {% endif %}"
+                                                        style="font-size: smaller;">
+                                                        {{ exam.get_difficulty_display }}
+                                                    </span>
                                                 </td>
-
                                                 <td>
-                                                    {% if exam.status == 1 %}
-                                                        <a href="{% url "in-progress-exam-page" exam.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="درحال انجام">
-                                                            <i class="fa fa-check txt-warning m-r-10"></i>
-                                                        </a>
-
-                                                        <a href="{% url "not-done-exam-page" exam.uuid %}" data-toggle="tooltip" data-original-title="انجام نشده">
-                                                            <i class="fa fa-close text-danger"></i>
-                                                        </a>
-                                                    {% elif exam.status == 2 %}
-                                                        <a href="{% url "done-exam-page" exam.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام شده">
-                                                            <i class="fa fa-check txt-success m-r-10"></i>
-                                                        </a>
-
-                                                        <a href="{% url "not-done-exam-page" exam.uuid %}" data-toggle="tooltip" data-original-title="انجام نشده">
-                                                            <i class="fa fa-close text-danger"></i>
-                                                        </a>
-                                                    {% else %}
-                                                        <a href="{% url "done-exam-page" exam.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام شده">
-                                                            <i class="fa fa-check txt-success m-r-10"></i>
-                                                        </a>
-
-                                                        <a href="{% url "in-progress-exam-page" exam.uuid %}" data-toggle="tooltip" data-original-title="درحال انجام">
-                                                            <i class="fa fa-check text-warning"></i>
-                                                        </a>
-                                                    {% endif %}
+                                                    <span
+                                                        class="label
+                                                            {% if exam.status == 1 %} label-success
+                                                            {% else %} label-danger
+                                                            {% endif %}"
+                                                        style="font-size: smaller;">
+                                                        {{ exam.get_status_display }}
+                                                    </span>
                                                 </td>
 
                                                 <td class="text-nowrap">
                                                     <a href="{{ exam.get_absolute_url }}" class="mr-25" data-toggle="tooltip" data-original-title="مشاهده">
                                                         <i class="fa fa-eye text-inverse m-r-10"></i>
                                                     </a>
-                                                    <a href="{% url "edit-exam-page" uuid=exam.exam.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
+                                                    <a href="{% url "edit-exam-page" exam.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
                                                         <i class="fa fa-pencil text-inverse m-r-10"></i>
                                                     </a>
-                                                    {% if exam.exam.created_by == user %}
-                                                        <a href="edit/{{ exam.uuid }}" data-toggle="tooltip" data-original-title="حذف کردن">
+                                                    {% if exam.created_by == user %}
+                                                        <a href="{% url "delete-exam-page" exam.uuid %}" data-toggle="tooltip" data-original-title="حذف کردن">
                                                             <i class="fa fa-close text-danger"></i>
                                                         </a>
                                                     {% endif %}

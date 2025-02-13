@@ -1,0 +1,120 @@
+{% extends "shared/_layout.html" %}
+{% load static %}
+
+{% block title %}جزئیات امتحان{% endblock %}
+{% block content_title %}جزئیات امتحان{% endblock %}
+
+{% block breadcrumb_option %}
+    <li><a href="index.html">Dashboard</a></li>
+    <li><a href="index.html">Exams</a></li>
+    <li class="active"><span>Details</span></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-6 col-sm-12 col-lg-offset-3 col-md-offset-3">
+            <div class="panel panel-default contact-card card-view">
+                <div class="row">
+                    <div class="panel-heading row">
+                        <div class="emp-detail pl-15 pr-15">
+                            {% if exam.created_by == user %}
+                                <div class="col-md-3 col-sm-12 mt-20 mb-20">
+                                    <a
+                                        class="btn btn-block btn-rounded btn-0 btn-success
+                                            {% if exam.status == 1 %} disabled {% endif %}"
+                                        href="{% url 'done-exam-page' exam.uuid %}">
+                                        انجام شده
+                                    </a>
+                                </div>
+                                <div class="col-md-6 col-sm-12 mt-20 mb-20">
+                                    <p class="btn btn-block btn-default btn-rounded btn-outline disabled">{{ exam.title }}</p>
+                                </div>
+                                <div class="col-md-3 col-sm-12 mt-20 mb-20">
+                                    <a
+                                        class="btn btn-block btn-rounded btn-0 btn-danger
+                                            {% if exam.status == 2 %} disabled {% endif %}"
+                                        href="{% url 'not-done-exam-page' exam.uuid %}">
+                                        انجام نشده
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="col-md-12 col-sm-12 mt-20 mb-20">
+                                    <p class="btn btn-block btn-default btn-rounded btn-outline disabled">{{ exam.title }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <hr class="light-grey-hr mt-20 mb-20">
+                    <div class="panel-wrapper collapse in">
+                        <div class="panel-body">
+                            <div class="user-others-details pl-15 pr-15" style="color: black;">
+                                <div class="row justify-content-center">
+                                    <div class="mr-50 ml-50" dir="rtl">
+                                        <p style="white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">{{ exam.description|linebreaksbr }}</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="col-md-8 col-md-offset-2 mt-70" style="text-align: center;">
+                                            <p>برای تاریخ</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ exam.for_date.year }} / {{ exam.for_date.month }} / {{ exam.for_date.day }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="col-md-8 col-md-offset-2 mt-70" style="text-align: center;">
+                                            <p>استاد</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ exam.created_by.get_full_name }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                            <p>درس</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>علوم</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                            <p>سختی</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ exam.get_difficulty_display }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="light-grey-hr mt-20 mb-20"/>
+                            <div class="emp-detail pl-15 pr-15">
+                                {% if exam.created_by == user %}
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-success" href="#">ثبت نتیجه امتحان</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a
+                                            class="btn btn-block btn-outline btn-rounded btn-0
+                                                {% if exam.created_by != user %} disabled btn-default
+                                                {% else %} btn-primary
+                                                {% endif %}"
+                                            href="#">
+                                            ویرایش
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-exam-page" exam.uuid %}">حذف</a>
+                                    </div>
+                                {% else %}
+                                    <div class="col-md-12 col-sm-12 mt-20 mb-20">
+                                        <a class="btn btn-block btn-rounded btn-0 btn-success" href="#">ثبت نتیجه امتحان</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

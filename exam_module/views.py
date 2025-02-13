@@ -1,12 +1,13 @@
 from django.views.generic import ListView, DetailView, UpdateView
 from django.contrib.auth.decorators import login_required
-from django.utils.translation import gettext_lazy as _
-from django.views.generic.edit import CreateView
 from django.shortcuts import get_object_or_404, redirect
-from django.http import HttpRequest, HttpResponseForbidden
+from django.utils.translation import gettext_lazy as _
 from django.urls import reverse, reverse_lazy
+from django.views.generic.edit import CreateView
 from account_module.models import Account
 from class_module.models import Class
+from django.db.models import Q
+from django.http import HttpRequest
 from .forms import ExamForm, ExamResultForm
 from .models import Exam, ExamResult
 
@@ -17,18 +18,55 @@ class ExamCreateView(CreateView):
     model = Exam
     form_class = ExamForm
     template_name = "exam_module/create-exam.html"
-    success_url = reverse_lazy("index-page")
+    success_url = reverse_lazy("exam-list-page")
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید.")
+            return redirect(reverse("login-page"))
+
         return super().dispatch(request, *args, **kwargs)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["show_difficulty"] = True
+    def get_form(self, form_class=None):
+        user = self.request.user
+        classes = (
+            Class.objects.filter(
+                Q(teachers__teacher=user) | Q(created_by=user),
+                is_active=True,
+                is_delete=False
+            ).only("class_name", "school_name", "id")
+        )
 
-        return kwargs
+        form: ExamForm = super().get_form(form_class)
+        class_choices = [(class_.id, class_) for class_ in classes]
+        form.fields["assigned_to"].choices = class_choices
+
+        return form
+
+    def form_valid(self, form: ExamForm):
+        super().form_valid(form)
+
+        assigned_to = form.cleaned_data.get("assigned_to")
+        new_exam: Exam = form.save(commit=False)
+        new_exam.created_by = self.request.user
+        new_exam.assigned_to.add(*assigned_to)
+        new_exam.save()
+
+        return super().form_valid(form)
+
+
+class ExamUpdateView(UpdateView):
+    model = Exam
+    form_class = ExamForm
+    template_name = "exam_module/update-exam.html"
+    success_url = reverse_lazy("exam-list-page")
+    slug_field = "uuid"
+    slug_url_kwarg = "uuid"
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(reverse("login-page"))
+
+        return  super().dispatch(request, *args, **kwargs)
 
     def get_form(self, form_class=None):
         classes = (
@@ -40,37 +78,10 @@ class ExamCreateView(CreateView):
         )
 
         form: ExamForm = super().get_form(form_class)
-        class_choices = [(class_.id, class_.name) for class_ in classes]
+        class_choices = [(class_.id, class_.__str__) for class_ in classes]
         form.fields["assigned_to"].choices = class_choices
 
         return form
-
-    def form_valid(self, form: ExamForm):
-        super().form_valid(form)
-        user = self.request.user
-        assigned_to = form.cleaned_data.get("assigned_to")
-
-        new_exam: ExamForm = form.save(commit=False)
-        new_exam.assigned_to.add(*assigned_to)
-        new_exam.created_by = user
-        new_exam.save()
-
-        return super().form_valid(form)
-
-
-class ExamUpdateView(UpdateView):
-    model = Exam
-    form_class = ExamForm
-    template_name = "exam_module/update-exam.html"
-    success_url = reverse_lazy("exams-list-page")
-    slug_field = "uuid"
-    slug_url_kwarg = "uuid"
-
-    def dispatch(self, request: HttpRequest, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید.")
-
-        return  super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         base_query = super().get_queryset()
@@ -92,7 +103,7 @@ class ExamListView(ListView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما دسترسی به این صفحه ندارید.")
+            return redirect(reverse("login-page"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -109,14 +120,14 @@ class ExamListView(ListView):
 
 class ExamDetailView(DetailView):
     model = Exam
-    template_name = "exam_module/exam-detail-page.html"
+    template_name = "exam_module/exam.html"
     context_object_name = "exam"
     slug_field = "uuid"
     slug_url_kwarg = "uuid"
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید.")
+            return redirect(reverse("login-page"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -124,7 +135,7 @@ class ExamDetailView(DetailView):
         user = self.request.user
         base_query = super().get_queryset()
         base_query = base_query.filter(
-            assigned_to__students=user,
+            assigned_to__assigned_to=user,
             is_active=True,
             is_delete=False
         )
@@ -139,7 +150,7 @@ class ExamResultCreateView(CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید.")
+            return redirect(reverse("login-page"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -207,7 +218,7 @@ class ExamResultUpdateView(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید.")
+            return redirect(reverse("login-page"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -281,7 +292,7 @@ class ExamResultDetailView(DetailView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید.")
+            return redirect(reverse("login-page"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -354,14 +365,14 @@ def not_done_exam(request, uuid):
             is_delete=False,
             uuid=uuid
         )
-        .exclude(status=3)
+        .exclude(status=2)
         .only("status")
     )
 
     # Change the status of exam
     # Redirect the user to previous url or exam list page
 
-    exam.status = 3
+    exam.status = 2
     exam.save()
 
     previous_url = request.META.get("HTTP_REFERER", None)
@@ -401,9 +412,4 @@ def delete_exam(request, uuid):
     exam.is_delete = True
     exam.save()
 
-    previous_url = request.META.get("HTTP_REFERER", None)
-
-    if previous_url is None:
-        return redirect(reverse("exam-list-page"))
-
-    return redirect(previous_url)
+    return redirect(reverse("exam-list-page"))
