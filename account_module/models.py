@@ -16,21 +16,20 @@ class Account(AbstractUser):
     )
 
     settings = models.OneToOneField(
-        "account_module.AccountSettings",
+        "AccountSettings",
         on_delete=models.CASCADE,
         verbose_name=_("توضیحات"),
         related_name="account",
-        null=True,
-        blank=True,
+        null=True
     )
 
-    phone_number = models.IntegerField(
-        unique=True,
-        null=True,
-        blank=True,
-        db_index=True,
-    )
+    def save(self, *args, **kwargs):
+        # If settings is not created, creates it automatically for user
+        if self.settings is None:
+            settings = AccountSettings.objects.create()
+            self.settings = settings
 
+        super().save(*args, **kwargs)
 
 class AccountSettings(models.Model):
     sidebar_navbar_theme = models.CharField(
@@ -47,6 +46,21 @@ class AccountSettings(models.Model):
         ]
     )
 
+    sidebar_primary_color = models.CharField(
+        max_length=19,
+        default="pimary-color-blue",
+        db_index=True,
+        choices=[
+            ("pimary-color-red", _("قرمز")),
+            ("pimary-color-blue", _("آبی")),
+            ("pimary-color-green", _("سبز")),
+            ("pimary-color-yellow", _("زرد")),
+            ("pimary-color-pink", _("صورتی")),
+            ("pimary-color-orange", _("نارنجی")),
+            ("pimary-color-gold", _("طلایی")),
+            ("pimary-color-silver", _("نقره ای")),
+        ]
+    )
 
     class Meta:
         verbose_name = _("تنظیمات کاربر")

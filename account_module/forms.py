@@ -25,7 +25,7 @@ class RegisterForm(UserCreationForm):
 
     class Meta:
         model = Account
-        fields = ("first_name", "last_name", "username", "email", "phone_number")
+        fields = ("first_name", "last_name", "username", "email")
 
         widgets = {
             "first_name": forms.TextInput(
@@ -53,13 +53,6 @@ class RegisterForm(UserCreationForm):
                 attrs={
                     "class": "form-control",
                     "placeholder": _("ایمیل"),
-                    "dir": "rtl",
-                }
-            ),
-            "phone_number": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "placeholder": _("تلفن همراه"),
                     "dir": "rtl",
                 }
             ),
