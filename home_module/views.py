@@ -6,11 +6,8 @@ from django.shortcuts import render
 
 
 class IndexView(TemplateView):
-    template_name = "home_module/index-page.html"
+    template_name = "home_module/index.html"
 
-
-def preloader_partial(request):
-    return render(request, "shared/partials/preloader.html")
 
 def navbar_partial(request):
     return render(request, "shared/partials/navbar.html")

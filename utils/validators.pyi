@@ -1,0 +1,3 @@
+from django.core.files.uploadedfile import UploadedFile
+
+def validate_file_size(files: list[UploadedFile]) -> None: ...

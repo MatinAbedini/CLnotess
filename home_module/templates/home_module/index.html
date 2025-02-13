@@ -1,0 +1,423 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>CLnotess | خانه</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="CLnotess is a web application for managing classes." />
+    <meta name="keywords" content="CLnotess, class, school, class managing, school managing, dashboard" />
+    <meta name="author" content="Matin Abedini"/>
+
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" type="text/css" href="{% static "home_module/css/bootstrap-rtl.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "home_module/css/owl.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "home_module/css/animate.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "home_module/css/font-awesome.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "home_module/css/et-icons.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "home_module/css/lightbox.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "home_module/css/style.css" %}">
+</head>
+<body>
+    <div id="wrapper" class="behind">
+        <!-- start header-->
+        <header>
+            <div class="container">
+                <div class="col-md-6 col-sm-12 wow animated fadeInUp">
+                    <div class="intro-book">
+                        <img src="{% static "home_module/pics/book1.png" %}" alt="">
+                    </div>
+                </div>
+                <div class="col-md-6 intro-text hidden-sm hidden-xs wow animated fadeInUp">
+                    <h2 class="heading"> مدیریت تکالیف و امتحانات</h2>
+                    <h4 class="subheading">مخصوص دانش آموزان و معلمان </h4>
+                    <p>این نرم افزار به منظور افزایش بهره وری دانش آموزان و ایجاد تعامل نزدیکتر با معلمان آنها طراحی گردیده است</p>
+                    <a href="#book" class="scrollto btn btn-white">درباره پروژه</a>
+                    <a href="{% url "register-page" %}" class="btn btn-green">ورود / ثبت نام</a>
+                </div>
+            </div>
+        </header>
+        <!-- end header -->
+        <!-- start navbar -->
+        <nav class="navbar navbar-default">
+            <div class="container">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                            data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#"><img src="{% static "home_module/pics/logo.png" %}" alt=""></a>
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-left main-nav">
+                        <li><a href="#book" class="scrollto">درباره پروژه</a></li>
+                        <li><a href="#reviews" class="scrollto">نظرات</a></li>
+                        <li><a href="#author" class="scrollto">برنامه نویس </a></li>
+                        <li><a href="#contact" class="scrollto">تماس با ما</a></li>
+                        <li><a href="#" class="btn btn-green">دانلود </a></li>
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+        <!-- end navbar -->
+        <!-- start about book -->
+        <section id="book">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="book-preview">
+                            <img src="{% static "home_module/pics/kindle.png" %}" class="background-device" alt="">
+                            <div class="owl-book">
+                                <div class="item">
+                                    <img src="{% static "home_module/pics/book_page.png" %}" alt="">
+                                    <div class="overlay">
+                                        <a href="{% static "home_module/pics/book_page.png" %}" class="expand" data-lightbox="book-collection" data-title="Image Caption"><i class="fa fa-expand"></i></a>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="{% static "home_module/pics/book_page.png" %}" alt="">
+                                    <div class="overlay">
+                                        <a href="{% static "home_module/pics/book_page.png" %}" class="expand" data-lightbox="book-collection" data-title="Image Caption"><i class="fa fa-expand"></i></a>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="{% static "home_module/pics/book_page.png" %}" alt="">
+                                    <div class="overlay">
+                                        <a href="{% static "home_module/pics/book_page.png" %}" class="expand" data-lightbox="book-collection" data-title="Image Caption"><i class="fa fa-expand"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h2 class="heading wow animated fadeInUp">درباره پروژه</h2>
+                        <h5 class="subheading wow animated fadeInUp">این نرم افزار به منظور مدیریت و نظم دهی به تکالیف و فعالیتهای دانش آموزان تدوین شده است.</h5>
+                        <p class="small wow animated fadeInUp">  این ابزار به دانش آموز کمک می نماید که تکالیف خود را مشاهده نماید و بعد از انجام تکالیف نسبت به ثبت آنها اقدام نماید و همچنین برنامه امتحانات خود را مشاهده نماید و تکالیف و امتحانات خود را فراموش نکنند </p>
+                        <h2 class="heading wow animated fadeInUp">هدف پروژه</h2>
+                        <h5 class="subheading wow animated fadeInUp"> هدف این پروژه رفع مشکلات دانش آموزان در خصوص تعاملات میان دانش آموزان و معلمان می باشد و با استفاده از این ابزار دانش آموز می تواند در یک نگاه وضعیت تکالیف و امتحانات خود را مشاهده نماید  .</h5>
+                        <h5 class="subheading wow animated fadeInUp"> این ابزار می تواند موجب تعامل سازنده بین دانش آموزان و معلمان آنها گردد .</h5>
+                        <h2 class="heading wow animated fadeInUp"> جامعه هدف</h2>
+                        <h5 class="subheading wow animated fadeInUp"> این ابزار برای کلیه دانش آموزان مقاطع ابتدایی و متوسطه و همچنین دانشجویان کاربرد دارد همچنین این ابزار را می توان برای دانش آموزان آموزشگاههای خصوصی نیز کاربرد دارد.</h5>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- end about book -->
+        <!-- start green part -->
+        <section class="call-to-action">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2 text-center wow animated fadeInUp">
+                        <p class="white">
+                            این نرم افزار به صورت پویا ایجاد گردیده است و هدف برنامه نویس آن است که نرم افزار را توسعه دهد و در نسخه های جدید قابلتهای دیگری نیز به آن اضافه گردد
+
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- end green part -->
+        <!-- start reviews -->
+        <section id="reviews" class="reviews">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6 text-right">
+                        <h2 class="heading">نظرات</h2>
+                    </div>
+                    <div class="col-sm-6 text-left text-right-mobile">
+                        <div class="rate-amount text-right">4/5 <span>(16 نظر)</span></div>
+                        <div class="rating">
+                            <span class="rate active"></span>
+                            <span class="rate active"></span>
+                            <span class="rate active"></span>
+                            <span class="rate active"></span>
+                            <span class="rate"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="owl-reviews">
+                        <!-- start review box -->
+                        <div class="item">
+                            <div class="review text-center wow animated fadeInUp">
+                                <img src="{% static "home_module/pics/reviewers/1.png" %}" class="reviewer-pic" alt="">
+                                <h4 class="subheading reviewer-name">محمد موسوی </h4>
+                                <h6 class="subheading muted reviewer-city">از تهران</h6>
+                                <div class="rating">
+                                    <span class="rate"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                </div>
+                                <p class="small">
+                                این نرم افزار به من کمک کرد که تکالیفم را یادم نرود .</p>
+                            </div>
+                        </div>
+                        <!-- end review box -->
+                        <!-- start review box -->
+                        <div class="item">
+                            <div class="review text-center wow animated fadeInUp">
+                                <img src="{% static "home_module/pics/reviewers/2.png" %}" class="reviewer-pic" alt="">
+                                <h4 class="subheading reviewer-name">  محسن اژدری </h4>
+                                <h6 class="subheading muted reviewer-city">از تهران</h6>
+                                <div class="rating">
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                </div>
+                                <p class="small">
+                                    با این ابزار تعامل بهتری با استادم برقرار کردم و استادم هر لحظه می تونه وضعیت تکالیفم را ببینه
+
+                            </p>
+                            </div>
+                        </div>
+                        <!-- end review box -->
+                        <!-- start review box -->
+                        <div class="item">
+                            <div class="review text-center wow animated fadeInUp">
+                                <img src="{% static "home_module/pics/reviewers/3.png" %}" class="reviewer-pic" alt="">
+                                <h4 class="subheading reviewer-name">علی حسینی</h4>
+                                                                <h6 class="subheading muted reviewer-city">از تهران</h6>
+                                <div class="rating">
+                                    <span class="rate"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                </div>
+                                <p class="small">
+با این ابزار دیگه زمان امتحاناتم یادم نمیره و می فهمم که چه تکالیفی دارم
+                                </p>
+                            </div>
+                        </div>
+                        <!-- end review box -->
+                        <!-- start review box -->
+                        <div class="item">
+                            <div class="review text-center wow animated fadeInUp">
+                                <img src="{% static "home_module/pics/reviewers/1.png" %}" class="reviewer-pic" alt="">
+                                <h4 class="subheading reviewer-name">محمد موسوی </h4>
+                                <h6 class="subheading muted reviewer-city">از تهران</h6>
+                                <div class="rating">
+                                    <span class="rate"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                </div>
+                                <p class="small">
+                                این نرم افزار به من کمک کرد که تکالیفم را یادم نرود .</p>
+                            </div>
+                        </div>
+                        <!-- end review box -->
+                        <!-- start review box -->
+                        <div class="item">
+                            <div class="review text-center wow animated fadeInUp">
+                                <img src="{% static "home_module/pics/reviewers/2.png" %}" class="reviewer-pic" alt="">
+                                <h4 class="subheading reviewer-name">  محسن اژدری </h4>
+                                <h6 class="subheading muted reviewer-city">از تهران</h6>
+                                <div class="rating">
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                </div>
+                                <p class="small">
+                                    با این ابزار تعامل بهتری با استادم برقرار کردم و استادم هر لحظه می تونه وضعیت تکالیفم را ببینه
+
+                            </p>
+                            </div>
+                        </div>
+                        <!-- end review box -->
+                        <!-- start review box -->
+                        <div class="item">
+                            <div class="review text-center wow animated fadeInUp">
+                                <img src="{% static "home_module/pics/reviewers/3.png" %}" class="reviewer-pic" alt="">
+                                <h4 class="subheading reviewer-name">علی حسینی</h4>
+                                <h6 class="subheading muted reviewer-city">از تهران</h6>
+                                <div class="rating">
+                                    <span class="rate"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                    <span class="rate active"></span>
+                                </div>
+                                <p class="small">
+                                    با این ابزار دیگه زمان امتحاناتم یادم نمیره و می فهمم که چه تکالیفی دارم
+                                </p>
+                            </div>
+                        </div>
+                        <!-- end review box -->
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- end reviews -->
+        <!-- start author -->
+        <section id="author">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="row author">
+                            <div class="col-sm-4">
+                                <img src="{% static "home_module/pics/author.png" %}" alt="" class="pic">
+                            </div>
+                            <div class="col-sm-8 author-name">
+                                <h2 class="heading wow animated fadeInUp">نام برنامه نویس </h2>
+                                <h4 class="subheading muted wow animated fadeInUp">متین عابدینی</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="subheading gray wow animated fadeInUp">   من برنامه نویسی را از کلاس چهارم آغاز نمودم و در حال حاضر با زبان برنامه نویسی پایتون و جنگو برنامه نویسی را ادامه می دهم  </h5>
+
+                            </div>
+                        </div>
+                    </div> <!-- col-md-6 author -->
+
+                </div>
+            </div>
+        </section>
+        <!-- end author -->
+        <!-- start green part 2 -->
+        <section class="call-to-action">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 text-right text-center-mobile wow animated fadeInUp">
+                        <h2 class="heading white top-fit">دریافت نمونه نرم افزارهای دیگر</h2>
+                        <h4 class="subheading white no-margin">
+                        از گیت هاب من می توانید دیگر نمونه نرم افزارهای تهیه شده را دریافت نمایید
+                    </h4>
+                    </div>
+                    <div class="col-md-4 text-left wow animated fadeInUp text-center-mobile">
+                        <a href="https://github.com/MatinAbedini" class="btn btn-white sample-button">
+                            دریافت سورس کد نرم افزار
+
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- start get sample-book form
+        <section id="sample-form">
+            <div class="container">
+                <form id="submit-frm" action="#" method="post" class="sample-form">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" name="firstname" placeholder="نام" data-validation="required">
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" name="email" placeholder="ایمیل" data-validation="email">
+                        </div>
+                        <div class="col-sm-2">
+                            <input type="submit" class="btn btn-green sign-up-button sample-button-done" value="دریافت">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+        -->
+        <!-- end get sample-book form -->
+        <!-- end green part 2 -->
+        <!-- start contact -->
+        <section id="contact">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 text-right text-center-mobile wow animated fadeInUp contact-details">
+                        <h3 class="heading no-margin wow animated fadeInUp">تماس با برنامه نویس </h3>
+
+                        <div class="details">
+                            <h6 class="heading no-margin">متین عابدینی</h6>
+                            <p class="small muted wow animated fadeInUp no-margin">تهران - منطقه 13- مدرسه شیخ فضل الله نوری </p>
+                        </div>
+                        <div class="details">
+                            <h4 class="subheading accent no-margin wow animated fadeInUp">021-77752858 <br>matin.abedini@gmail.com</h4>
+                        </div>
+                    </div>
+                  <!--   <form action="#" method="post" class="mail-form">
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    {{ form.name }}
+                                </div>
+                                <div class="col-sm-6">
+                                    {{ form.email }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    {{ form.title }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    {{ form.message }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    {{ form.capcha }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12.text-right">
+                                    <input type="submit" class="btn btn-green contact-button" value="ارسال">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    -->
+                </div>
+            </div>
+        </section>
+        <!-- end contact -->
+        <!-- start copy right -->
+        <footer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6 text-right text-center-mobile">
+                        <p class="copyright small muted">Copyright© 2025 Matin Abedini-SheikhFazlollah School </p>
+                    </div>
+                    <div class="col-sm-6 text-left text-center-mobile">
+                        <div class="social">
+                            <a href="#" target="_blank" class="facebook"><i class="fa fa-facebook"></i></a>
+                            <a href="#" target="_blank" class="twitter"><i class="fa fa-twitter"></i></a>
+                            <a href="#" target="_blank" class="dribbble"><i class="fa fa-dribbble"></i></a>
+                            <a href="#" target="_blank" class="vine"><i class="fa fa-vine"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- end copy right -->
+    </div>
+    <!-- start mobile nav -->
+    <div class="mobile-nav">
+        <ul class="menu"></ul>
+    </div>
+    <!-- end mobile nav -->
+
+    <!-- start java scripts -->
+    <script src="{% static "home_module/js/jquery-1.11.1.min.js" %}"></script>
+    <script src="{% static "home_module/js/owl.carousel.js" %}"></script>
+    <script src="{% static "home_module/js/lightbox.min.js" %}"></script>
+    <script src="{% static "home_module/js/wow.min.js" %}"></script>
+    <script src="{% static "home_module/js/jquery.onepagenav.js" %}"></script>
+    <script src="{% static "home_module/js/jquery.form-validator.js" %}"></script>
+    <script src="{% static "home_module/js/preloader.js" %}"></script>
+    <script src="{% static "home_module/js/scripts.js" %}"></script>
+<script src="{% static "home_module/js/bootstrap.min.js" %}"></script>
+</body>
+</html>

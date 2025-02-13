@@ -13,6 +13,6 @@ def send_mail_service(subject, html_template, recipient_list, context=None):
         subject,
         message,
         from_email,
-        recipient_list=recipient_list,
+        recipient_list,
         html_message=plain_message
     )

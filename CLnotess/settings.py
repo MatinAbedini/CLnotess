@@ -41,17 +41,42 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_render_partial',
     'django_recaptcha',
+    "django_jalali",
+    'polls',
     'sorl.thumbnail',
     'account_module',
     'site_module',
     'home_module',
-    'contact_module',
     'class_module',
     'lesson_module',
     'homework_module',
     'exam_module',
     'invitation_module',
 ]
+
+# Jalali date settings
+
+JALALI_SETTINGS = {
+    # JavaScript static files for the admin Jalali date widget
+    "ADMIN_JS_STATIC_FILES": [
+        "admin/jquery.ui.datepicker.jalali/scripts/jquery-1.10.2.min.js",
+        "admin/jquery.ui.datepicker.jalali/scripts/jquery.ui.core.js",
+        "admin/jquery.ui.datepicker.jalali/scripts/jquery.ui.datepicker-cc.js",
+        "admin/jquery.ui.datepicker.jalali/scripts/calendar.js",
+        "admin/jquery.ui.datepicker.jalali/scripts/jquery.ui.datepicker-cc-fa.js",
+        "admin/main.js",
+    ],
+    # CSS static files for the admin Jalali date widget
+    "ADMIN_CSS_STATIC_FILES": {
+        "all": [
+            "admin/jquery.ui.datepicker.jalali/themes/base/jquery-ui.min.css",
+            "admin/css/main.css",
+        ]
+    },
+}
+
+USE_THOUSAND_SEPARATOR = True
+DATE_INPUT_FORMATS = ['%Y/%m/%d']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -158,5 +183,6 @@ EMAIL_PORT = config('EMAIL_PORT')
 
 # Google reCAPTCHA
 
-RECAPTCHA_PUBLIC_KEY = config('RECAPTCHA_PUBLIC_KEY')
-RECAPTCHA_PRIVATE_KEY = config('RECAPTCHA_PRIVATE_KEY')
+RECAPTCHA_PUBLIC_KEY = '6Ld3qNEqAAAAAJlIjq-znc9bbH31MOWlhROv-lR0'
+RECAPTCHA_PRIVATE_KEY = '6Ld3qNEqAAAAAJYTgInMgORJSr7bk_AaGx0lmDTL'
+SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
