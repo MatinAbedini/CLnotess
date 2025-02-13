@@ -19,7 +19,7 @@ class InvitationListView(ListView):
 
     def dispatch(self, request: HttpRequest, *args, **kwargs):
         if not request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید")
+            return redirect(reverse("login-page"))
 
         return super().dispatch(request, *args, **kwargs)
 

@@ -1,17 +1,16 @@
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
+from account_module.models import Account
+from django_jalali.db import models as jmodels
+from class_module.models import Class
 from django.db import models
 from uuid import uuid4
-
-from account_module.models import Account
-from class_module.models import Class
-from lesson_module.models import Lesson
 
 # Create your models here.
 
 
 class Invitation(models.Model):
-    creation_date = models.DateTimeField(verbose_name=_("تاریخ ساخت"), auto_now_add=True)
+    creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ساخت"), auto_now_add=True)
     is_active = models.BooleanField(verbose_name=_("فعال / غیرفعال"), default=True)
     is_delete = models.BooleanField(verbose_name=_("حدف شده / نشده"), default=False)
 
