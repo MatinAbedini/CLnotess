@@ -1,22 +1,31 @@
-from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils.translation import gettext_lazy as _
 from account_module import models as account_models
+from django_jalali.db import models as jmodels
+from utils.validators import validate_file_size
 from django.urls import reverse
 from django.db import models
 from uuid import uuid4
 
-
 # Create your models here.
+
 
 class Homework(models.Model):
     title = models.CharField(verbose_name=_("موضوع"), max_length=100, null=False, blank=False, db_index=True)
     description = models.TextField(verbose_name=_("توضیحات"), max_length=1500, null=False, blank=False)
-    creation_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
-    modify_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
-    for_date = models.DateField(verbose_name=_("برای تاریخ"), null=False, blank=False)
-    is_active = models.BooleanField(verbose_name=_("فعال / غیرفعال"), default=True, db_index=True)
+    creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
+    modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    for_date = jmodels.jDateField(verbose_name=_("برای تاریخ"), null=False, blank=False)
     is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
     uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
+
+    lesson = models.ForeignKey(
+        "lesson_module.lesson",
+        verbose_name=_("درس"),
+        related_name="homeworks",
+        on_delete=models.SET_DEFAULT,
+        default=1,
+    )
 
     created_by = models.ForeignKey(
         account_models.Account,
@@ -52,8 +61,8 @@ class Homework(models.Model):
 
 
 class HomeworkCreatedFor(models.Model):
-    creation_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
-    modify_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
+    modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
     uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
 
     status = models.IntegerField(
@@ -114,8 +123,8 @@ class HomeworkCreatedFor(models.Model):
 
 class HomeworkResult(models.Model):
     description = models.TextField(verbose_name=_("توضیحات نتیجه تکلیف"), max_length=1500, null=True, blank=True)
-    creation_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
-    modify_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
+    modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
     is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
 
     result_status = models.IntegerField(
@@ -140,8 +149,8 @@ class HomeworkResult(models.Model):
 
 class HomeworkFeedback(models.Model):
     description = models.TextField(verbose_name=_("توضیحات بازخورد تکلیف"), max_length=1500, null=True, blank=True)
-    creation_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
-    modify_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
+    modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
     is_delete = models.BooleanField(verbose_name=_("حذف شده / نشده"), default=False, db_index=True)
     uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
 
@@ -151,8 +160,8 @@ class HomeworkFeedback(models.Model):
 
 
 class HomeworkResultFile(models.Model):
-    creation_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
-    modify_date = models.DateField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
+    modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
     is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
 
     homework = models.ForeignKey(
@@ -163,9 +172,10 @@ class HomeworkResultFile(models.Model):
         db_index=True,
     )
 
-    result_file = models.FileField(
+    file = models.FileField(
         verbose_name=_("فایل های نتیجه تکلیف"),
         upload_to="homework_module/homework_results/",
+        validators=[validate_file_size],
         db_index=True,
     )
 

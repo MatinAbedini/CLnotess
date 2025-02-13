@@ -34,12 +34,12 @@
                                 </thead>
                                 <tbody>
                                     {% if files is not None %}
-                                        {% for result in files %}
+                                        {% for file in files %}
                                             <tr>
                                                 <td>{{ forloop.counter }}</td>
-                                                <td>{{ result.file_result.path|get_file_type }}</td>
+                                                <td>{{ file.file.path|get_file_type }}</td>
                                                 <td class="text-nowrap">
-                                                    <a href="" data-toggle="tooltip" data-original-title="دانلود کردن">
+                                                    <a href="{{ file.file.url }}" data-toggle="tooltip" data-original-title="دانلود کردن">
                                                         <i class="fa fa-download text-primary"></i>
                                                     </a>
                                                 </td>

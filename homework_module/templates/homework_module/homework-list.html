@@ -19,8 +19,9 @@
                             اضافه کردن تکلیف
                             </a>
                         </div>
-                        <ul class="inbox-nav mb-30">
-
+                    </div>
+                    <div class="row">
+                        <ul class="inbox-nav">
                             <ul>
                                 <li>
                                     <a href="javascript:void(0);" data-toggle="collapse" data-target="#dashboard_dr" style="font-size: 18px; font-weight: 500;">
@@ -28,13 +29,22 @@
                                         <div class="pull-left"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
                                     <ul id="dashboard_dr" class="collapse collapse-level-1  ml-25" style="font-size: 15.30px; font-weight: 500;">
                                         <li>
-                                            <a href="index6.html">انجام شده</a>
+                                            <div class="checkbox checkbox-danger checkbox-circle">
+                                                <input id="not_done" type="checkbox">
+                                                <label for="not_done"> انجام نشده </label>
+                                            </div>
                                         </li>
                                         <li>
-                                            <a href="profile.html">انجام نشده</a>
+                                            <div class="checkbox checkbox-success checkbox-circle">
+                                                <input id="done" type="checkbox">
+                                                <label for="done"> انجام شده </label>
+                                            </div>
                                         </li>
                                         <li>
-                                            <a href="profile.html">درحال انجام</a>
+                                            <div class="checkbox checkbox-warning checkbox-circle">
+                                                <input id="in_progress" type="checkbox">
+                                                <label for="in_progress"> درحال انجام </label>
+                                            </div>
                                         </li>
                                     </ul>
                                 </li>
@@ -46,13 +56,22 @@
                                         <div class="pull-left"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
                                     <ul id="ecom_dr" class="collapse collapse-level-1 ml-25 style="font-size: 15.30px;">
                                         <li>
-                                            <a href="index6.html">ساده</a>
+                                            <div class="checkbox checkbox-success checkbox-circle">
+                                                <input id="done" type="checkbox">
+                                                <label for="done"> ساده </label>
+                                            </div>
                                         </li>
                                         <li>
-                                            <a href="profile.html">متوسط</a>
+                                            <div class="checkbox checkbox-warning checkbox-circle">
+                                                <input id="done" type="checkbox">
+                                                <label for="done"> متوسط </label>
+                                            </div>
                                         </li>
                                         <li>
-                                            <a href="profile.html">سخت</a>
+                                            <div class="checkbox checkbox-danger checkbox-circle">
+                                                <input id="done" type="checkbox">
+                                                <label for="done"> سخت </label>
+                                            </div>
                                         </li>
                                     </ul>
                                 </li>
@@ -64,21 +83,40 @@
                                         <div class="pull-left"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
                                     <ul id="app_dr" class="collapse collapse-level-1 ml-25  style="font-size: 15.30px;">
                                         <li>
-                                            <a href="index6.html">علوم</a>
+                                            <div class="checkbox checkbox-primary checkbox-circle">
+                                                <input id="done" type="checkbox">
+                                                <label for="done"> ساده </label>
+                                            </div>
                                         </li>
                                         <li>
-                                            <a href="profile.html">ریاضی</a>
+                                            <div class="checkbox checkbox-primary checkbox-circle">
+                                                <input id="done" type="checkbox">
+                                                <label for="done"> ساده </label>
+                                            </div>
                                         </li>
                                         <li>
-                                            <a href="profile.html">فارسی</a>
+                                            <div class="checkbox checkbox-primary checkbox-circle">
+                                                <input id="done" type="checkbox">
+                                                <label for="done"> ساده </label>
+                                            </div>
                                         </li>
                                         <li>
-                                            <a href="profile.html">عربی</a>
+                                            <div class="checkbox checkbox-primary checkbox-circle">
+                                                <input id="done" type="checkbox">
+                                                <label for="done"> ساده </label>
+                                            </div>
                                         </li>
                                     </ul>
                                 </li>
                             </ul>
                         </ul>
+                    </div>
+                    <div class="row">
+                        <div class="mt-20 mb-20 ml-30 mr-30">
+                            <a href="{% url "create-homework-page" %}" class="btn btn-primary btn-rounded btn-outline btn-block">
+                            فیلتر
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -122,10 +160,10 @@
                                                     </a>
 
                                                     {% if homework.homework.created_by == user %}
-                                                        <a href="{% url "edit-homework-page" homework.homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
+                                                        <a href="{% url "edit-homework-page" uuid=homework.homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
                                                             <i class="fa fa-pencil text-inverse m-r-10"></i>
                                                         </a>
-                                                        <a href="{% url "delete-homework-page" homework.homework.uuid %}" data-toggle="tooltip" data-original-title="حذف کردن">
+                                                        <a href="edit/{{ homework.uuid }}" data-toggle="tooltip" data-original-title="حذف کردن">
                                                             <i class="fa fa-close text-danger"></i>
                                                         </a
                                                     {% else %}

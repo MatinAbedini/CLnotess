@@ -3,15 +3,16 @@ from . import models
 
 # Register your models here.
 
+
 @admin.register(models.Homework)
 class HomeworkAdmin(admin.ModelAdmin):
-    list_display = ("id", "__str__", "created_by", "creation_date", "creation_date", "is_active", "is_delete")
-    list_filter = ("is_active", "creation_date", "creation_date")
+    list_display = ("id", "__str__", "lesson", "created_by", "creation_date", "for_date", "is_delete")
+    list_filter = ("is_delete", "lesson", "creation_date", "for_date")
     search_fields = ("title", "description")
 
     def save_model(self, request, obj, form, change):
         # If a new Homework is created, then created_by will set to user
-        if change:
+        if not change:
             obj.created_by = request.user
 
         return super().save_model(request, obj, form, change)
@@ -19,13 +20,8 @@ class HomeworkAdmin(admin.ModelAdmin):
 
 @admin.register(models.HomeworkCreatedFor)
 class HomeworkCreatedForAdmin(admin.ModelAdmin):
-    list_display = (
-        "id", "homework", "assigned_to",
-        "creation_date", "modify_date",
-        "homework__is_active", "homework__is_delete"
-    )
-
-    list_filter = ("creation_date", "modify_date", "homework__is_active", "homework__is_delete")
+    list_display = ("id", "homework", "assigned_to", "creation_date", "modify_date", "homework__is_delete")
+    list_filter = ("creation_date", "modify_date", "homework__is_delete")
     search_fields = ("homework", "assigned_to")
 
     def save_model(self, request, obj, form, change):

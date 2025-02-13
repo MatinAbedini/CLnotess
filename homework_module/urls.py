@@ -25,6 +25,6 @@ urlpatterns = [
     path("in-progress/<uuid>", view=in_progress_homework, name="in-progress-homework-page"),
     path("not-done/<uuid>", view=not_done_homework, name="not-done-homework-page"),
     path("delete/<uuid>", view=delete_homework, name="delete-homework-page"),
-    path("download/r/<uuid>", view=download_homework_result, name="download-result-homework-page"),
-    path("download/f/<uuid>", view=download_homework_feedback, name="download-feedback-homework-page")
+    path("download/r/<url_path>", view=download_homework_result, name="download-result-homework-page"),
+    path("download/f/<url_path>", view=download_homework_feedback, name="download-feedback-homework-page")
 ]

@@ -1,4 +1,5 @@
 {% extends "shared/_layout.html" %}
+{% load jformat %}
 {% load static %}
 
 {% block title %}جزئیات تکلیف{% endblock %}
@@ -85,7 +86,7 @@
                                                 {% if homework.homework.created_by != user %} disabled btn-default
                                                 {% else %} btn-primary
                                                 {% endif %}"
-                                            href="{% url 'edit-homework-page' homework.homework.uuid %}">
+                                            href="{% url 'edit-homework-page' homework.uuid %}">
                                             ویرایش
                                         </a>
                                     </div>
@@ -114,7 +115,7 @@
                                         <a class="btn btn-block btn-outline btn-rounded btn-0 btn-primary" href="{% url 'edit-homework-page' homework.uuid %}">ویرایش</a>
                                     </div>
                                     <div class="col-md-4 col-sm-3 mt-20 mb-20">
-                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "delete-homework-page" homework.homework.uuid %}">دانلود</a>
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "homework-result-list-page" homework.homework.uuid %}">دانلود</a>
                                     </div>
                                     <div class="col-md-4 col-sm-3 mt-20 mb-20">
                                         <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-homework-page" homework.homework.uuid %}">حذف</a>

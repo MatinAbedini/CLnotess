@@ -18,22 +18,29 @@
                 <div class="panel-wrapper collapse in">
                     <div class="panel-body">
                         <div class="form-wrap">
-                            <form method="post">
+                            <form method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <div class="row">
                                     <div class="form-group">
                                         {% if form.homework is not None %}
                                             <div class="form-group col-md-6">
-                                                <label class="control-label mb-10 text-left" id="id_homework">تکلیف</label>
+                                                <label class="control-label mb-10 text-left" for="{{ form.homework.id_for_label }}">{{ form.homework.label }}</label>
                                                 {{ form.homework }}
                                             </div>
                                         {% endif %}
                                         <div class="form-group col-md-6">
-                                            <label class="control-label mb-10" id="id_result">نتیجه</label>
-                                            {{ form.result }}
+                                            <label class="control-label mb-10" for="{{ form.files.id_for_label }}">{{ form.files.label }}</label>
+                                            {{ form.files }}
                                         </div>
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label class="control-label mb-10" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                                        {{ form.description }}
+                                    </div>
+                                </div>
+
                                 {{ form.errors }}
                                 <input type="submit" value="ذخیره" class="btn btn-block btn-success mt-40">
                             </form>
