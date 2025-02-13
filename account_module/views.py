@@ -22,7 +22,7 @@ class RegisterView(FormView):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return HttpResponseForbidden("شما به این صفحه دسترسی ندارید.")
+            return redirect(reverse("homework-list-page"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -77,12 +77,19 @@ class LoginView(LoginView):
     next_page = reverse_lazy("index-page")
     authentication_form = LoginForm
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect(reverse("homework-list-page"))
 
+        return super().dispatch(request, *args, **kwargs)
+
+
+@login_required
 def activation_view(request, active_code):
     if not request.user.is_authenticated:
         user: Account = Account.objects.get(active_code=active_code)
 
-        if user is not None and user.is_active:
+        if not user.is_active:
             user.is_active = True
             user.active_code = uuid4()
             user.save()
@@ -93,9 +100,7 @@ def activation_view(request, active_code):
 
     return HttpResponseForbidden(_("شما به این صفحه دسترسی ندارید."))
 
-
 @login_required
 def logout_view(request):
     logout(request)
-
     return render(request, "account_module/logout.html")

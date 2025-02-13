@@ -22,14 +22,14 @@
 		<div class="wrapper pa-0">
 			<header class="sp-header">
 				<div class="sp-logo-wrap pull-left">
-					<a href="index.html">
+					<a href="{% url "index-page" %}">
 						<img class="brand-img mr-10" src="{% static "img/logo.png" %}" alt="brand"/>
 						<span class="brand-text txt-dark">CLnotess</span>
 					</a>
 				</div>
 				<div class="form-group mb-0 pull-right">
 					<span class="inline-block pr-10">از قبل حساب کاربری دارید؟</span>
-					<a class="inline-block btn btn-primary btn-rounded" href="login.html">وارد شوید</a>
+					<a class="inline-block btn btn-primary btn-rounded" href="{% url "login-page" %}">وارد شوید</a>
 				</div>
 				<div class="clearfix"></div>
 			</header>
