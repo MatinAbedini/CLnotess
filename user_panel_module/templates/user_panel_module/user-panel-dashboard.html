@@ -1,0 +1,96 @@
+{% extends "shared/_layout.html" %}
+{% load render_partial %}
+{% load static %}
+
+{% block title %}پنل کاربری{% endblock %}
+{% block content_title %}پنل کاربری{% endblock %}
+{% block breadcrumb_option %}
+    <li><a href="{% url "homework-list-page" %}">Dashboard</a></li>
+    <li class="active"><span>user panel</span></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        {% render_partial "user_panel_module.views.user_panel_menu_partial" %}
+        
+        <div class="col-lg-9 col-md-8 col-sm-7 col-xs-12">
+            <div class="panel panel-default card-view">
+                <div class="panel-wrapper collapse in">
+                    <div class="panel-body">
+                        <div class="table-wrap">
+                            <div class="table-responsive">
+                            <table class="table table-hover table-bordered mb-0">
+                                <thead>
+                                <tr>
+                                    <th scope="col" style="font-size: medium; font-weight: normal;">موضوع</th>
+                                    <th scope="col" style="font-size: medium; font-weight: normal;">معلم</th>
+                                    <th scope="col" style="font-size: medium; font-weight: normal;">سختی</th>
+                                    <th scope="col" style="font-size: medium; font-weight: normal;">وضعیت</th>
+                                    <th class="text-nowrap" style="font-size: medium; font-weight: normal;">عملیات ها</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% if exams is not None %}
+                                        {% for exam in exams %}
+                                            <tr>
+                                                <td>{{ exam.title }}</td>
+                                                <td>{{ exam.created_by.get_full_name }}</td>
+                                                <td>
+                                                    <span
+                                                        class="label
+                                                            {% if exam.difficulty == 1 %} label-success
+                                                            {% elif exam.difficulty == 2 %} label-warning
+                                                            {% else %} label-danger
+                                                            {% endif %}"
+                                                        style="font-size: smaller;">
+                                                        {{ exam.get_difficulty_display }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        class="label
+                                                            {% if exam.status == 1 %} label-success
+                                                            {% else %} label-danger
+                                                            {% endif %}"
+                                                        style="font-size: smaller;">
+                                                        {{ exam.get_status_display }}
+                                                    </span>
+                                                </td>
+
+                                                <td class="text-nowrap">
+                                                    <a href="{{ exam.get_absolute_url }}" class="mr-25" data-toggle="tooltip" data-original-title="مشاهده">
+                                                        <i class="fa fa-eye text-inverse m-r-10"></i>
+                                                    </a>
+                                                    <a href="{% url "edit-exam-page" exam.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
+                                                        <i class="fa fa-pencil text-inverse m-r-10"></i>
+                                                    </a>
+                                                    {% if exam.created_by == user %}
+                                                        <a href="{% url "delete-exam-page" exam.uuid %}" data-toggle="tooltip" data-original-title="حذف کردن">
+                                                            <i class="fa fa-close text-danger"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <ul class="pagination pagination-split">
+                            {% if page_obj.has_next %}
+                                <li> <a href="?page={{ page_obj.next_page_number }}"><i class="fa fa-angle-left"></i></a> </li>
+                            {% endif %}
+                            {% for page_num in paginator.page_range %}
+                                <li> <a href="?page={{ page_num }}">{{ page_num }}</a> </li>
+                            {% endfor %}
+                            {% if page_obj.has_previous %}
+                                <li> <a href="?page={{ page_obj.prevues_page_number }}"><i class="fa fa-angle-right"></i></a> </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
