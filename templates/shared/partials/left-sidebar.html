@@ -65,7 +65,7 @@
             <a href="{% url "class-list-page" %}" class="{% if request.resolver_match.url_name == "class-list-page" %} active {% endif %}"><div class="pull-left"><i class="bi bi-person-video3 mr-15"></i><span class="right-nav-text">کلاس ها</span></div><div class="clearfix"></div></a>
         </li>
         <li>
-            <a href="{% url "user-panel-dashboard-page" %}" class="{% if request.resolver_match.url_name == "user-panel-dashboard-page" %} active {% endif %}"><div class="pull-left"><i class="bi bi-person-circle mr-15"></i><span class="right-nav-text">پنل کاربری</span></div><div class="clearfix"></div></a>
+            <a href="{% url "user-panel-page" %}" class="{% if request.resolver_match.url_name == "user-panel-dashboard-page" %} active {% endif %}"><div class="pull-left"><i class="bi bi-person-circle mr-15"></i><span class="right-nav-text">پنل کاربری</span></div><div class="clearfix"></div></a>
         </li>
     </ul>
 </div>
