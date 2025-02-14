@@ -33,6 +33,8 @@ ALLOWED_HOSTS = []
 
 
 INSTALLED_APPS = [
+    'admin_tools_stats',
+    'django_nvd3',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,16 +44,17 @@ INSTALLED_APPS = [
     'django_render_partial',
     'django_recaptcha',
     "django_jalali",
-    'polls',
     'sorl.thumbnail',
     'account_module',
-    'site_module',
-    'home_module',
-    'class_module',
+    'user_panel_module',
+    'invitation_module',
     'lesson_module',
+    'class_module',
     'homework_module',
     'exam_module',
-    'invitation_module',
+    'site_module',
+    'home_module',
+    'polls',
 ]
 
 # Jalali date settings
@@ -79,6 +82,10 @@ USE_THOUSAND_SEPARATOR = True
 DATE_INPUT_FORMATS = ['%Y/%m/%d']
 
 MIDDLEWARE = [
+    'django_brotli.middleware.BrotliMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -182,7 +189,9 @@ EMAIL_USE_SSL = config('EMAIL_USE_SSL')
 EMAIL_PORT = config('EMAIL_PORT')
 
 # Google reCAPTCHA
-
-RECAPTCHA_PUBLIC_KEY = '6Ld3qNEqAAAAAJlIjq-znc9bbH31MOWlhROv-lR0'
-RECAPTCHA_PRIVATE_KEY = '6Ld3qNEqAAAAAJYTgInMgORJSr7bk_AaGx0lmDTL'
+RECAPTCHA_PUBLIC_KEY =config('RECAPTCHA_PUBLIC_KEY')
+RECAPTCHA_PRIVATE_KEY =config('RECAPTCHA_PRIVATE_KEY')
 SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
+
+# Whitenoise settings
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
