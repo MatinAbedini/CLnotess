@@ -1,4 +1,6 @@
 {% extends "shared/_layout.html" %}
+{% load render_partial %}
+{% load poll_extras %}
 {% load static %}
 
 {% block title %}لیست تکالیف{% endblock %}
@@ -10,117 +12,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-lg-3 col-md-4 col-sm-5 col-xs-12">
-            <div class="panel panel-default card-view">
-                <div class="panel-wrapper collapse in">
-                    <div class="row">
-                        <div class="mt-20 mb-20 ml-15 mr-15">
-                            <a href="{% url "create-homework-page" %}" class="btn btn-success btn-block">
-                            اضافه کردن تکلیف
-                            </a>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <ul class="inbox-nav">
-                            <ul>
-                                <li>
-                                    <a href="javascript:void(0);" data-toggle="collapse" data-target="#dashboard_dr" style="font-size: 18px; font-weight: 500;">
-                                        وضعیت
-                                        <div class="pull-left"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
-                                    <ul id="dashboard_dr" class="collapse collapse-level-1  ml-25" style="font-size: 15.30px; font-weight: 500;">
-                                        <li>
-                                            <div class="checkbox checkbox-danger checkbox-circle">
-                                                <input id="not_done" type="checkbox">
-                                                <label for="not_done"> انجام نشده </label>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="checkbox checkbox-success checkbox-circle">
-                                                <input id="done" type="checkbox">
-                                                <label for="done"> انجام شده </label>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="checkbox checkbox-warning checkbox-circle">
-                                                <input id="in_progress" type="checkbox">
-                                                <label for="in_progress"> درحال انجام </label>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                            <ul>
-                                <li>
-                                    <a href="javascript:void(0);" data-toggle="collapse" data-target="#ecom_dr" style="font-size: 18px; font-weight: normal;">
-                                        سختی
-                                        <div class="pull-left"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
-                                    <ul id="ecom_dr" class="collapse collapse-level-1 ml-25 style="font-size: 15.30px;">
-                                        <li>
-                                            <div class="checkbox checkbox-success checkbox-circle">
-                                                <input id="done" type="checkbox">
-                                                <label for="done"> ساده </label>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="checkbox checkbox-warning checkbox-circle">
-                                                <input id="done" type="checkbox">
-                                                <label for="done"> متوسط </label>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="checkbox checkbox-danger checkbox-circle">
-                                                <input id="done" type="checkbox">
-                                                <label for="done"> سخت </label>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                            <ul>
-                                <li>
-                                    <a href="javascript:void(0);" data-toggle="collapse" data-target="#app_dr" style="font-size: 18px; font-weight: normal;">
-                                        درس
-                                        <div class="pull-left"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
-                                    <ul id="app_dr" class="collapse collapse-level-1 ml-25  style="font-size: 15.30px;">
-                                        <li>
-                                            <div class="checkbox checkbox-primary checkbox-circle">
-                                                <input id="done" type="checkbox">
-                                                <label for="done"> ساده </label>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="checkbox checkbox-primary checkbox-circle">
-                                                <input id="done" type="checkbox">
-                                                <label for="done"> ساده </label>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="checkbox checkbox-primary checkbox-circle">
-                                                <input id="done" type="checkbox">
-                                                <label for="done"> ساده </label>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="checkbox checkbox-primary checkbox-circle">
-                                                <input id="done" type="checkbox">
-                                                <label for="done"> ساده </label>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </ul>
-                    </div>
-                    <div class="row">
-                        <div class="mt-20 mb-20 ml-30 mr-30">
-                            <a href="{% url "create-homework-page" %}" class="btn btn-primary btn-rounded btn-outline btn-block">
-                            فیلتر
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% render_partial "homework_module.views.filter_tab" %}
         <div class="col-lg-9 col-md-8 col-sm-7 col-xs-12">
             <div class="panel panel-default card-view">
                 <div class="panel-wrapper collapse in">
@@ -201,17 +93,7 @@
                                 </table>
                             </div>
                         </div>
-                        <ul class="pagination pagination-split">
-                            {% if page_obj.has_next %}
-                                <li> <a href="?page={{ page_obj.next_page_number }}"><i class="fa fa-angle-left"></i></a> </li>
-                            {% endif %}
-                            {% for page_num in paginator.page_range %}
-                                <li> <a href="?page={{ page_num }}">{{ page_num }}</a> </li>
-                            {% endfor %}
-                            {% if page_obj.has_previous %}
-                                <li> <a href="?page={{ page_obj.prevues_page_number }}"><i class="fa fa-angle-right"></i></a> </li>
-                            {% endif %}
-                        </ul>
+                        {% include "shared/includes/paginator.html" %}
                     </div>
                 </div>
             </div>

@@ -1,13 +1,15 @@
 from django.views.generic import ListView, DetailView, UpdateView
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import FormView, CreateView
-from django.http import FileResponse, HttpRequest
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse, reverse_lazy
+from django.http import FileResponse, HttpRequest
+from django.db.models import Q
+
 from account_module.models import Account
 from class_module.models import Class
-from django.db.models import Q
+from lesson_module.models import Lesson
 from .models import *
 from .forms import *
 
@@ -82,7 +84,6 @@ class HomeworkUpdateView(UpdateView):
     slug_field = "uuid"
     slug_url_kwarg = "uuid"
 
-
     def dispatch(self, request: HttpRequest, *args, **kwargs):
         if not request.user.is_authenticated and self:
             return redirect(reverse("login-page"))
@@ -125,23 +126,35 @@ class HomeworkListView(ListView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        lessons = Lesson.objects.all().only("name")
+
+        context["status_filter"] = self.request.GET.get("status", "")
+        context["lesson_filter"] = self.request.GET.get("lesson", "")
+        context["lessons"] = [lesson.name for lesson in lessons]
+
+        return context
+
     def get_queryset(self):
         user = self.request.user
-        status_filter = self.request.GET.getlist("status")
-        lesson_filter = self.request.GET.getlist("lesson")
+        status_filter: str = self.request.GET.get("status", "")
+        lesson_filter: str = self.request.GET.get("lesson", "")
 
         base_query = (
             HomeworkCreatedFor.objects.filter(
                 assigned_to=user,
-                homework__is_delete=False
+                homework__is_delete=False,
             )
         )
 
-        if status_filter is not None:
-            base_query.filter(status__in=status_filter)
+        if status_filter != "":
+            status_filter = list(map(int, status_filter.split(",")))
+            base_query = base_query.filter(status__in=status_filter)
 
-        if lesson_filter is not None:
-            base_query.filter(homework__lesson__in=lesson_filter)
+        if lesson_filter != "":
+            lesson_filter = lesson_filter.split(",")
+            base_query = base_query.filter(homework__lesson__name__in=lesson_filter)
 
         return base_query
 
@@ -694,3 +707,6 @@ def download_homework_feedback(request, url_path):
     result = get_object_or_404(HomeworkResult, uuid=uuid)
 
     return FileResponse(result.result_file.open('rb'), as_attachment=True)
+
+def filter_tab(request):
+    return render(request, "homework_module/components/filter-tab.html")
