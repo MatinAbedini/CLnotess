@@ -1,0 +1,39 @@
+<ul class="pagination pagination-split">
+    {% if page_obj.has_next %}
+        <li>
+            <a onclick="fillPage({{ page_obj.next_page_number }})"><i class="fa fa-angle-left"></i></a>
+        </li>
+    {% endif %}
+
+    {% if page_obj.number > 4 %}
+        <li class="disabled">
+            <a href="#">...</a>
+        </li>
+    {% endif %}
+
+    {% for page_num in paginator.page_range %}
+        {% if page_num >= page_obj.number|add:"-4" and page_num <= page_obj.number|add:"4" %}
+            {% if page_num == page_obj.number %}
+                <li class="active">
+                    <a href="#">{{ page_num }}</a>
+                </li>
+            {% else %}
+                <li>
+                    <a onclick="fillPage({{ page_num }})">{{ page_num }}</a>
+                </li>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.number < page_obj.paginator.num_pages|add:"-2" %}
+        <li class="disabled">
+            <a href="#">...</a>
+        </li>
+    {% endif %}
+
+    {% if page_obj.has_previous %}
+        <li>
+            <a onclick="fillPage({{ page_obj.prevues_page_number }})"><i class="fa fa-angle-right"></i></a>
+        </li>
+    {% endif %}
+</ul>

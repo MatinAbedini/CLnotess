@@ -11,11 +11,12 @@
         <meta name="keywords" content="CLnotess, class, school, class managing, school managing, dashboard" />
         <meta name="author" content="Matin Abedini"/>
 
-        {% comment %} <!-- Favicon -->
-        <link rel="shortcut icon" href="favicon.ico">
-        <link rel="icon" href="favicon.ico" type="image/x-icon"> {% endcomment %}
+        <!-- Favicon -->
+        <link rel="shortcut icon" href="{% static "img/favicon.ico" %}">
+        <link rel="icon" href="{% static "img/favicon.ico" %}" type="image/x-icon">
 
         <!-- CSS -->
+        <link rel="preload" as="image" href="{% static "img/sidebar1.jpg" %}" type="image/jpeg">
         {% include "shared/includes/css-references.html" %}
         {% block css_references %}{% endblock %}
     </head>

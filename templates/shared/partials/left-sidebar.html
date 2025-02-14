@@ -1,5 +1,5 @@
-
 {% load static %}
+{% load thumbnail %}
 
 <!-- Left Sidebar Menu -->
 <div class="fixed-sidebar-left">
@@ -8,7 +8,9 @@
             <!-- User Profile -->
             <li>
                 <div class="user-profile text-center">
-                    <img src="{% static "img/user1.png" %}" alt="user_auth" class="user-auth-img img-circle"/>
+                    {% thumbnail user.profile_image "80x80" crop="center" as im %}
+                        <img src="{{ im.url }}" alt="profile_image" class="user-auth-img img-circle">
+                    {% endthumbnail %}
                     <div class="dropdown mt-5">
                     <a href="#" class="dropdown-toggle pr-0 bg-transparent" data-toggle="dropdown">{{ user.first_name }} {{ user.last_name }}<span class="caret"></span></a>
                     <ul class="dropdown-menu user-auth-dropdown" data-dropdown-in="flipInX" data-dropdown-out="flipOutX">
@@ -65,7 +67,7 @@
             <a href="{% url "class-list-page" %}" class="{% if request.resolver_match.url_name == "class-list-page" %} active {% endif %}"><div class="pull-left"><i class="bi bi-person-video3 mr-15"></i><span class="right-nav-text">کلاس ها</span></div><div class="clearfix"></div></a>
         </li>
         <li>
-            <a href="{% url "user-panel-page" %}" class="{% if request.resolver_match.url_name == "user-panel-dashboard-page" %} active {% endif %}"><div class="pull-left"><i class="bi bi-person-circle mr-15"></i><span class="right-nav-text">پنل کاربری</span></div><div class="clearfix"></div></a>
+            <a href="{% url "user-panel-page" %}" class="{% if request.resolver_match.url_name == "user-panel-page" or request.resolver_match.url_name == "edit-account-page" or request.resolver_match.url_name == "change-email-page" or request.resolver_match.url_name == "change-password-page" or request.resolver_match.url_name == "appearance-settings-page" %} active {% endif %}"><div class="pull-left"><i class="bi bi-person-circle mr-15"></i><span class="right-nav-text">پنل کاربری</span></div><div class="clearfix"></div></a>
         </li>
     </ul>
 </div>
