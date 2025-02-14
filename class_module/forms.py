@@ -11,7 +11,7 @@ class ClassForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={
             "data-role":"tagsinput",
-            "placeholder":"اضافه کردن معلم",
+            "placeholder":"اضافه کردن دانش آموز",
         })
     )
 
@@ -19,7 +19,7 @@ class ClassForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={
             "data-role":"tagsinput",
-            "placeholder":"اضافه کردن دانش آموز",
+            "placeholder":"اضافه کردن معلم",
         })
     )
 

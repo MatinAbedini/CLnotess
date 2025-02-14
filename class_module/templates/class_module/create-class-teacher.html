@@ -1,0 +1,49 @@
+{% extends 'shared/_layout.html' %}
+{% load static %}
+
+{% block title %}Add Teacher To Class {% endblock %}
+{% block content %}
+    <main class="app-main">
+        <div class="app-content-header">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h3 class="mb-0">Add Teacher To Class</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="app-content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <form method="post">
+                                    {% csrf_token %}
+
+                                    <div class="mb-3">
+                                        {{ form.teacher.label }}
+                                        {{ form.teacher }}
+                                        {{ form.teacher.errors }}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ form.lesson.label }}
+                                        {{ form.lesson }}
+                                        {{ form.lesson.errors }}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ form.for_class.label }}
+                                        {{ form.for_class }}
+                                        {{ form.for_class.errors }}
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
