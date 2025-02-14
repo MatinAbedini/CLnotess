@@ -1,13 +1,12 @@
-from django.http import HttpResponseForbidden
-from django.shortcuts import redirect, render
 from django.utils.translation.trans_null import gettext_lazy as _
-from django.urls import reverse, reverse_lazy
-from django.views.generic.edit import FormView
-from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView
-
 from utils.mail_service import send_mail_service
+from django.shortcuts import redirect, render
+from django.urls import reverse, reverse_lazy
+from django.contrib.auth import logout
+from django.views.generic.edit import FormView
+from django.contrib.auth.views import LoginView
+from django.http import HttpResponseForbidden
 from .forms import RegisterForm, LoginForm
 from .models import Account
 from uuid import uuid4

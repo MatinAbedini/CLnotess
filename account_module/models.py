@@ -1,7 +1,7 @@
-from uuid import uuid4
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.utils.translation import gettext_lazy as _
+from uuid import uuid4
 
 # Create your models here.
 
@@ -11,7 +11,7 @@ class Account(AbstractUser):
 
     profile_image = models.FileField(
         verbose_name=_("تصویر پروفایل"),
-        upload_to="account_module/profile_images/",
+        upload_to="profile_images/",
         null=True,
     )
 
