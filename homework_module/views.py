@@ -137,6 +137,9 @@ class HomeworkListView(ListView):
         return context
 
     def get_queryset(self):
+        # Save user and used filters
+        # Filters assigned and not deleted homeworks
+
         user = self.request.user
         status_filter: str = self.request.GET.get("status", "")
         lesson_filter: str = self.request.GET.get("lesson", "")
@@ -147,6 +150,9 @@ class HomeworkListView(ListView):
                 homework__is_delete=False,
             )
         )
+
+        # Filter exams by status and lesson field,
+        # If user has filter exams using them
 
         if status_filter != "":
             status_filter = list(map(int, status_filter.split(",")))
@@ -352,7 +358,8 @@ class HomeworkResultFileListView(ListView):
     def get_queryset(self):
         base_query = (
             HomeworkResultFile.objects.filter(
-                is_delete=False
+                homework__homework__uuid=self.kwargs.get("uuid"),
+                is_delete=False,
             )
             .prefetch_related("homework")
             .only("file", "homework")
@@ -707,6 +714,3 @@ def download_homework_feedback(request, url_path):
     result = get_object_or_404(HomeworkResult, uuid=uuid)
 
     return FileResponse(result.result_file.open('rb'), as_attachment=True)
-
-def filter_tab(request):
-    return render(request, "homework_module/components/filter-tab.html")

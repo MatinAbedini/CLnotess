@@ -12,10 +12,10 @@
                 <ul class="inbox-nav">
                     <ul>
                         <li>
-                            <a href="javascript:void(0);" data-toggle="collapse" data-target="#dashboard_dr" style="font-size: 18px; font-weight: 500;">
+                            <a href="javascript:void(0);" data-toggle="collapse" data-target="#ui_dr" style="font-size: 18px; font-weight: 500;">
                                 وضعیت
                                 <div class="pull-left"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
-                                <ul id="dashboard_dr" class="collapse collapse-level-1  ml-25" style="font-size: 15.30px; font-weight: 500;">
+                                <ul id="ui_dr" class="collapse collapse-level-1  ml-25" style="font-size: 15.30px; font-weight: 500;">
                                 <li>
                                     <div class="checkbox checkbox-success checkbox-circle">
                                         <input id="done" type="checkbox" {% if "1" in status_filter %} checked {% endif %}>
@@ -39,10 +39,10 @@
                     </ul>
                     <ul>
                         <li>
-                            <a href="javascript:void(0);" data-toggle="collapse" data-target="#app_dr" style="font-size: 18px; font-weight: normal;">
+                            <a href="javascript:void(0);" data-toggle="collapse" data-target="#contact_dr" style="font-size: 18px; font-weight: normal;">
                                 درس
                                 <div class="pull-left"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
-                            <ul id="app_dr" class="collapse collapse-level-1 ml-25" style="font-size: 15.30px;">
+                            <ul id="contact_dr" class="collapse collapse-level-1 ml-25" style="font-size: 15.30px;">
                                 <li>
                                     {% for lesson in lessons %}
                                         <div class="checkbox checkbox-primary checkbox-circle">

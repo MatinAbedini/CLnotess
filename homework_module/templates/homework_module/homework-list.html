@@ -1,5 +1,4 @@
 {% extends "shared/_layout.html" %}
-{% load render_partial %}
 {% load poll_extras %}
 {% load static %}
 
@@ -12,83 +11,83 @@
 
 {% block content %}
     <div class="row">
-        {% render_partial "homework_module.views.filter_tab" %}
+        {% include "homework_module/components/filter-tab.html" %}
         <div class="col-lg-9 col-md-8 col-sm-7 col-xs-12">
             <div class="panel panel-default card-view">
                 <div class="panel-wrapper collapse in">
                     <div class="panel-body">
                         <div class="table-wrap">
                             <div class="table-responsive">
-                            <table class="table table-hover table-bordered mb-0">
-                                <thead>
-                                <tr>
-                                    <th scope="col" style="font-size: medium; font-weight: normal;">موضوع</th>
-                                    <th scope="col" style="font-size: medium; font-weight: normal;">معلم</th>
-                                    <th scope="col" style="font-size: medium; font-weight: normal;">وضعیت</th>
-                                    <th class="text-nowrap" style="font-size: medium; font-weight: normal;">عملیات ها</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                    {% if homeworks is not None %}
-                                        {% for homework in homeworks %}
-                                            <tr>
-                                                <td>{{ homework.homework.title }}</td>
-                                                <td>{{ homework.homework.created_by.get_full_name }}</td>
-                                                <td>
-                                                    <span
-                                                        class="label
-                                                            {% if homework.status == 1 %} label-success
-                                                            {% elif homework.status == 2 %} label-warning
-                                                            {% else %} label-danger
-                                                            {% endif %}"
-                                                        style="font-size: smaller;">
-                                                        {{ homework.get_status_display }}
-                                                    </span>
-                                                </td>
+                                <table class="table table-hover table-bordered mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">موضوع</th>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">معلم</th>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">وضعیت</th>
+                                        <th class="text-nowrap" style="font-size: medium; font-weight: normal;">عملیات ها</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if homeworks is not None %}
+                                            {% for homework in homeworks %}
+                                                <tr>
+                                                    <td>{{ homework.homework.title }}</td>
+                                                    <td>{{ homework.homework.created_by.get_full_name }}</td>
+                                                    <td>
+                                                        <span
+                                                            class="label
+                                                                {% if homework.status == 1 %} label-success
+                                                                {% elif homework.status == 2 %} label-warning
+                                                                {% else %} label-danger
+                                                                {% endif %}"
+                                                            style="font-size: smaller;">
+                                                            {{ homework.get_status_display }}
+                                                        </span>
+                                                    </td>
 
-                                                <td class="text-nowrap">
-                                                    <a href="{{ homework.get_absolute_url }}" class="mr-25" data-toggle="tooltip" data-original-title="مشاهده">
-                                                        <i class="fa fa-eye text-inverse m-r-10"></i>
-                                                    </a>
-
-                                                    {% if homework.homework.created_by == user %}
-                                                        <a href="{% url "edit-homework-page" uuid=homework.homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
-                                                            <i class="fa fa-pencil text-inverse m-r-10"></i>
+                                                    <td class="text-nowrap">
+                                                        <a href="{{ homework.get_absolute_url }}" class="mr-25" data-toggle="tooltip" data-original-title="مشاهده">
+                                                            <i class="fa fa-eye text-inverse m-r-10"></i>
                                                         </a>
-                                                        <a href="edit/{{ homework.uuid }}" data-toggle="tooltip" data-original-title="حذف کردن">
-                                                            <i class="fa fa-close text-danger"></i>
-                                                        </a
-                                                    {% else %}
-                                                        {% if homework.status == 1 %}
-                                                            <a href="{% url "in-progress-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="درحال انجام">
-                                                                <i class="fa fa-check txt-warning m-r-10"></i>
-                                                            </a>
 
-                                                            <a href="{% url "not-done-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="انجام نشده">
+                                                        {% if homework.homework.created_by == user %}
+                                                            <a href="{% url "edit-homework-page" uuid=homework.homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
+                                                                <i class="fa fa-pencil text-inverse m-r-10"></i>
+                                                            </a>
+                                                            <a href="edit/{{ homework.uuid }}" data-toggle="tooltip" data-original-title="حذف کردن">
                                                                 <i class="fa fa-close text-danger"></i>
-                                                            </a>
-                                                        {% elif homework.status == 2 %}
-                                                            <a href="{% url "done-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام شده">
-                                                                <i class="fa fa-check txt-success m-r-10"></i>
-                                                            </a>
-
-                                                            <a href="{% url "not-done-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="انجام نشده">
-                                                                <i class="fa fa-close text-danger"></i>
-                                                            </a>
+                                                            </a
                                                         {% else %}
-                                                            <a href="{% url "done-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام شده">
-                                                                <i class="fa fa-check txt-success m-r-10"></i>
-                                                            </a>
+                                                            {% if homework.status == 1 %}
+                                                                <a href="{% url "in-progress-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="درحال انجام">
+                                                                    <i class="fa fa-check txt-warning m-r-10"></i>
+                                                                </a>
 
-                                                            <a href="{% url "in-progress-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="درحال انجام">
-                                                                <i class="fa fa-check text-warning"></i>
-                                                            </a>
+                                                                <a href="{% url "not-done-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="انجام نشده">
+                                                                    <i class="fa fa-close text-danger"></i>
+                                                                </a>
+                                                            {% elif homework.status == 2 %}
+                                                                <a href="{% url "done-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام شده">
+                                                                    <i class="fa fa-check txt-success m-r-10"></i>
+                                                                </a>
+
+                                                                <a href="{% url "not-done-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="انجام نشده">
+                                                                    <i class="fa fa-close text-danger"></i>
+                                                                </a>
+                                                            {% else %}
+                                                                <a href="{% url "done-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام شده">
+                                                                    <i class="fa fa-check txt-success m-r-10"></i>
+                                                                </a>
+
+                                                                <a href="{% url "in-progress-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="درحال انجام">
+                                                                    <i class="fa fa-check text-warning"></i>
+                                                                </a>
+                                                            {% endif %}
                                                         {% endif %}
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% endif %}
                                     </tbody>
                                 </table>
                             </div>
