@@ -9,7 +9,7 @@
                 </div>
             </div>
             <div class="row">
-                <ul class="inbox-nav">
+                <ul class="inbox-nav">  
                     <ul>
                         <li>
                             <a href="javascript:void(0);" data-toggle="collapse" data-target="#dashboard_dr" style="font-size: 18px; font-weight: 500;">
@@ -23,14 +23,8 @@
                                     </div>
                                 </li>
                                 <li>
-                                    <div class="checkbox checkbox-warning checkbox-circle">
-                                        <input id="in_progress" type="checkbox" {% if "2" in status_filter %} checked {% endif %}>
-                                        <label for="in_progress"> درحال انجام </label>
-                                    </div>
-                                </li>
-                                <li>
                                     <div class="checkbox checkbox-danger checkbox-circle">
-                                        <input id="not_done" type="checkbox" {% if "3" in status_filter %} checked {% endif %}>
+                                        <input id="not_done" type="checkbox" {% if "2" in status_filter %} checked {% endif %}>
                                         <label for="not_done"> انجام نشده </label>
                                     </div>
                                 </li>
