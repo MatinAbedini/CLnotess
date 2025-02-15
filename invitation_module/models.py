@@ -11,7 +11,6 @@ from uuid import uuid4
 
 class Invitation(models.Model):
     creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ساخت"), auto_now_add=True)
-    is_active = models.BooleanField(verbose_name=_("فعال / غیرفعال"), default=True)
     is_delete = models.BooleanField(verbose_name=_("حدف شده / نشده"), default=False)
 
     type = models.IntegerField(
@@ -51,7 +50,6 @@ class Invitation(models.Model):
 
 
 class InvitationAssignedTo(models.Model):
-    is_active = models.BooleanField(verbose_name=_("فعال / غیرفعال"), default=True)
     is_delete = models.BooleanField(verbose_name=_("حدف شده / نشده"), default=False)
     uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
 
@@ -87,7 +85,6 @@ class InvitationAssignedTo(models.Model):
         ],
         validators=[MinValueValidator(1), MaxValueValidator(3)]
         )
-
 
     class Meta:
         verbose_name = _("کاربران معین شده برای درخواست")

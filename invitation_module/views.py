@@ -5,6 +5,7 @@ from django.views.generic import ListView
 from django.urls import reverse
 
 from class_module.models import Class, ClassTeacherRole
+from lesson_module.models import Lesson
 from .models import Invitation, InvitationAssignedTo
 
 # Create your views here.
@@ -15,7 +16,7 @@ class InvitationListView(ListView):
     template_name = "invitation_module/invitation-list.html"
     context_object_name = "invitations"
     ordering = "-status"
-
+    paginate_by = 10
 
     def dispatch(self, request: HttpRequest, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -23,14 +24,47 @@ class InvitationListView(ListView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        lessons = Lesson.objects.all().only("name")
+
+        context["status_filter"] = self.request.GET.get("status", "")
+        context["lesson_filter"] = self.request.GET.get("lesson", "")
+        context["type_filter"] = self.request.GET.get("type", "")
+        context["lessons"] = [lesson.name for lesson in lessons]
+
+        return context
+
     def get_queryset(self):
+        # Save user and used filters
+        # Filters assigned and not deleted invitations
+
+        user = self.request.user
+        type_filter: str = self.request.GET.get("type", "")
+        status_filter: str = self.request.GET.get("status", "")
+        lesson_filter: str = self.request.GET.get("lesson", "")
+
         base_query = (
             InvitationAssignedTo.objects.filter(
-                assigned_to=self.request.user,
-                is_active=True,
+                assigned_to=user,
                 is_delete=False
             ).prefetch_related("invitation")
         )
+
+        # Filter invitations by type, status and lesson field,
+        # If user has filter invitations using them
+
+        if type_filter != "":
+            type_filter = list(map(int, type_filter.split(",")))
+            base_query = base_query.filter(invitation__type__in=type_filter)
+
+        if status_filter != "":
+            status_filter = list(map(int, status_filter.split(",")))
+            base_query = base_query.filter(status__in=status_filter)
+
+        if lesson_filter != "":
+            lesson_filter = lesson_filter.split(",")
+            base_query = base_query.filter(lesson__name__in=lesson_filter)
 
         return base_query
 

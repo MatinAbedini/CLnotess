@@ -1,8 +1,9 @@
 {% extends "shared/_layout.html" %}
+{% load poll_extras %}
 {% load static %}
 
-{% block title %}لیست درخواست ها{% endblock %}
-{% block content_title %}لیست درخواست ها{% endblock %}
+{% block title %}لیست دعوت ها{% endblock %}
+{% block content_title %}لیست دعوت ها{% endblock %}
 {% block breadcrumb_option %}
     <li><a href="index.html">Dashboard</a></li>
     <li class="active"><span>Invitations</span></li>
@@ -10,87 +11,80 @@
 
 {% block content %}
     <div class="row">
-        <!-- Bordered Table -->
-        <div class="col-sm-12">
+        {% include "invitation_module/components/filter-tab.html" %}
+        <div class="col-lg-9 col-md-8 col-sm-7 col-xs-12">
             <div class="panel panel-default card-view">
-                <div class="panel-heading">
-                    <div class="pull-right">
-                        <h6 class="panel-title txt-dark">لیست درخواست ها</h6>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
                 <div class="panel-wrapper collapse in">
                     <div class="panel-body">
                         <div class="table-wrap">
                             <div class="table-responsive">
-                            <table class="table table-hover table-bordered mb-0">
-                                <thead>
-                                <tr>
-                                    <th scope="col" style="font-size: medium; font-weight: normal;">کلاس</th>
-                                    <th scope="col" style="font-size: medium; font-weight: normal;">نوع</th>
-                                    <th scope="col" style="font-size: medium; font-weight: normal;">وضعیت</th>
-                                    <th class="text-nowrap" style="font-size: medium; font-weight: normal;">عملیات ها</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                    {% if invitations is not None %}
-                                        {% for invitation in invitations %}
-                                        <tr>
-                                                <td>{{ invitation.invitation.assigned_class }}</td>
-                                                <td>
-                                                    {% if invitation.invitation.type == 1 %}
-                                                        <span class="" style="font-size: medium;">
-                                                            عضویت دانش آموز
-                                                        </span>
+                                <table class="table table-hover table-bordered mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">کلاس</th>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">نوع</th>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">وضعیت</th>
+                                        <th class="text-nowrap" style="font-size: medium; font-weight: normal;">عملیات ها</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if invitations is not None %}
+                                            {% for invitation in invitations %}
+                                            <tr>
+                                                    <td>{{ invitation.invitation.assigned_class }}</td>
+                                                    <td>
+                                                        {% if invitation.invitation.type == 1 %}
+                                                            <span class="" style="font-size: medium;">
+                                                                عضویت دانش آموز
+                                                            </span>
 
-                                                    {% else %}
-                                                        <span class="" style="font-size: smaller;">
-                                                            عضویت معلم
-                                                        </span>
+                                                        {% else %}
+                                                            <span class="" style="font-size: smaller;">
+                                                                عضویت معلم
+                                                            </span>
 
-                                                    {% endif %}
-                                                <td>
-                                                    {% if invitation.status == 1 %}
-                                                        <span class="label label-success" style="font-size: smaller;">
-                                                            قبول شده
-                                                        </span>
+                                                        {% endif %}
+                                                    <td>
+                                                        {% if invitation.status == 1 %}
+                                                            <span class="label label-success" style="font-size: smaller;">
+                                                                قبول شده
+                                                            </span>
 
-                                                    {% elif invitation.status == 2 %}
-                                                        <span class="label label-danger" style="font-size: smaller;">
-                                                            رد شده
-                                                        </span>
+                                                        {% elif invitation.status == 2 %}
+                                                            <span class="label label-danger" style="font-size: smaller;">
+                                                                رد شده
+                                                            </span>
 
-                                                    {% else %}
-                                                        <span class="label label-warning" style="font-size: smaller;">
-                                                            در انتظار
-                                                        </span>
+                                                        {% else %}
+                                                            <span class="label label-warning" style="font-size: smaller;">
+                                                                در انتظار
+                                                            </span>
 
-                                                    {% endif %}
-                                                </td>
+                                                        {% endif %}
+                                                    </td>
 
-                                                <td class="text-nowrap">
-                                                    {% if invitation.status != 1 %}
-                                                        <a href="{% url "accept-invitation-page" invitation.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="قبول کردن">
-                                                            <i class="fa fa-check txt-success m-r-10"></i>
-                                                        </a>
-                                                    {% else %}
-                                                        <a href="{% url "reject-invitation-page" invitation.uuid %}" data-toggle="tooltip" data-original-title="رد کردن">
-                                                            <i class="fa fa-close text-danger"></i>
-                                                        </a>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    {% endif %}
-                                </tbody>
-                            </table>
+                                                    <td class="text-nowrap">
+                                                        {% if invitation.status != 1 %}
+                                                            <a href="{% url "accept-invitation-page" invitation.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="قبول کردن">
+                                                                <i class="fa fa-check txt-success m-r-10"></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <a href="{% url "reject-invitation-page" invitation.uuid %}" data-toggle="tooltip" data-original-title="رد کردن">
+                                                                <i class="fa fa-close text-danger"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
+                        {% include "shared/includes/paginator.html" %}
                     </div>
                 </div>
             </div>
         </div>
-        <!-- /Bordered Table -->
-
     </div>
 {% endblock %}

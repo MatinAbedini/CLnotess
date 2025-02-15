@@ -1,0 +1,94 @@
+<div class="col-lg-3 col-md-4 col-sm-5 col-xs-12">
+    <div class="panel panel-default card-view">
+        <div class="panel-wrapper collapse in">
+            <div class="row">
+                <div class="mt-20 mb-20 ml-15 mr-15">
+                    <a href="{% url "create-homework-page" %}" class="btn btn-success btn-block">
+                    اضافه کردن دعوت
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                <ul class="inbox-nav">
+                    <ul>
+                        <li>
+                            <a href="javascript:void(0);" data-toggle="collapse" data-target="#form_dr" style="font-size: 18px; font-weight: 500;">
+                                وضعیت
+                                <div class="pull-left"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
+                                <ul id="form_dr" class="collapse collapse-level-1  ml-25" style="font-size: 15.30px; font-weight: 500;">
+                                <li>
+                                    <div class="checkbox checkbox-success checkbox-circle">
+                                        <input id="done" type="checkbox" {% if "1" in status_filter %} checked {% endif %}>
+                                        <label for="done"> قبول شده </label>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="checkbox checkbox-warning checkbox-circle">
+                                        <input id="in_progress" type="checkbox" {% if "2" in status_filter %} checked {% endif %}>
+                                        <label for="in_progress"> در انتظار </label>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="checkbox checkbox-danger checkbox-circle">
+                                        <input id="not_done" type="checkbox" {% if "3" in status_filter %} checked {% endif %}>
+                                        <label for="not_done"> قبول نشده </label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <a href="javascript:void(0);" data-toggle="collapse" data-target="#chart_dr" style="font-size: 18px; font-weight: 500;">
+                                نوع
+                                <div class="pull-left"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
+                                <ul id="chart_dr" class="collapse collapse-level-1  ml-25" style="font-size: 15.30px; font-weight: 500;">
+                                <li>
+                                    <div class="checkbox checkbox-success checkbox-circle">
+                                        <input id="student" type="checkbox" {% if "1" in invitation_filter %} checked {% endif %}>
+                                        <label for="student"> عضویت دانش آموز </label>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="checkbox checkbox-warning checkbox-circle">
+                                        <input id="teacher" type="checkbox" {% if "2" in invitation_filter %} checked {% endif %}>
+                                        <label for="teacher"> عضویت معلم </label>
+                                    </div>
+                                </li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <a href="javascript:void(0);" data-toggle="collapse" data-target="#table_dr" style="font-size: 18px; font-weight: normal;">
+                                درس
+                                <div class="pull-left"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
+                            <ul id="table_dr" class="collapse collapse-level-1 ml-25" style="font-size: 15.30px;">
+                                <li>
+                                    {% for lesson in lessons %}
+                                        <div class="checkbox checkbox-primary checkbox-circle">
+                                            <input id="{{ lesson }}" type="checkbox" {% if lesson in lesson_filter %} checked {% endif %}>
+                                            <label for="{{ lesson }}"> {{ lesson }} </label>
+                                        </div>
+                                    {% endfor %}
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="mt-20 mb-20 ml-30 mr-30">
+                    <form action="" method="get" id="filter_form">
+                        <input type="hidden" name="page" id="page" value="{{ page_obj.number }}">
+                        <input type="hidden" name="status" id="status" value="{{ status_filter }}">
+                        <input type="hidden" name="lesson" id="lesson" value="{{ lesson_filter }}">
+                        <input type="hidden" name="type" id="type" value="{{ type_filter }}">
+                    </form>
+                    <button class="btn btn-primary btn-rounded btn-outline btn-block" onclick="filterInvitations({{ lessons }})">فیلتر</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
