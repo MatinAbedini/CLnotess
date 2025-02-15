@@ -47,20 +47,23 @@
 
                                                     <td class="text-nowrap">
                                                         <a href="{{ homework.get_absolute_url }}" class="mr-25" data-toggle="tooltip" data-original-title="مشاهده">
-                                                            <i class="fa fa-eye text-inverse m-r-10"></i>
+                                                            <i class="fa fa-eye text-inverse"></i>
                                                         </a>
 
                                                         {% if homework.homework.created_by == user %}
-                                                            <a href="{% url "edit-homework-page" uuid=homework.homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
-                                                                <i class="fa fa-pencil text-inverse m-r-10"></i>
+                                                            <a href="{% url "edit-homework-page" homework.homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
+                                                                <i class="fa fa-pencil text-inverse"></i>
                                                             </a>
-                                                            <a href="edit/{{ homework.uuid }}" data-toggle="tooltip" data-original-title="حذف کردن">
+                                                            <a href="{% url "homework-result-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="مشاهده نتایج">
+                                                                <i class="fa fa-check-square-o text-inverse"></i>
+                                                            </a>
+                                                            <a href="{% url "delete-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="حذف کردن">
                                                                 <i class="fa fa-close text-danger"></i>
-                                                            </a
+                                                            </a>
                                                         {% else %}
                                                             {% if homework.status == 1 %}
                                                                 <a href="{% url "in-progress-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="درحال انجام">
-                                                                    <i class="fa fa-check txt-warning m-r-10"></i>
+                                                                    <i class="fa fa-check txt-warning"></i>
                                                                 </a>
 
                                                                 <a href="{% url "not-done-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="انجام نشده">
@@ -68,7 +71,7 @@
                                                                 </a>
                                                             {% elif homework.status == 2 %}
                                                                 <a href="{% url "done-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام شده">
-                                                                    <i class="fa fa-check txt-success m-r-10"></i>
+                                                                    <i class="fa fa-check txt-success"></i>
                                                                 </a>
 
                                                                 <a href="{% url "not-done-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="انجام نشده">
@@ -76,7 +79,7 @@
                                                                 </a>
                                                             {% else %}
                                                                 <a href="{% url "done-homework-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام شده">
-                                                                    <i class="fa fa-check txt-success m-r-10"></i>
+                                                                    <i class="fa fa-check txt-success"></i>
                                                                 </a>
 
                                                                 <a href="{% url "in-progress-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="درحال انجام">

@@ -1,10 +1,192 @@
 {% extends "shared/_layout.html" %}
+{% load jformat %}
+{% load static %}
+
+{% block title %}جزئیات تکلیف{% endblock %}
+{% block content_title %}جزئیات تکلیف{% endblock %}
+
+{% block breadcrumb_option %}
+    <li><a href="index.html">Dashboard</a></li>
+    <li><a href="index.html">Homeworks</a></li>
+    <li class="active"><span>Details</span></li>
+{% endblock %}
 
 {% block content %}
-    <br>
-    <hr>
-
-    <h2>description: {{ exam_result.exam }}</h2>
-    <h2>creation date: {{ exam_result.correct_answers }}</h2>
-    <h2>for date: {{ exam_result.incorrect_answers }}</h2>
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-6 col-sm-12 {% if result is None %} col-lg-offset-3 col-md-offset-3 {% endif %}">
+            <div class="panel panel-default contact-card card-view">
+                <div class="row">
+                    <div class="panel-heading row">
+                        <div class="emp-detail pl-15 pr-15">
+                            <div class="col-md-3 col-sm-12 mt-20 mb-20">
+                                {% if homework.status == 1 %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-warning" href="{% url "in-progress-homework-page" homework.uuid %}">درحال انجام</a>
+                                {% elif homework.status == 2 %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-success" href="{% url "done-homework-page" homework.uuid %}">انجام شده</a>
+                                {% else %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-success" href="{% url "done-homework-page" homework.uuid %}">انجام شده</a>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 col-sm-12 mt-20 mb-20">
+                                <p class="btn btn-block btn-default btn-rounded btn-outline disabled">{{ homework.homework.title }}</p>
+                            </div>
+                            <div class="col-md-3 col-sm-12 mt-20 mb-20">
+                                {% if homework.status == 1 %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-danger" href="{% url "not-done-homework-page" homework.uuid %}">انجام نشده</a>
+                                {% elif homework.status == 2 %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-danger" href="{% url "not-done-homework-page" homework.uuid %}">انجام نشده</a>
+                                {% else %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-warning" href="{% url "in-progress-homework-page" homework.uuid %}">درحال انجام</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="light-grey-hr mt-20 mb-20">
+                    <div class="panel-wrapper collapse in">
+                        <div class="panel-body">
+                            <div class="user-others-details pl-15 pr-15" style="color: black;">
+                                <div class="row">
+                                    <div class="mr-50 ml-50" dir="rtl">
+                                        <p style="white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">{{ homework.homework.description|linebreaksbr }}</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                            <p>درس</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>علوم</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                            <p>برای تاریخ</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ homework.homework.for_date.year }} / {{ homework.homework.for_date.month }} / {{ homework.homework.for_date.day }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                            <p>استاد</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ homework.homework.created_by.get_full_name }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="light-grey-hr mt-20 mb-20"/>
+                            <div class="emp-detail pl-15 pr-15">
+                                {% if homework.homework.created_by == user %}
+                                    <div class="col-md-4 col-sm-4 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-success" href="{% url "create-homework-result-page" homework.uuid %}">ثبت نتیجه تکلیف</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-4 mt-20 mb-20">
+                                        <a
+                                            class="btn btn-block btn-outline btn-rounded btn-0
+                                                {% if homework.homework.created_by != user %} disabled btn-default
+                                                {% else %} btn-primary
+                                                {% endif %}"
+                                            href="{% url 'edit-homework-page' homework.uuid %}">
+                                            ویرایش
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-4 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-homework-page" homework.homework.uuid %}">حذف</a>
+                                    </div>
+                                {% else %}
+                                    <div class="col-md-12 col-sm-4 mt-20 mb-20">
+                                        <a class="btn btn-block btn-rounded btn-0 btn-success" href="{% url "create-homework-result-page" homework.uuid %}">ثبت نتیجه تکلیف</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if result is not None %}
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="panel panel-default contact-card card-view">
+                    <div class="row">
+                        <div class="panel-heading row">
+                            <div class="emp-detail pl-15 pr-15">
+                                {% if homework.assigned_to == user %}
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-primary" href="{% url 'edit-homework-page' homework.uuid %}">ویرایش</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "homework-result-list-page" homework.homework.uuid %}">دانلود</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-homework-page" homework.homework.uuid %}">حذف</a>
+                                    </div>
+                                {% else %}
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-primary" href="{% url 'edit-homework-page' homework.uuid %}">قبلی</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "homework-result-list-page" homework.homework.uuid %}">دانلود</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-homework-page" homework.homework.uuid %}">بعدی</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <hr class="light-grey-hr mt-20 mb-20">
+                        <div class="panel-wrapper collapse in">
+                            <div class="panel-body">
+                                <div class="user-others-details pl-15 pr-15" style="color: black;">
+                                    <div class="row justify-content-center">
+                                        <div class="mr-50 ml-50" dir="rtl">
+                                            <p>{{ result.description }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if homework.feedback is not None %}
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="panel panel-default contact-card card-view">
+                    <div class="row">
+                        <div class="panel-heading row">
+                            <div class="emp-detail pl-15 pr-15">
+                                {% if homework.assigned_to == user %}
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-primary" href="{% url 'edit-homework-page' homework.uuid %}">ویرایش</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "delete-homework-page" homework.homework.uuid %}">دانلود</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-homework-page" homework.homework.uuid %}">حذف</a>
+                                    </div>
+                                {% else %}
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "delete-homework-page" homework.homework.uuid %}">دانلود</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <hr class="light-grey-hr mt-20 mb-20">
+                        <div class="panel-wrapper collapse in">
+                            <div class="panel-body">
+                                <div class="user-others-details pl-15 pr-15" style="color: black;">
+                                    <div class="row justify-content-center">
+                                        <div class="mr-50 ml-50" dir="rtl">
+                                            <p>{{ homework.feedback.description }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}
