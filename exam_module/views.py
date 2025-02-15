@@ -1,13 +1,15 @@
 from django.views.generic import ListView, DetailView, UpdateView
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView
-from account_module.models import Account
-from class_module.models import Class
-from django.db.models import Q
 from django.http import HttpRequest
+from django.db.models import Q
+
+from account_module.models import Account
+from lesson_module.models import Lesson
+from class_module.models import Class
 from .forms import ExamForm, ExamResultForm
 from .models import Exam, ExamResult
 
@@ -107,13 +109,45 @@ class ExamListView(ListView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        lessons = Lesson.objects.all().only("name")
+
+        context["difficulty_filter"] = self.request.GET.get("difficulty", "")
+        context["status_filter"] = self.request.GET.get("status", "")
+        context["lesson_filter"] = self.request.GET.get("lesson", "")
+        context["lessons"] = [lesson.name for lesson in lessons]
+
+        return context
+
     def get_queryset(self):
+        # Save user and used filters
+        # Filters assigned and not deleted exams
+
         user = self.request.user
+        difficulty_filter: str = self.request.GET.get("difficulty", "")
+        status_filter: str = self.request.GET.get("status", "")
+        lesson_filter: str = self.request.GET.get("lesson", "")
+
         base_query = Exam.objects.filter(
             assigned_to__assigned_to=user,
-            is_active=True,
             is_delete=False
         )
+
+        # Filter exams by difficulty, status and lesson field,
+        # If user has filter exams using them
+
+        if difficulty_filter != "":
+            difficulty_filter = list(map(int, difficulty_filter.split(",")))
+            base_query = base_query.filter(difficulty__in=difficulty_filter)
+
+        if status_filter != "":
+            status_filter = list(map(int, status_filter.split(",")))
+            base_query = base_query.filter(status__in=status_filter)
+
+        if lesson_filter != "":
+            lesson_filter = lesson_filter.split(",")
+            base_query = base_query.filter(lesson__name__in=lesson_filter)
 
         return base_query
 

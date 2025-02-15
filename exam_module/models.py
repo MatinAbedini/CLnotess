@@ -19,6 +19,14 @@ class Exam(models.Model):
     is_active = models.BooleanField(verbose_name=_("فعال / غیرفعال"), default=True, db_index=True)
     uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
 
+    lesson = models.ForeignKey(
+        "lesson_module.lesson",
+        verbose_name=_("درس"),
+        related_name="exams",
+        on_delete=models.SET_DEFAULT,
+        default=1,
+    )
+
     duration = models.IntegerField(
         verbose_name=_("مدت زمان"),
         default=90,
