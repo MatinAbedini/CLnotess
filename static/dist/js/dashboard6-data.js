@@ -1,6 +1,6 @@
 /*Dashboard Init*/
- 
-"use strict"; 
+
+"use strict";
 
 /*****Load function start*****/
 $(window).on("load",function(){
@@ -11,7 +11,7 @@ $(window).on("load",function(){
 			position: 'bottom-left',
 			loaderBg:'#e3c94b',
 			icon: '',
-			hideAfter: 3500, 
+			hideAfter: 3500,
 			stack: 6
 		});
 	}, 3000);
@@ -19,7 +19,7 @@ $(window).on("load",function(){
 /*****Load function* end*****/
 
 /*****E-Charts function start*****/
-var echartsConfig = function() { 
+var echartsConfig = function() {
 	if( $('#e_chart_1').length > 0 ){
 		var eChart_1 = echarts.init(document.getElementById('e_chart_1'));
 		var option = {
@@ -39,7 +39,7 @@ var echartsConfig = function() {
 						fontSize: 12
 					}
 				}
-				
+
 			},
 			yAxis: {
 				splitLine: {show: false},
@@ -104,7 +104,7 @@ var echartsConfig = function() {
 			loopIndex = (loopIndex + 1) % barGaps.length;
 
 		}, 2000);
-		
+
 		eChart_1.setOption(option);
 		eChart_1.resize();
 	}
@@ -112,7 +112,7 @@ var echartsConfig = function() {
 /*****E-Charts function end*****/
 
 /*****Sparkline function start*****/
-var sparklineLogin = function() { 
+var sparklineLogin = function() {
 	if( $('#sparkline_6').length > 0 ){
 		$("#sparkline_6").sparkline([12,4,7,3,8,6,8,5,6,4,8,6,6,2 ], {
 			type: 'line',
@@ -126,7 +126,7 @@ var sparklineLogin = function() {
 			highlightLineColor: '#fff',
 			highlightSpotColor: '#fff'
 		});
-	}	
+	}
 	if( $('#sparkline_7').length > 0 ){
 		$("#sparkline_7").sparkline([20,4,4], {
 			type: 'pie',
@@ -134,7 +134,7 @@ var sparklineLogin = function() {
 			height: '100',
 			sliceColors: ['#635bd6', '#f742aa','#958FEF']
 		});
-	}	
+	}
 }
 /*****Sparkline function end*****/
 
@@ -144,11 +144,11 @@ $(window).on("resize", function () {
 	/*Sparkline Resize*/
 	clearTimeout(sparkResize);
 	sparkResize = setTimeout(sparklineLogin, 200);
-	
+
 	/*E-Chart Resize*/
 	clearTimeout(echartResize);
 	echartResize = setTimeout(echartsConfig, 300);
-}).resize(); 
+}).resize();
 /*****Resize function end*****/
 
 /*****Function Call start*****/

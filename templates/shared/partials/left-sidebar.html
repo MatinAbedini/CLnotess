@@ -51,23 +51,150 @@
             </li>
             <!-- /User Profile -->
         <li class="navigation-header">
-            <span>Main</span>
+            <span>ابزار های اصلی</span>
             <i class="zmdi zmdi-more"></i>
         </li>
+
+
         <li>
-            <a href="{% url "homework-list-page" %}" class="{% if request.resolver_match.url_name == "homework-list-page" %} active {% endif %}"><div class="pull-left"><i class="bi bi-pencil-square mr-15"></i><span class="right-nav-text">تکالیف</span></div><div class="clearfix"></div></a>
+            <a href="{% url "homework-list-page" %}"
+                class="
+                    {% if request.resolver_match.url_name in "create-homework-page.homework-list-page.edit-homework-page.homework-detail-page.homework-result-page.create-homework-result-page.edit-homework-result-page.create-homework-result-page.homework-result-list-page.homework-result-list-page.create-homework-feedback-page" %}
+                        active
+                    {% endif %}
+                ">
+               <div class="pull-left">
+                  <i class="bi bi-pencil-square mr-15"></i>
+                  <span class="right-nav-text">تکالیف</span>
+               </div>
+               <div class="clearfix"></div>
+            </a>
+         </li>
+
+         <li>
+            <a href="{% url "exam-list-page" %}"
+                class="
+                    {% if request.resolver_match.url_name in "create-exam-page,edit-exam-page,exam-list-page,exam-detail-page,created-exam-result-page,edit-exam-result-page,exam-result-detail-page" %}
+                        active
+                    {% endif %}
+                ">
+               <div class="pull-left">
+                  <i class="fa fa-file-text-o mr-15"></i>
+                  <span class="right-nav-text">امتحانات</span>
+               </div>
+               <div class="clearfix"></div>
+            </a>
+         </li>
+
+         <li>
+            <a href="{% url "invitation-list-page" %}"
+               class="{% if request.resolver_match.url_name == "invitation-list-page" %} active {% endif %}">
+               <div class="pull-left">
+                  <i class="bi bi-envelope mr-15"></i>
+                  <span class="right-nav-text">دعوت ها</span>
+               </div>
+               <div class="clearfix"></div>
+            </a>
+         </li>
+
+         <li>
+            <a href="{% url "class-list-page" %}"
+                class="
+                    {% if request.resolver_match.url_name in "class-list-page,create-class-page,edit-class-page,add-student-class-page,add-teacher-class-page" %}
+                        active
+                    {% endif %}
+                ">
+               <div class="pull-left">
+                  <i class="bi bi-person-video3 mr-15"></i>
+                  <span class="right-nav-text">کلاس ها</span>
+               </div>
+               <div class="clearfix"></div>
+            </a>
+         </li>
+
+        <li>
+            <a href="{% url "edit-account-page" %}"
+                class="
+                    {% if request.resolver_match.url_name in "edit-account-page,change-email-page,change-password-page,appearance-settings-page" %}
+                        active
+                    {% endif %}
+                ">
+                <div class="pull-left">
+                    <i class="bi bi-person-circle mr-15"></i>
+                    <span class="right-nav-text">پنل کاربری</span>
+                </div>
+                <div class="clearfix"></div>
+            </a>
         </li>
-        <li>
-            <a href="{% url "exam-list-page" %}" class="{% if request.resolver_match.url_name == "exam-list-page" %} active {% endif %}"><div class="pull-left"><i class="fa fa-file-text-o mr-15"></i><span class="right-nav-text">امتحانات</span></div><div class="clearfix"></div></a>
+
+        <li class="navigation-header">
+            <span>دیگر ابزار ها</span>
+            <i class="zmdi zmdi-more"></i>
         </li>
+
         <li>
-            <a href="{% url "invitation-list-page" %}" class="{% if request.resolver_match.url_name == "invitation-list-page" %} active {% endif %}"><div class="pull-left"><i class="bi bi-envelope mr-15"></i><span class="right-nav-text">دعوت ها</span></div><div class="clearfix"></div></a>
+            <a href="http://192.168.1.103:8888/">
+                <div class="pull-left">
+                    <i class="bi bi-robot mr-15"></i>
+                    <span class="right-nav-text">دستیار آموزشی</span>
+                </div>
+                <div class="clearfix"></div>
+            </a>
         </li>
+
         <li>
-            <a href="{% url "class-list-page" %}" class="{% if request.resolver_match.url_name == "class-list-page" %} active {% endif %}"><div class="pull-left"><i class="bi bi-person-video3 mr-15"></i><span class="right-nav-text">کلاس ها</span></div><div class="clearfix"></div></a>
+            <a href="{{ site_settings.help_file.url }}">
+               <div class="pull-left">
+                  <i class="bi bi-question-square mr-15"></i>
+                  <span class="right-nav-text">راهنما</span>
+               </div>
+               <div class="clearfix"></div>
+            </a>
         </li>
+
+        <li class="navigation-header">
+            <span>به زودی</span>
+            <i class="zmdi zmdi-more"></i>
+        </li>
+
         <li>
-            <a href="{% url "user-panel-page" %}" class="{% if request.resolver_match.url_name == "user-panel-page" or request.resolver_match.url_name == "edit-account-page" or request.resolver_match.url_name == "change-email-page" or request.resolver_match.url_name == "change-password-page" or request.resolver_match.url_name == "appearance-settings-page" %} active {% endif %}"><div class="pull-left"><i class="bi bi-person-circle mr-15"></i><span class="right-nav-text">پنل کاربری</span></div><div class="clearfix"></div></a>
+            <a href="#">
+                <div class="pull-left">
+                    <i class="bi bi-question-square mr-15"></i>
+                    <span class="right-nav-text">نکات درسی (به زودی)</span>
+                </div>
+                <div class="clearfix"></div>
+            </a>
+        </li>
+
+        <li>
+            <a href="#">
+               <div class="pull-left">
+                  <i class="bi bi-question-square mr-15"></i>
+                  <span class="right-nav-text">نمونه سوالات (به زودی)</span>
+               </div>
+               <div class="clearfix"></div>
+            </a>
+        </li>
+
+        <li>
+            <a href="#">
+               <div class="pull-left">
+                  <i class="bi bi-question-square mr-15"></i>
+                  <span class="right-nav-text">تقویم (به زودی)</span>
+               </div>
+               <div class="clearfix"></div>
+            </a>
+        </li>
+
+        <li>
+            <a href="#">
+               <div class="pull-left">
+                  <i class="bi bi-question-square mr-15"></i>
+                  <span class="right-nav-text">فهرست کارها (به زودی)</span>
+               </div>
+               <div class="clearfix"></div>
+            </a>
         </li>
     </ul>
 </div>

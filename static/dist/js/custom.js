@@ -1,55 +1,67 @@
-function filterHomeworks(lessons) {
+function filterHomeworks(lessons, classes) {
     // Get selected statuses and save them inside a list
-    // Gets Select lessons and save them inside a list
+    // Get selected lessons and save them inside a list
+    // Get selected classes and save them inside a list
 
     const selected_statuses = [
         $("#done").prop("checked") ? 1: "",
         $("#in_progress").prop("checked") ? 2: "",
         $("#not_done").prop("checked") ? 3: "",
-    ].filter(Boolean).join(",");
+    ].filter(Boolean);
 
     const selected_lessons = lessons
         .map(lesson => $(`#${lesson}`).prop("checked") ? lesson: "")
-        .filter(Boolean)
-        .join(",");
+        .filter(Boolean);
 
-    // Set statuses and lessons which are going to get filtered,
+    const selected_classes = classes
+        .map(class_ => $(`#${class_}`).prop("checked") ? class_: "")
+        .filter(Boolean);
+
+
+    // Set statuses, lessons and classes which are going to get filtered,
     // And save them in form fields
     // And submit the form
 
-    $("#status").val(selected_statuses);
-    $("#lesson").val(selected_lessons);
+    $("#status").val(selected_statuses.join(","));
+    $("#lesson").val(selected_lessons.join(","));
+    $("#class_").val(selected_classes.join(","));
     $("#filter_form").submit();
 }
 
-function filterExams(lessons) {
+function filterExams(lessons, classes) {
     // Get selected statuses and save them inside a list
     // Get selected difficulties and save them inside a list
-    // Gets Select lessons and save them inside a list
+    // Get selected lessons and save them inside a list
+    // Get selected classes and save them inside a list
+    debugger;
 
     const selected_statuses = [
         $("#done").prop("checked") ? 1: "",
         $("#not_done").prop("checked") ? 2: "",
-    ].filter(Boolean).join(",");
+    ].filter(Boolean);
 
     const selected_difficulties= [
         $("#easy").prop("checked") ? 1: "",
         $("#average").prop("checked") ? 2: "",
         $("#hard").prop("checked") ? 3: "",
-    ].filter(Boolean).join(",");
+    ].filter(Boolean);
 
     const selected_lessons = lessons
         .map(lesson => $(`#${lesson}`).prop("checked") ? lesson: "")
-        .filter(Boolean)
-        .join(",");
+        .filter(Boolean);
 
-    // Set statuses, difficulties and lessons, which are going to get filtered,
+    const selected_classes = classes
+        .map(class_ => $(`#${class_}`).prop("checked") ? class_: "")
+        .filter(Boolean);
+
+    // Set statuses, difficulties, lessons and classes, which are going to get filtered,
     // And save them in form fields
     // And submit the form
 
-    $("#difficulty").val(selected_difficulties);
-    $("#status").val(selected_statuses);
-    $("#lesson").val(selected_lessons);
+    $("#difficulty").val(selected_difficulties.join(","));
+    $("#status").val(selected_statuses.join(","));
+    $("#lesson").val(selected_lessons.join(","));
+    $("#class_").val(selected_classes.join(","));
     $("#filter_form").submit();
 }
 
