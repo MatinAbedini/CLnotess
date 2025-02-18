@@ -22,7 +22,6 @@ from .forms import *
 class HomeworkCreateView(LoginRequiredMixin, FormView):
     template_name = "homework_module/create-homework.html"
     success_url = reverse_lazy("homework-list-page")
-    login_url = reverse_lazy("login-page")
     form_class = HomeworkForm
     model = Homework
 
@@ -58,6 +57,7 @@ class HomeworkCreateView(LoginRequiredMixin, FormView):
         homework_assigned_to_list = [
             HomeworkCreatedFor(
                 homework=new_homework,
+                assigned_class=class_,
                 assigned_to=student,
                 status=3
             )
@@ -74,8 +74,7 @@ class HomeworkCreateView(LoginRequiredMixin, FormView):
 
 class HomeworkUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "homework_module/edit-homework.html"
-    success_url = reverse_lazy("index-page")
-    login_url = reverse_lazy("login-page")
+    success_url = reverse_lazy("homework-list-page")
     form_class = HomeworkForm
     model = Homework
     slug_field = "uuid"
@@ -90,9 +89,11 @@ class HomeworkUpdateView(LoginRequiredMixin, UpdateView):
         return base_query
 
     def get_form(self, form_class=None):
+        user = self.request.user
+
         classes = (
             Class.objects.filter(
-                teachers__teacher=self.request.user,
+                Q(teachers__teacher=user) | Q(created_by=user),
                 is_active=True,
                 is_delete=False
             ).only("class_name", "school_name", "uuid")
@@ -103,80 +104,345 @@ class HomeworkUpdateView(LoginRequiredMixin, UpdateView):
         form.fields["assigned_to"].choices = class_choices
         return form
 
+    def get_initial(self):
+        initial = super().get_initial()
+        user = self.request.user
+
+        classes = (
+            Class.objects.filter(
+                Q(teachers__teacher=user) | Q(created_by=user),
+                student_homeworks__homework=self.get_queryset().first(),
+                is_delete=False,
+            )
+            .only("uuid")
+        )
+
+        initial["assigned_to"] = [class_.uuid for class_ in classes]
+
+        return initial
+
 
 class HomeworkListView(LoginRequiredMixin, ListView):
     template_name = "homework_module/homework-list.html"
-    login_url = reverse_lazy("login-page")
     context_object_name = "homeworks"
     model = HomeworkCreatedFor
     ordering = "status"
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
+        # Save default contexts, lessons, classes
         context = super().get_context_data(**kwargs)
         lessons = Lesson.objects.all().only("name")
+        homeworks = self.get_queryset()
+        classes = [str(homework.assigned_class) for homework in homeworks]
+
+        # Save status, lesson and classes which are going to get filtered
+        # And save lessons, classes and those filters in context
 
         context["status_filter"] = self.request.GET.get("status", "")
         context["lesson_filter"] = self.request.GET.get("lesson", "")
+        context["class_filter"] = self.request.GET.get("class_", "")
         context["lessons"] = [lesson.name for lesson in lessons]
+        context["classes"] = classes
 
         return context
 
     def get_queryset(self):
-        # Save user and used filters
-        # Filters assigned and not deleted homeworks
+        # If the queryset isn't cached, save the queryset and cache it
+        # Else returns the cached values
 
-        user = self.request.user
-        status_filter: str = self.request.GET.get("status", "")
-        lesson_filter: str = self.request.GET.get("lesson", "")
+        if not hasattr(self, "base_query"):
+            # Save user and used filters
+            # Filters assigned and not deleted homeworks
 
-        base_query = (
-            HomeworkCreatedFor.objects.filter(
-                assigned_to=user,
-                homework__is_delete=False,
+            user = self.request.user
+            status_filter: str = self.request.GET.get("status", "")
+            lesson_filter: str = self.request.GET.get("lesson", "")
+            class_filter: str = self.request.GET.get("class_", "")
+
+            self.base_query = (
+                HomeworkCreatedFor.objects.filter(
+                    assigned_to=user,
+                    homework__is_delete=False,
+                )
             )
-        )
 
-        # Filter exams by status and lesson field,
-        # If user has filter exams using them
+            # Filter exams by status and lesson field,
+            # If user has filter exams using them
 
-        if status_filter != "":
-            status_filter = list(map(int, status_filter.split(",")))
-            base_query = base_query.filter(status__in=status_filter)
+            if status_filter != "":
+                status_filter = list(map(int, status_filter.split(",")))
+                self.base_query = self.base_query.filter(status__in=status_filter)
 
-        if lesson_filter != "":
-            lesson_filter = lesson_filter.split(",")
-            base_query = base_query.filter(homework__lesson__name__in=lesson_filter)
+            if lesson_filter != "":
+                lesson_filter = lesson_filter.split(",")
+                self.base_query = self.base_query.filter(homework__lesson__name__in=lesson_filter)
 
-        return base_query
+            if class_filter != "":
+                class_filter = class_filter.split(",")
+                self.base_query = self.base_query.filter(class__str__in=class_filter)
+
+        return self.base_query
 
 
 class HomeworkDetailView(LoginRequiredMixin, DetailView):
     template_name = "homework_module/homework.html"
-    login_url = reverse_lazy("login-page")
     context_object_name = "homework"
     model = HomeworkCreatedFor
     slug_url_kwarg = "uuid"
     slug_field = "uuid"
 
     def get_queryset(self):
-        base_query = super().get_queryset()
-        base_query = (
-            base_query.filter(
-                assigned_to=self.request.user,
-                homework__is_delete=False
-            )
-            .select_related("homework", "result", "feedback")
-        )
+        # If the queryset isn't cached, save the queryset and cache it
+        # Else returns the cached values
 
-        return base_query
+        if hasattr(self, "base_query"):
+            self.base_query = (
+                HomeworkCreatedFor.objects.filter(
+                    uuid=self.kwargs.get("uuid"),
+                    assigned_to=self.request.user,
+                    homework__is_delete=False
+                )
+                .select_related("homework", "result", "feedback")
+            )
+
+            return self.base_query
+
+        return self.base_query
 
 
 class HomeworkResultCreateView(LoginRequiredMixin, CreateView):
     form_class = HomeworkResultForm
     template_name =  "homework_module/create-homework-result.html"
     success_url = reverse_lazy("homework-list-page")
-    login_url = reverse_lazy("login-page")
+
+    def get_form_kwargs(self):
+        # Show homework field if uuid is in url (kwargs)
+        kwargs = super().get_form_kwargs()
+
+        if not "uuid" in self.kwargs:
+            kwargs["show_homework"] = True
+
+        return kwargs
+
+    def get_form(self, form_class=None):
+        # If uuid is not in url (kwargs), show homework field
+        if "uuid" in self.kwargs:
+            return super().get_form(form_class)
+
+        # Save User and assigned homeworks to the user
+        user = self.request.user
+        homeworks = (
+            HomeworkCreatedFor.objects.filter(
+                homework__created_by=user,
+                homework__is_delete=False
+            )
+            .prefetch_related("homework")
+            .only("homework__title", "uuid")
+        )
+
+        # Add assigned homeworks to homework field as choices
+        form = super().get_form(form_class)
+        homework_choices = [(homework.uuid, homework.homework.title) for homework in homeworks]
+        form.fields["homework"].choices = homework_choices
+
+        return form
+
+    def form_valid(self, form):
+        # Save HomeworkCreatedFor (Specified homework),
+        # Using entered uuid in the url, or selected homework in the form
+
+        homework_uuid = self.kwargs.get("uuid", form.cleaned_data.get("homework"))
+        homework: HomeworkCreatedFor = (
+            HomeworkCreatedFor.objects.filter(
+                uuid=homework_uuid,
+                homework__is_delete=False
+            )
+            .only("result")
+            .first()
+        )
+
+        # Save assigned files to the result as a list
+        # Save new homework_result, and set it as feedback of HomeworkCreatedFor
+
+        files = self.request.FILES.getlist("files")
+        homework_result = form.save()
+        homework.result = homework_result
+        homework.save()
+
+        # Upload and save, homework_result files in server
+
+        homework_result_files = [
+            HomeworkResultFile(
+                homework=homework_result,
+                file=file
+            )
+            for file in files
+        ]
+
+        HomeworkResultFile.objects.bulk_create(homework_result_files)
+
+        return super().form_valid(form)
+
+
+class HomeworkResultUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "homework_module/edit-homework-result.html"
+    success_url = reverse_lazy("index-page")
+    context_object_name = "homework_result"
+    form_class = HomeworkResultForm
+    model = HomeworkResult
+    slug_url_kwarg = "uuid"
+    slug_field = "homework__uuid"
+
+    def get_queryset(self):
+        base_query = (
+            HomeworkResult.objects.filter(
+                homework__uuid=self.kwargs.get("uuid"),
+                homework__assigned_to=self.request.user,
+                homework__homework__is_delete=False
+            )
+        )
+
+        return base_query
+
+    def get_form(self, form_class=None):
+        # If uuid is not in url (kwargs), show homework field
+        if "uuid" in self.kwargs:
+            return super().get_form(form_class)
+
+        # Save User and assigned homeworks to the user
+        user = self.request.user
+        homeworks = (
+            HomeworkCreatedFor.objects.filter(
+                homework__created_by=user,
+                homework__is_delete=False
+            )
+            .prefetch_related("homework")
+            .only("homework__title", "uuid")
+        )
+
+        # Add assigned homeworks to homework field as choices
+        form = super().get_form(form_class)
+        homework_choices = [(homework.uuid, homework.homework.title) for homework in homeworks]
+        form.fields["homework"].choices = homework_choices
+
+        return form
+
+    def form_valid(self, form):
+        homework_result = form.save(commit=False)
+        homework_result.homework = (
+            Homework.objects.get(
+                uuid=form.cleaned_data.get("homework"),
+                is_delete=False
+            )
+        )
+        homework_result.student = (
+            Account.objects.get(
+                active_code=form.cleaned_data.get("student"),
+                is_active=True
+            )
+        )
+
+        return super().form_valid(form)
+
+
+class HomeworkResultDetailView(LoginRequiredMixin, DetailView):
+    template_name = "homework_module/homework-result.html"
+    context_object_name = "homework"
+    model = HomeworkCreatedFor
+    slug_url_kwarg = "uuid"
+    slug_field = "uuid"
+
+    def get_queryset(self):
+        if not hasattr(self, "base_query"):
+            self.base_query = (
+                HomeworkCreatedFor.objects.filter(
+                    uuid=self.kwargs.get("uuid"),
+                    homework__created_by=self.request.user,
+                    homework__is_delete=False
+                    )
+                .select_related("homework", "result", "feedback")
+            )
+
+        return self.base_query
+
+    def get_context_data(self, **kwargs):
+        # Save default contexts, base_query (specified HomeworkCreatedFor) and page
+        context = super().get_context_data(**kwargs)
+        base_query = self.get_queryset().first()
+        page = self.request.GET.get("page", 1)
+
+        # Convert the page number from str to int
+        # If can't convert it, because page number is not a number set page first page
+
+        try:
+            page = int(page)
+        except ValueError:
+            page = 1
+
+        # Save every other HomeworkCreatedFor of that homework,
+        # If the homework is not deleted and its created by user
+
+        homeworks = (
+            HomeworkCreatedFor.objects.filter(
+                homework=base_query.homework,
+                homework__created_by=self.request.user,
+                homework__is_delete=False,
+            )
+            .exclude(result=None)
+            .select_related("homework", "feedback", "result")
+        )
+
+
+        # If at least one person has submitted a homework_result
+        # Paginate homeworks (One in each page)
+        # Send result and feedback of that page with page_obj
+        # Else Send Null for result and feedback
+
+        if not homeworks.exists():
+            context["result"] = None
+            context["feedback"] = None
+
+            return context
+
+        paginator = Paginator(homeworks, 1)
+        page_obj = paginator.page(page)
+        homework = page_obj.object_list[0]
+
+        context["result"] = homework.result
+        context["feedback"] = homework.feedback
+        context["page_obj"] = page_obj
+
+        return context
+
+
+class HomeworkResultFileListView(LoginRequiredMixin, ListView):
+    template_name = "homework_module/homework-result-file-list.html"
+    context_object_name = "files"
+    model = HomeworkResultFile
+
+    def get_queryset(self):
+        base_query = (
+            HomeworkResultFile.objects.filter(
+                # homework__homework__uuid=self.kwargs.get("uuid"),
+                is_delete=False,
+            )
+            .prefetch_related("homework")
+            .only("file", "homework")
+        )
+
+        uuid = self.kwargs.get("uuid")
+
+        if uuid is not None:
+            base_query.filter(homework__homework__uuid=uuid)
+
+        return base_query
+
+
+class HomeworkFeedbackCreateView(LoginRequiredMixin, CreateView):
+    form_class = HomeworkFeedbackForm
+    template_name =  "homework_module/create-homework-feedback.html"
+    success_url = reverse_lazy("homework-list-page")
 
     def get_form_kwargs(self):
         # Show homework field if uuid is in url (kwargs)
@@ -220,185 +486,31 @@ class HomeworkResultCreateView(LoginRequiredMixin, CreateView):
                 uuid=homework_uuid,
                 homework__is_delete=False
             )
-            .only("result")
+            .only("feedback")
             .first()
         )
 
-        # Save assigned files to result as a list
-        # Save new homework result and set it as result of HomeworkCreatedFor
+        # Save assigned files to the feedback as a list
+        # Save new homeworK_feedback and set it as feedback of HomeworkCreatedFor
 
         files = self.request.FILES.getlist("files")
-        homework_result = form.save()
-        homework.result = homework_result
+        homework_feedback = form.save()
+        homework.feedback = homework_feedback
         homework.save()
 
-        # Upload and save assigned files to result in server
+        # Upload and save, homework_feedback files in server
 
-        homework_result_files = [
-            HomeworkResultFile(
-                homework=homework_result,
+        homework_feedback_files = [
+            HomeworkFeedbackFile(
+                homework=homework_feedback,
                 file=file
             )
             for file in files
         ]
 
-        HomeworkResultFile.objects.bulk_create(homework_result_files)
+        HomeworkFeedbackFile.objects.bulk_create(homework_feedback_files)
 
         return super().form_valid(form)
-
-
-class HomeworkResultUpdateView(LoginRequiredMixin, UpdateView):
-    model = HomeworkResult
-    template_name = "homework_module/edit-homework-result.html"
-    success_url = reverse_lazy("index-page")
-    login_url = reverse_lazy("login-page")
-    context_object_name = "homework_result"
-    form_class = HomeworkResultForm
-    slug_url_kwarg = "uuid"
-    slug_field = "uuid"
-
-    def get_queryset(self):
-        base_query = super().get_queryset()
-        base_query = base_query.filter(
-            is_delete=False
-        )
-
-        return base_query
-
-    def get_form(self, form_class=None):
-        user = self.request.user
-
-        homeworks = (
-            Homework.objects.filter(
-                created_by=user,
-                is_delete=False
-            )
-            .only("title", "uuid")
-        )
-        students = (
-            set(
-                Account.objects.filter(
-                    assigned_classes__teachers__teacher=user,
-                    is_active=True,
-                )
-                .only("username", "active_code")
-            )
-        )
-
-        form = super().get_form(form_class)
-        homework_choices = [(homework.uuid, homework.title) for homework in homeworks]
-        student_choices = [
-            (student.active_code, student.username)
-            for student in students
-        ]
-
-        form.fields["homework"].choices = homework_choices
-        form.fields["student"].choices = student_choices
-
-        return form
-
-    def form_valid(self, form):
-        homework_result = form.save(commit=False)
-        homework_result.homework = (
-            Homework.objects.get(
-                uuid=form.cleaned_data.get("homework"),
-                is_delete=False
-            )
-        )
-        homework_result.student = (
-            Account.objects.get(
-                active_code=form.cleaned_data.get("student"),
-                is_active=True
-            )
-        )
-
-        return super().form_valid(form)
-
-
-class HomeworkResultDetailView(LoginRequiredMixin, DetailView):
-    model = HomeworkCreatedFor
-    template_name = "homework_module/homework-result.html"
-    login_url = reverse_lazy("login-page")
-    context_object_name = "homework"
-    slug_url_kwarg = "uuid"
-    slug_field = "uuid"
-
-    def get_context_data(self, **kwargs):
-        # Save default contexts, base_query (specified HomeworkCreatedFor) and page
-        context = super().get_context_data(**kwargs)
-        base_query = super().get_queryset().first()
-        page = self.request.GET.get("page", 1)
-
-        # Convert the page number from str to int
-        # If can't convert it, because page number is not a number set page first page
-
-        try:
-            page = int(page)
-        except ValueError:
-            page = 1
-
-        # Save every other HomeworkCreatedFor of that homework,
-        # If the homework is not deleted and its created by user
-
-        homeworks = (
-            HomeworkCreatedFor.objects.filter(
-                homework=base_query.homework,
-                homework__created_by=self.request.user,
-                homework__is_delete=False,
-            )
-            .select_related("result", "homework")
-        )
-
-
-        # Paginate homeworks (One in each page)
-        # Send result and feedback of that page with page_obj
-
-        paginator = Paginator(homeworks, 1)
-        page_obj = paginator.page(page)
-        homework = page_obj.object_list[0]
-
-        context["result"] = homework.result
-        context["feedback"] = homework.feedback
-        context["page_obj"] = page_obj
-
-        return context
-
-    def get_queryset(self):
-        if not hasattr(self, "base_query"):
-            self.base_query = (
-                super().get_queryset()
-                .filter(
-                    homework__created_by=self.request.user,
-                    homework__is_delete=False
-                    )
-                .select_related("homework", "result", "feedback")
-            )
-
-        return self.base_query
-
-
-class HomeworkResultFileListView(LoginRequiredMixin, ListView):
-    template_name = "homework_module/homework-result-file-list.html"
-    login_url = reverse_lazy("login-page")
-    context_object_name = "files"
-    model = HomeworkResultFile
-
-    def get_queryset(self):
-        base_query = (
-            HomeworkResultFile.objects.filter(
-                # homework__homework__uuid=self.kwargs.get("uuid"),
-                is_delete=False,
-            )
-            .prefetch_related("homework")
-            .only("file", "homework")
-        )
-
-        uuid = self.kwargs.get("uuid")
-
-        if uuid is not None:
-            base_query.filter(homework__homework__uuid=uuid)
-
-        return base_query
 
 
 @login_required
@@ -414,7 +526,7 @@ def done_homework(request, uuid):
     # Save homework, if its assigned to user
 
     user = request.user
-    homework: HomeworkCreatedFor = get_object_or_404(
+    homework: HomeworkCreatedFor = (
         HomeworkCreatedFor.objects.filter(
             assigned_to=user,
             homework__is_delete=False,
@@ -422,6 +534,7 @@ def done_homework(request, uuid):
         )
         .exclude(status=1)
         .only("status")
+        .first()
     )
 
     # Change the status of homework
@@ -451,7 +564,7 @@ def in_progress_homework(request, uuid):
     # Save homework, if its assigned to user
 
     user = request.user
-    homework: HomeworkCreatedFor = get_object_or_404(
+    homework: HomeworkCreatedFor = (
         HomeworkCreatedFor.objects.filter(
             assigned_to=user,
             homework__is_delete=False,
@@ -459,6 +572,7 @@ def in_progress_homework(request, uuid):
         )
         .exclude(status=2)
         .only("status")
+        .first()
     )
 
     # Change the status of homework
@@ -487,7 +601,7 @@ def not_done_homework(request, uuid):
     # Save homework, if its assigned to user
 
     user = request.user
-    homework: HomeworkCreatedFor = get_object_or_404(
+    homework: HomeworkCreatedFor = (
         HomeworkCreatedFor.objects.filter(
             assigned_to=user,
             homework__is_delete=False,
@@ -495,6 +609,7 @@ def not_done_homework(request, uuid):
         )
         .exclude(status=3)
         .only("status")
+        .first()
     )
 
     # Change the status of homework
@@ -502,6 +617,118 @@ def not_done_homework(request, uuid):
 
     homework.status = 3
     homework.save()
+
+    previous_url = request.META.get("HTTP_REFERER", None)
+
+    if previous_url is None:
+        return redirect(reverse("homework-list-page"))
+
+    return redirect(previous_url)
+
+@login_required
+def complete_homework(request, uuid):
+    """
+    Changes the result status of a homework_result to complete,
+    and finds it using entered uuid in the url,
+    if:
+        1. User is authenticated
+        2. The homework created by user
+    """
+
+    # Save the user
+    # Save homework, if its created by user
+
+    user = request.user
+    homework_result: HomeworkResult = (
+        HomeworkResult.objects.filter(
+            homework__homework__uuid=uuid,
+            homework__homework__created_by=user,
+            homework__homework__is_delete=False
+        )
+        .exclude(result_status=1)
+        .only("result_status")
+        .first()
+    )
+
+    # Change the status of homework_result
+    # Redirect the user to previous url
+
+    homework_result.result_status = 1
+    homework_result.save()
+
+    previous_url = request.META.get("HTTP_REFERER", None)
+
+    if previous_url is None:
+        return redirect(reverse("homework-list-page"))
+
+    return redirect(previous_url)
+
+@login_required
+def waiting_homework(request, uuid):
+    """
+    Changes the result status of a homework_result to waitings,
+    and finds it using entered uuid in the url,
+    if:
+        1. User is authenticated
+        2. The homework created by user
+    """
+
+    # Save the user
+    # Save homework, if its created by user
+
+    user = request.user
+    homework_result: HomeworkResult = (
+        HomeworkResult.objects.get(
+            homework__uuid=uuid,
+            homework__assigned_to=user,
+            homework__homework__is_delete=False
+        )
+        .exclude(result_status=2)
+        .only("result_status")
+    )
+
+    # Change the result status of homework_result
+    # Redirect the user to previous url or homework list page
+
+    homework_result.result_status = 2
+    homework_result.save()
+
+    previous_url = request.META.get("HTTP_REFERER", None)
+
+    if previous_url is None:
+        return redirect(reverse("homework-list-page"))
+
+    return redirect(previous_url)
+
+@login_required
+def not_complete_homework(request, uuid):
+    """
+    Changes the result status of a homework result to not completed,
+    and finds it using entered uuid in the url,
+    if:
+        1. User is authenticated
+        2. The homework is created by user
+    """
+
+    # Save the user
+    # Save homework_result, if its created by user
+
+    user = request.user
+    homework_result: HomeworkResult = (
+        HomeworkResult.objects.get(
+            homework__uuid=uuid,
+            homework__homework__created_by=user,
+            homework__homework__is_delete=False
+        )
+        .exclude(result_status=3)
+        .only("result_status")
+    )
+
+    # Change the result status of homework_result
+    # Redirect the user to previous url or homework list page
+
+    homework_result.result_status = 3
+    homework_result.save()
 
     previous_url = request.META.get("HTTP_REFERER", None)
 
@@ -574,6 +801,6 @@ def download_homework_feedback(request, url_path):
 
     # Save the user
     # Save homework, if its assigned to user
-    result = get_object_or_404(HomeworkResult, uuid=uuid)
+    result = get_object_or_404(HomeworkResult, file__url=url_path)
 
     return FileResponse(result.result_file.open('rb'), as_attachment=True)

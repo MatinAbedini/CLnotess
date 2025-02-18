@@ -22,7 +22,9 @@
                                     <thead>
                                     <tr>
                                         <th scope="col" style="font-size: medium; font-weight: normal;">موضوع</th>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">درس</th>
                                         <th scope="col" style="font-size: medium; font-weight: normal;">معلم</th>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">برای تاریخ</th>
                                         <th scope="col" style="font-size: medium; font-weight: normal;">وضعیت</th>
                                         <th class="text-nowrap" style="font-size: medium; font-weight: normal;">عملیات ها</th>
                                     </tr>
@@ -32,7 +34,9 @@
                                             {% for homework in homeworks %}
                                                 <tr>
                                                     <td>{{ homework.homework.title }}</td>
+                                                    <td>{{ homework.homework.lesson }}</td>
                                                     <td>{{ homework.homework.created_by.get_full_name }}</td>
+                                                    <td>{{ homework.homework.for_date }}</td>
                                                     <td>
                                                         <span
                                                             class="label
@@ -57,7 +61,7 @@
                                                             <a href="{% url "homework-result-page" homework.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="مشاهده نتایج">
                                                                 <i class="fa fa-check-square-o text-inverse"></i>
                                                             </a>
-                                                            <a href="{% url "delete-homework-page" homework.uuid %}" data-toggle="tooltip" data-original-title="حذف کردن">
+                                                            <a href="{% url "delete-homework-page" homework.homework.uuid %}" data-toggle="tooltip" data-original-title="حذف کردن">
                                                                 <i class="fa fa-close text-danger"></i>
                                                             </a>
                                                         {% else %}

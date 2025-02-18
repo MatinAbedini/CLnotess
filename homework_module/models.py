@@ -14,7 +14,7 @@ class Homework(models.Model):
     title = models.CharField(verbose_name=_("موضوع"), max_length=100, null=False, blank=False, db_index=True)
     description = models.TextField(verbose_name=_("توضیحات"), max_length=1500, null=False, blank=False)
     creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
-    modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد تغییر"), auto_now=True, db_index=True)
     for_date = jmodels.jDateField(verbose_name=_("برای تاریخ"), null=False, blank=False)
     is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
     uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
@@ -35,18 +35,6 @@ class Homework(models.Model):
         editable=False,
         null=True,
         db_index=True,
-    )
-
-    difficulty = models.IntegerField(
-        verbose_name=_("سطح ساخته"),
-        default=1,
-        db_index=True,
-        choices=[
-            (1, _("ساده")),
-            (2, _("متوسط")),
-            (3, _("سخت"))
-        ],
-        validators=(MinValueValidator(1), MaxValueValidator(3))
     )
 
     def __str__(self) -> str:
@@ -84,6 +72,13 @@ class HomeworkCreatedFor(models.Model):
         "Homework",
         verbose_name=_("تکلیف"),
         related_name="for_class",
+        on_delete=models.CASCADE
+    )
+
+    assigned_class = models.ForeignKey(
+        "class_module.Class",
+        verbose_name=_("کلاس"),
+        related_name="student_homeworks",
         on_delete=models.CASCADE
     )
 
@@ -185,3 +180,31 @@ class HomeworkResultFile(models.Model):
     class Meta:
         verbose_name = _("فایل نتیجه تکلیف")
         verbose_name_plural = _("فایل های نتیجه تکلیف")
+
+
+class HomeworkFeedbackFile(models.Model):
+    creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
+    modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
+
+    homework = models.ForeignKey(
+        "HomeworkFeedback",
+        verbose_name=_("تکلیف"),
+        related_name="feedbacks",
+        on_delete=models.CASCADE,
+        db_index=True,
+    )
+
+    file = models.FileField(
+        verbose_name=_("فایل های بازخورد تکلیف"),
+        upload_to="homework_module/homework_results/",
+        validators=[validate_file_size],
+        db_index=True,
+    )
+
+    def __str__(self):
+        return f"{self.homework}"
+
+    class Meta:
+        verbose_name = _("فایل بازخورد تکلیف")
+        verbose_name_plural = _("فایل های بازخورد تکلیف")

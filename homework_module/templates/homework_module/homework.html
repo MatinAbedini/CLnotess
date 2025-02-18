@@ -55,7 +55,7 @@
                                         <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
                                             <p>درس</p>
                                             <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
-                                            <p>علوم</p>
+                                            <p>{{ homework.homework.lesson }}</p>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
@@ -86,7 +86,7 @@
                                                 {% if homework.homework.created_by != user %} disabled btn-default
                                                 {% else %} btn-primary
                                                 {% endif %}"
-                                            href="{% url 'edit-homework-page' homework.uuid %}">
+                                            href="{% url "edit-homework-page" homework.homework.uuid %}">
                                             ویرایش
                                         </a>
                                     </div>
@@ -112,7 +112,7 @@
                             <div class="emp-detail pl-15 pr-15">
                                 {% if homework.assigned_to == user %}
                                     <div class="col-md-4 col-sm-3 mt-20 mb-20">
-                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-primary" href="{% url 'edit-homework-page' homework.uuid %}">ویرایش</a>
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-primary" href="{% url 'edit-homework-result-page' homework.uuid %}">ویرایش</a>
                                     </div>
                                     <div class="col-md-4 col-sm-3 mt-20 mb-20">
                                         <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "homework-result-list-page" homework.homework.uuid %}">دانلود</a>
@@ -136,6 +136,9 @@
                                             <p>{{ homework.result.description }}</p>
                                         </div>
                                     </div>
+                                    <div class="mt-30">
+                                        <a class="btn btn-block btn-default disabled"> {{ homework.result.modify_date.year }} / {{ homework.result.modify_date.month }} / {{ homework.result.modify_date.day }}</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -149,21 +152,9 @@
                     <div class="row">
                         <div class="panel-heading row">
                             <div class="emp-detail pl-15 pr-15">
-                                {% if homework.assigned_to == user %}
-                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
-                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-primary" href="{% url 'edit-homework-page' homework.uuid %}">ویرایش</a>
-                                    </div>
-                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
-                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "delete-homework-page" homework.homework.uuid %}">دانلود</a>
-                                    </div>
-                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
-                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-homework-page" homework.homework.uuid %}">حذف</a>
-                                    </div>
-                                {% else %}
-                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
-                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "delete-homework-page" homework.homework.uuid %}">دانلود</a>
-                                    </div>
-                                {% endif %}
+                                <div class="col-md-12 col-sm-12 mt-20 mb-20">
+                                    <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "delete-homework-page" homework.homework.uuid %}">دانلود</a>
+                                </div>
                             </div>
                         </div>
                         <hr class="light-grey-hr mt-20 mb-20">
@@ -174,6 +165,9 @@
                                         <div class="mr-50 ml-50" dir="rtl">
                                             <p>{{ homework.feedback.description }}</p>
                                         </div>
+                                    </div>
+                                    <div class="mt-30">
+                                        <a class="btn btn-block btn-default disabled"> {{ homework.feedback.modify_date.year }} / {{ homework.feedback.modify_date.month }} / {{ homework.feedback.modify_date.day }}</a>
                                     </div>
                                 </div>
                             </div>

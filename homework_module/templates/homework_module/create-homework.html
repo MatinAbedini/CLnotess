@@ -1,4 +1,4 @@
-{% extends 'shared/_layout.html' %}
+{% extends "shared/_layout.html" %}
 {% load static %}
 
 {% block title %}ساخت تکلیف{% endblock %}
@@ -22,27 +22,32 @@
 
                                 <div class="row">
                                     <div class="form-group">
-                                        <div class="form-group col-md-6">
-                                            <label class="control-label mb-10 pull-right" for="{{ form.for_date.id_for_label }}">برای تاریخ</label>
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label mb-10 pull-right" for="{{ form.lesson.id_for_label }}">{{ form.lesson.label }}</label>
+                                            {{ form.lesson }}
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label mb-10 pull-right" for="{{ form.for_date.id_for_label }}">{{ form.for_date.label }}</label>
                                             {{ form.for_date }}
                                             <span class="text-muted pull-right">روز / ماه / سال</span>
                                         </div>
-                                        <div class="form-group col-md-6">
-                                            <label class="control-label mb-10 pull-right" for="{{ form.title.id_for_label }}">موضوع</label>
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label mb-10 pull-right" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
                                             {{ form.title }}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label mb-10 pull-right" for="{{ form.assigned_to.id_for_label }}">برای کلاس</label>
+                                    <label class="control-label mb-10 pull-right" for="{{ form.assigned_to.id_for_label }}">{{ form.assigned_to.label }}</label>
                                     {{ form.assigned_to }}
                                 </div>
                                 <div class="form-group">
                                     <div class="form-group">
-                                        <label class="control-label mb-10 pull-right" for="{{ form.description.id_for_label }}">توضیحات</label>
+                                        <label class="control-label mb-10 pull-right" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
                                         {{ form.description }}
                                     </div>
                                 </div>
+
                                 <input type="submit" value="ذخیره" class="btn btn-block btn-success mt-40">
 
                                 {{ form.errors }}

@@ -26,6 +26,7 @@ class MultipleFileField(forms.FileField):
 class HomeworkForm(forms.ModelForm):
     assigned_to = forms.MultipleChoiceField(
         required=True,
+        label=_("برای کلاس"),
         widget=forms.SelectMultiple(attrs={
             "class": "form-control",
             "dir":"rtl"
@@ -34,11 +35,15 @@ class HomeworkForm(forms.ModelForm):
 
     class Meta:
         model = Homework
-        fields = ("title", "description", "for_date")
+        fields = ("title", "lesson", "description", "for_date")
         widgets = {
             "title": forms.TextInput(attrs={
                 "class": "form-control",
                 "dir":"rtl",
+            }),
+            "lesson": forms.Select(attrs={
+                "class": "form-control",
+                "dir": "rtl",
             }),
             "description": forms.Textarea(attrs={
                 "class": "form-control",
@@ -67,6 +72,51 @@ class HomeworkResultForm(forms.ModelForm):
 
     class Meta:
         model = HomeworkResult
+        fields = ("description",)
+        labels = {"description": _("توضیحات")}
+        widgets = {
+            "description": forms.Textarea(attrs={
+                "class": "form-control",
+                "dir": "rtl",
+            })
+        }
+
+    def __init__(self, *args, **kwargs):
+        show_homework = kwargs.pop("show_homework", False)
+
+        super().__init__(*args, **kwargs)
+
+        if not show_homework:
+            self.fields.pop("homework")
+
+    def clean_files(self):
+        """If uploaded files are more that 25, raises a validation error"""
+
+        # Save files and max_files
+        files = self.files.getlist("files")
+        max_file = 25
+
+        # If uploaded file are more thant 25 raises a validation error
+        if len(files) > max_file:
+            raise ValidationError(_(".شما بیشتر از 25 فایل نمی توانید آپلود کنید"))
+
+        return files
+
+
+class HomeworkFeedbackForm(forms.ModelForm):
+    homework = forms.ChoiceField(
+        required=True,
+        label=_("تکلیف"),
+        widget=forms.Select(attrs={
+            "class": "form-control",
+            "dir": "rtl",
+        })
+    )
+
+    files = MultipleFileField(label=_("فایل ها"))
+
+    class Meta:
+        model = HomeworkFeedback
         fields = ("description",)
         labels = {"description": _("توضیحات")}
         widgets = {

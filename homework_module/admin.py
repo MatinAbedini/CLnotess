@@ -6,8 +6,8 @@ from . import models
 
 @admin.register(models.Homework)
 class HomeworkAdmin(admin.ModelAdmin):
-    list_display = ("id", "__str__", "lesson", "created_by", "creation_date", "for_date", "is_delete")
-    list_filter = ("is_delete", "lesson", "creation_date", "for_date")
+    list_display = ("id", "__str__", "lesson", "created_by", "modify_date", "creation_date", "for_date", "is_delete")
+    list_filter = ("is_delete", "lesson", "modify_date", "creation_date", "for_date")
     search_fields = ("title", "description")
 
     def save_model(self, request, obj, form, change):
@@ -20,9 +20,9 @@ class HomeworkAdmin(admin.ModelAdmin):
 
 @admin.register(models.HomeworkCreatedFor)
 class HomeworkCreatedForAdmin(admin.ModelAdmin):
-    list_display = ("id", "homework", "assigned_to", "creation_date", "modify_date", "homework__is_delete")
+    list_display = ("id", "homework", "assigned_to", "assigned_class", "creation_date", "modify_date", "homework__is_delete")
     list_filter = ("creation_date", "modify_date", "homework__is_delete")
-    search_fields = ("homework", "assigned_to")
+    search_fields = ("homework", "assigned_to", "assigned_class",)
 
     def save_model(self, request, obj, form, change):
         # If a new Homework is created, then created_by will set to user
