@@ -1,8 +1,9 @@
 from django.utils.translation import gettext_lazy as _
-from account_module.models import Account, AccountSettings
 from django.contrib.auth.forms import PasswordChangeForm
 from django_recaptcha.fields import ReCaptchaField
 from django import forms
+
+from account_module.models import Account, AccountSettings
 
 
 class EditAccountForm(forms.ModelForm):
@@ -34,6 +35,7 @@ class EditAccountForm(forms.ModelForm):
                 "placeholder": _("نام کاربری"),
                 "dir": "rtl",
             }),
+            "username": forms.FileInput(attrs={}),
         }
 
 
@@ -80,3 +82,31 @@ class UserPanelChangePasswordForm(PasswordChangeForm):
             "placeholder":_("تکرار رمزعبور جدید"),
             "dir":"rtl"
         })
+
+
+class UserPanelChangeEmailForm(forms.ModelForm):
+    captcha = ReCaptchaField()
+    old_email = forms.EmailField(
+        required=True,
+        label=_("ایمیل قبلی"),
+        widget=forms.EmailInput(attrs={
+            "class": "form-control",
+            "placeholder":_("ایمیل قبلی"),
+            "dir":"rtl"
+        })
+    )
+
+    class Meta:
+        model = Account
+        fields = ("email",)
+        labels = {
+            "email": _("ایمیل جدید"),
+        }
+
+        widgets = {
+            "email": forms.EmailInput(attrs={
+                "class": "form-control",
+                "placeholder":_("ایمیل جدید"),
+                "dir":"rtl"
+            }),
+        }

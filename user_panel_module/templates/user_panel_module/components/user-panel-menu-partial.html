@@ -1,6 +1,16 @@
-<div class="col-lg-3 col-md-4 col-sm-5 col-xs-12">
+{% load thumbnail %}
+
+<div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
     <div class="panel panel-default card-view">
         <div class="panel-wrapper collapse in">
+            <div class="row">
+                <div class="user-profile text-center">
+                    {% thumbnail user.profile_image "80x80" crop="center" as im %}
+                        <img src="{{ im.url }}" alt="profile_image" class="user-auth-img img-circle">
+                    {% endthumbnail %}
+                </div>
+            </div>
+            <hr class="light-grey-hr mt-20 mb-20">
             <div class="row">
                 <div class="file-manager">
                     <ul class="folder-list mb-2">

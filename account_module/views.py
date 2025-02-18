@@ -16,8 +16,8 @@ from uuid import uuid4
 
 class RegisterView(FormView):
     template_name = "account_module/register.html"
+    success_url = reverse_lazy("class-list-page")
     form_class = RegisterForm
-    success_url = reverse_lazy("index-page")
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -32,48 +32,43 @@ class RegisterView(FormView):
         entered_username = form.cleaned_data.get("username")
         entered_email = form.cleaned_data.get("email")
         entered_password = form.cleaned_data.get("password1")
-        entered_phone_number = form.cleaned_data.get("phone_number")
 
         # check user details are unique
-        is_phone_number_unique = Account.objects.filter(phone_number=entered_phone_number).exists()
         is_email_unique = Account.objects.filter(email=entered_email).exists()
 
-        if not is_phone_number_unique:
-            if not is_email_unique:
+        if not is_email_unique:
 
-                # create the new user and save it to db
-                user: Account = Account(
-                    first_name=entered_first_name,
-                    last_name=entered_last_name,
-                    username=entered_username,
-                    email=entered_email,
-                    phone_number=entered_phone_number,
-                    is_active=False,
-                )
+            # create the new user and save it to db
+            user: Account = Account(
+                first_name=entered_first_name,
+                last_name=entered_last_name,
+                username=entered_username,
+                email=entered_email,
+                is_active=False,
+            )
 
-                user.set_password(entered_password)
-                user.save()
+            user.set_password(entered_password)
+            user.save()
 
-                # Send activation email to user
-                email_context = {"user": user}
-                send_mail_service(
-                    "فعال سازی حساب کاربری",
-                    "emails/activation-email.html",
-                    [user.email],
-                    email_context
-                )
+            # Send activation email to user
+            email_context = {"user": user}
+            send_mail_service(
+                "فعال سازی حساب کاربری",
+                "emails/activation-email.html",
+                [user.email],
+                email_context
+            )
 
-            else:
-                form.add_error("email",  _("کابری با این ایمیل وجود دارد."))
         else:
-            form.add_error("phone_number", _("کاربری با این شماره تلفن وجود دارد."))
+            form.add_error("email",  _("کابری با این ایمیل وجود دارد."))
+
         return super().form_valid(form)
 
 
 class LoginView(LoginView):
     template_name = "account_module/login.html"
     redirect_authenticated_user = True
-    next_page = reverse_lazy("index-page")
+    next_page = reverse_lazy("homework-list-page")
     authentication_form = LoginForm
 
     def dispatch(self, request, *args, **kwargs):
@@ -83,7 +78,6 @@ class LoginView(LoginView):
         return super().dispatch(request, *args, **kwargs)
 
 
-@login_required
 def activation_view(request, active_code):
     if not request.user.is_authenticated:
         user: Account = Account.objects.get(active_code=active_code)
