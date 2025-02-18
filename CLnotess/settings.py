@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from decouple import config
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,8 +34,8 @@ ALLOWED_HOSTS = []
 
 
 INSTALLED_APPS = [
-    'admin_tools_stats',
-    'django_nvd3',
+    'django_daisy',
+    'chart',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'exam_module',
     'site_module',
     'home_module',
+    'dashboard_module',
     'polls',
 ]
 
@@ -150,7 +152,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'fa'
+LANGUAGE_CODE = 'fa-ir'
 
 TIME_ZONE = 'UTC'
 
@@ -177,8 +179,10 @@ MEDIA_ROOT = BASE_DIR / 'media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Account(User) model
-
 AUTH_USER_MODEL = 'account_module.Account'
+
+# Default login page
+LOGIN_URL = reverse_lazy('login-page')
 
 # Email Settings
 EMAIL_BACKEND = config('EMAIL_BACKEND')
