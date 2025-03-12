@@ -1,21 +1,105 @@
 from django.utils.translation import gettext_lazy as _
 from django.forms import ValidationError
 
+from homework_module.models import Homework
+from exam_module.models import Exam
 
-def validate_file_size(files):
-    """
-    Validates files using their size
 
-    Args:
-        file: List of files.
+class MaxFileSize:
+    message = _(".حداکثر حجم فایل ها %(max_size) مگابایت است")
+    code = "too_large"
+    default_max_size = 5
 
-    Raises:
-        ValidationError: If the size of files is more than entered size
-    """
+    def __init__(self, max_size: int | None = None) -> None:
+        if not max_size:
+            max_size = self.default_max_size
 
-    # Calculates the max size in MB
-    max_size = 50 * 1024 * 1024 #
+        self.max_size = max_size * (1024 ** 2)
 
-    # Raise an error if the size of files is more than entered size
-    if files.size > max_size:
-        raise ValidationError(_(".حداکثر حجم فایل ها 50 مگابایت است"))
+    def __call__(self, value):
+        if value.size > self.max_size:
+            raise ValidationError(
+                message=self.message,
+                code=self.code,
+                params={
+                    "max_size": self.max_size,
+                }
+            )
+
+    def __eq__(self, other):
+        return (
+            isinstance(self, other) and
+            self.default_max_size == other.default_max_size
+        )
+
+
+class MinFileSize:
+    message = _(".حداقل حجم فایل ها %(min_size) مگابایت است")
+    code = "too_small"
+    default_min_size = 5
+
+    def __init__(self, min_size: int | None = None) -> None:
+        if not min_size:
+            min_size = self.default_min_size
+
+        self.min_size = min_size * (1024 ** 2)
+
+    def __call__(self, value):
+        if value.size < self.min_size:
+            raise ValidationError(
+                message=self.message,
+                code=self.code,
+                params={
+                    "min_size": self.min_size,
+                }
+            )
+
+    def __eq__(self, other):
+        return (
+            isinstance(self, other) and
+            self.default_min_size == other.default_min_size
+        )
+
+
+def unique_homework(homework):
+    message = _(".حداکثر حجم فایل ها %(classes) مگابایت است")
+    code = "duplicated_homework_exists"
+
+    duplicated_homeworks = (
+        Homework.objects.filter(
+            title=homework.title,
+            lesson=homework.lesson,
+            assigned_class__in=homework.assigned_class,
+            is_delete=False,
+        )
+    )
+
+    if duplicated_homeworks.exists():
+        raise ValidationError(
+            message=message,
+            code=code,
+            params={
+                "classes": duplicated_homeworks.values_list("assigned_class", flat=True),
+            }
+        )
+
+
+def unique_exam(exam):
+    message = _(".کلاس های %(class) این تکلیف را دارند")
+    code = "duplicated_exam_exists"
+
+    duplicated_exams = (
+        Exam.objects.filter(
+            assigned_class__in=exam.assigned_class,
+            is_delete=False,
+        )
+    )
+
+    if duplicated_exams.exists():
+        raise ValidationError(
+            message=message,
+            code=code,
+            params={
+                "classes": duplicated_exams.values_list("assigned_class", flat=True),
+            }
+        )
