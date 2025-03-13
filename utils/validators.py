@@ -1,16 +1,13 @@
 from django.utils.translation import gettext_lazy as _
 from django.forms import ValidationError
 
-from homework_module.models import Homework
-from exam_module.models import Exam
-
 
 class MaxFileSize:
     message = _(".حداکثر حجم فایل ها %(max_size) مگابایت است")
     code = "too_large"
     default_max_size = 5
 
-    def __init__(self, max_size: int | None = None) -> None:
+    def __init__(self, max_size):
         if not max_size:
             max_size = self.default_max_size
 
@@ -26,10 +23,17 @@ class MaxFileSize:
                 }
             )
 
+    def deconstruct(self):
+        return (
+            "utils.validators.MaxFileSize",
+            [self.max_size // (1024 ** 2)],
+            {}
+        )
+
     def __eq__(self, other):
         return (
-            isinstance(self, other) and
-            self.default_max_size == other.default_max_size
+            isinstance(other, self) and
+            other.default_max_size == self.default_max_size
         )
 
 
@@ -38,7 +42,7 @@ class MinFileSize:
     code = "too_small"
     default_min_size = 5
 
-    def __init__(self, min_size: int | None = None) -> None:
+    def __init__(self, min_size):
         if not min_size:
             min_size = self.default_min_size
 
@@ -54,8 +58,15 @@ class MinFileSize:
                 }
             )
 
+    def deconstruct(self):
+        return (
+            "utils.validators.MinFileSize",
+            [self.min_size // (1024 ** 2)],
+            {}
+        )
+
     def __eq__(self, other):
         return (
-            isinstance(self, other) and
-            self.default_min_size == other.default_min_size
+            isinstance(other, self) and
+            other.default_min_size == self.default_min_size
         )
