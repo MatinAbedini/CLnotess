@@ -26,48 +26,59 @@ class HomeworkCreateView(LoginRequiredMixin, FormView):
     model = Homework
 
     def get_form(self, form_class=None):
-        user = self.request.user
-        classes = (
-            Class.objects.filter(
-                Q(teachers__teacher=user) | Q(created_by=user),
-                is_active=True,
-                is_delete=False
-            ).only("class_name", "school_name", "id")
-        )
+        # If classes aren't cached (saved)
+        # Save and find, classes which are created or assigned to user
+
+        if not hasattr(self, "classes"):
+            user = self.request.user
+            self.classes = (
+                Class.objects.filter(
+                    Q(teachers__teacher=user) | Q(created_by=user),
+                    is_active=True,
+                    is_delete=False
+                )
+                .prefetch_related("student_homeworks", "assigned_to")
+                .only("class_name", "school_name", "uuid")
+            )
+
+        # Add classes, as options to assigned_to, field in the form
 
         form: HomeworkForm = super().get_form(form_class)
-        class_choices = [(class_.uuid, class_.__str__) for class_ in classes]
+        class_choices = [(class_.uuid, class_) for class_ in self.classes]
         form.fields["assigned_to"].choices = class_choices
 
         return form
 
     def form_valid(self, form: HomeworkForm):
-        new_homework: Homework = form.save(commit=False)
-        assigned_to_list: list[str] = form.cleaned_data.get("assigned_to")
-
-        classes = Class.objects.filter(
-            uuid__in=assigned_to_list,
-            is_active=True,
-            is_delete=False
-        ).prefetch_related("assigned_to")
+        
+        homework: Homework = form.save(commit=False)
+        assigned_to_list = form.cleaned_data.get("assigned_to")
+        classes = self.classes.filter(uuid__in=assigned_to_list)
 
         if not classes.exists():
-            return super().form_valid(form)
+            form = self.get_form
+            form.add_error("assigned_to", ".کلاس هایی که انتخاب کرده اید وجود ندارد")
 
-        homework_assigned_to_list = [
-            HomeworkCreatedFor(
-                homework=new_homework,
-                assigned_class=class_,
-                assigned_to=student,
-                status=3
+            return super().form_invalid(form)
+
+        duplicate_homework = (
+            Homework.objects.get(
+                title=homework.title,
+                lesson=homework.lesson,
+                created_by=self.request.user,
+                assigned_class=homework.assigned_class,
+                is_delete=True,
             )
-            for class_ in classes
-            for student in class_.assigned_to.all()
-        ]
+        )
 
-        new_homework.created_by = self.request.user
-        new_homework.save()
-        HomeworkCreatedFor.objects.bulk_create(homework_assigned_to_list)
+        if duplicate_homework.exists():
+            duplicate_homework.is_delete = False
+            duplicate_homework.save()
+
+            return redirect(self.get_success_url())
+
+        homework.created_by = self.request.user
+        homework.assign_homework(classes)
 
         return super().form_valid(form)
 
@@ -111,7 +122,7 @@ class HomeworkUpdateView(LoginRequiredMixin, UpdateView):
         classes = (
             Class.objects.filter(
                 Q(teachers__teacher=user) | Q(created_by=user),
-                student_homeworks__homework=self.get_queryset().first(),
+                assigned_homeworks__homework=self.get_queryset().first(),
                 is_delete=False,
             )
             .only("uuid")
@@ -757,7 +768,7 @@ def delete_homework(request, uuid):
             is_delete=False,
             uuid=uuid
         )
-        .only("is_delete")
+        .only("is_delete", "assigned_class")
     )
 
     # Delete the homework (Change is_delete to false)

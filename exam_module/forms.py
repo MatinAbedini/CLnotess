@@ -1,9 +1,12 @@
+from django.utils.translation import gettext_lazy as _
 from django import forms
-from .models import Exam, ExamResult
+
+from .models import *
 
 class ExamForm(forms.ModelForm):
     assigned_to = forms.MultipleChoiceField(
         required=True,
+        label=_("برای کلاس"),
         widget=forms.SelectMultiple(attrs={
             "class": "form-control",
             "dir": "rtl",
@@ -12,7 +15,7 @@ class ExamForm(forms.ModelForm):
 
     class Meta:
         model = Exam
-        fields = ("title", "description", "for_date", "duration", "difficulty", "questions")
+        fields = ("title", "description", "for_date", "duration", "difficulty", "lesson", "questions")
         widgets = {
             "title": forms.TextInput(attrs={
                 "class": "form-control",
@@ -33,6 +36,10 @@ class ExamForm(forms.ModelForm):
                 "dir": "rtl",
             }),
             "difficulty": forms.Select(attrs={
+                "class": "form-control",
+                "dir": "rtl",
+            }),
+            "lesson": forms.Select(attrs={
                 "class": "form-control",
                 "dir": "rtl",
             }),

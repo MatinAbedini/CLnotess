@@ -9,9 +9,9 @@ urlpatterns = [
     path("exam-detail/<uuid>", ExamDetailView.as_view(), name="exam-detail-page"),
 
     # Exam Result views
-    path("create-result/", ExamResultCreateView.as_view(), name=""),
-    path("edit-result/<uuid>", ExamResultUpdateView.as_view(), name=""),
-    path("result/<uuid>", ExamResultDetailView.as_view(), name=""),
+    path("create-result/", ExamResultCreateView.as_view(), name="created-exam-result-page"),
+    path("edit-result/<uuid>", ExamResultUpdateView.as_view(), name="edit-exam-result-page"),
+    path("result/<uuid>", ExamResultDetailView.as_view(), name="exam-result-detail-page"),
 
     # Actions
     path("done/<uuid>", view=done_exam, name="done-exam-page"),

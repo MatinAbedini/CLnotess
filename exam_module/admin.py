@@ -5,16 +5,16 @@ from . import models
 
 @admin.register(models.Exam)
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ("id", "__str__", "created_by", "creation_date", "modify_date", "for_date", "status", "difficulty", "is_active", "is_delete")
-    list_filter = ("is_active", "is_delete", "creation_date", "modify_date", "status", "difficulty")
+    list_display = ("id", "__str__", "created_by", "creation_date", "modify_date", "for_date", "status", "difficulty", "is_delete")
+    list_filter = ("is_delete", "creation_date", "modify_date", "status", "difficulty")
     search_fields = ("title", "description")
 
-    # def save_model(self, request, obj, form, change):
-    #     # If a new Homework is created, then created_by will set to user
-    #     if not change:
-    #         obj.created_by = request.user
+    def save_model(self, request, obj, form, change):
+        # If a new Exam is created, then created_by will set to user
+        if not change:
+            obj.created_by = request.user
 
-    #     return super().save_model(request, obj, form, change)
+        return super().save_model(request, obj, form, change)
 
 
 @admin.register(models.ExamResult)

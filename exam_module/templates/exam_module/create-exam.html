@@ -22,42 +22,47 @@
 
                                 <div class="row">
                                     <div class="form-group">
-                                        <div class="form-group col-md-6">
-                                            <label class="control-label mb-10 pull-right" for="{{ form.difficulty.id_for_label }}">سختی</label>
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label mb-10 pull-right" for="{{ form.lesson.id_for_label }}">{{ form.lesson.label }}</label>
+                                            {{ form.lesson }}
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label mb-10 pull-right" for="{{ form.difficulty.id_for_label }}">{{ form.difficulty.label }}</label>
                                             {{ form.difficulty }}
                                         </div>
-                                        <div class="form-group col-md-6">
-                                            <label class="control-label mb-10 pull-right" for="{{ form.title.id_for_label }}">موضوع</label>
+                                        <div class="form-group col-md-4">
+                                            <label class="control-label mb-10 pull-right" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
                                             {{ form.title }}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
+                                <div class="row mt-20 mb-20">
                                     <div class="form-group col-md-4">
-                                        <label class="control-label mb-10 pull-right" for="{{ form.for_date.id_for_label }}">برای تاریخ</label>
+                                        <label class="control-label mb-10 pull-right" for="{{ form.for_date.id_for_label }}">{{ form.for_date.label }}</label>
                                         {{ form.for_date }}
                                         <span class="text-muted">روز / ماه / سال</span>
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label class="control-label mb-10 pull-right" for="{{ form.questions.id_for_label }}">تعداد سوالات</label>
+                                        <label class="control-label mb-10 pull-right" for="{{ form.questions.id_for_label }}">{{ form.questions.label }}</label>
                                         {{ form.questions }}
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label class="control-label mb-10 pull-right" for="{{ form.duration.id_for_label }}">مدت زمان</label>
+                                        <label class="control-label mb-10 pull-right" for="{{ form.duration.id_for_label }}">{{ form.duration.label }}</label>
                                         {{ form.duration }}
-                                        <span class="text-muted pull-right">دقیقه / ساعت</span>
+                                        <span class="text-muted pull-right">دقیقه</span>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="control-label mb-10 pull-right" for="{{ form.assigned_to.id_for_label }}">برای کلاس</label>
+                                <div class="form-group mb-40">
+                                    <label class="control-label mb-10 pull-right" for="{{ form.assigned_to.id_for_label }}">{{ form.assigned_to.label }}</label>
                                     {{ form.assigned_to }}
                                 </div>
                                 <div class="form-group">
                                     <div class="form-group">
-                                        <label class="control-label mb-10 pull-right" for="{{ form.description.id_for_label }}">توضیحات</label>
+                                        <label class="control-label mb-10 pull-right" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
                                         {{ form.description }}
                                     </div>
                                 </div>
+
                                 <input type="submit" value="ذخیره" class="btn btn-block btn-success mt-40">
 
                                 {{ form.errors }}

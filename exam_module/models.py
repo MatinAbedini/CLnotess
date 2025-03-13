@@ -1,9 +1,13 @@
-from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils.translation import gettext_lazy as _
 from django_jalali.db import models as jmodels
-from django.db import models
+from django.db.models.query import QuerySet
 from django.urls import reverse
+from django.db import models
+
 from uuid import uuid4
+from class_module.models import Class
+from utils.validators import MaxFileSize
 
 # Create your models here.
 
@@ -16,7 +20,6 @@ class Exam(models.Model):
     creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
     modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ویرایش"), auto_now=True)
     is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
-    is_active = models.BooleanField(verbose_name=_("فعال / غیرفعال"), default=True, db_index=True)
     uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
 
     lesson = models.ForeignKey(
@@ -48,9 +51,9 @@ class Exam(models.Model):
         db_index=True,
     )
 
-    assigned_to = models.ManyToManyField(
+    assigned_class = models.ManyToManyField(
         "class_module.Class",
-        verbose_name=_("ساخته شده برای"),
+        verbose_name=_("برای کلاس"),
         related_name="assigned_exams",
         db_index=True,
     )
@@ -67,7 +70,7 @@ class Exam(models.Model):
     )
 
     difficulty = models.IntegerField(
-        verbose_name=_("سطح ساخته"),
+        verbose_name=_("سطح سختی"),
         default=1,
         db_index=True,
         choices=[
@@ -89,40 +92,171 @@ class Exam(models.Model):
         verbose_name_plural = _("امتحانات")
 
 
+    def assign_exam(self, classes: QuerySet[Class]) -> None:
+        """Assigns the exam to students of entered classes.
+
+        Args:
+            classes: Classes which you want to assign exam to their students.
+        """
+
+        # Create ExamCreatedFor (relation table for exam and students),
+        # For each student of each classes
+
+        exams: QuerySet[ExamCreatedFor] = [
+            ExamCreatedFor(
+                exam=self,
+                assigned_class=class_,
+                assigned_to=student,
+                status=3
+            )
+
+            for class_ in classes
+            for student in class_.assigned_to.all()
+        ]
+
+        duplicated_exams = (
+            ExamCreatedFor.objects.filter(
+                exam=self,
+                assigned_class__in=self.assigned_class,
+                is_delete=True,
+            )
+        )
+
+        # If clear is true, it will unassign old classes and students from the exam,
+        # Else, it will assign new classes to the exam
+
+        duplicated_exams.update(is_delete=False, status=3)
+        duplicated_exams = duplicated_exams.values_list("assigned_to", flat=True)
+        exams.exclude(assigned_to=duplicated_exams)
+        
+        Exam.objects.bulk_create(exams)
+        self.assigned_class.add(*classes)
+
+    def unassign_exam(self, classes: QuerySet[Class]) -> None:
+        """Unassigns a exam from students of entered classes
+
+        Args:
+            classes: Classes which you want to unassign exam from it.
+        """
+
+        # Unassign exam form students of entered classes (Set is_delete to True)
+        unassign_exams = (
+            ExamCreatedFor.objects.filter(
+                exam=self,
+                assigned_class__in=classes,
+                is_delete=False,
+            )
+        )
+
+        unassign_exams.update(is_delete=True)
+        self.assigned_class.remove(*classes)
+
+class ExamCreatedFor(models.Model):
+    creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
+    modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
+    uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
+
+    status = models.IntegerField(
+        verbose_name=_("وضعیت"),
+        db_index=True,
+        default=2,
+        validators=(
+            MinValueValidator(1),
+            MaxValueValidator(2),
+        ),
+        choices=[
+            (1, _("انجام شده")),
+            (2, _("انجام نشده")),
+        ],
+    )
+
+    exam = models.ForeignKey(
+        "Exam",
+        verbose_name=_("امتحان"),
+        related_name="assigned_users",
+        on_delete=models.CASCADE
+    )
+
+    assigned_class = models.ForeignKey(
+        "class_module.Class",
+        verbose_name=_("کلاس"),
+        related_name="student_exams",
+        on_delete=models.CASCADE
+    )
+
+    result = models.OneToOneField(
+        "ExamResult",
+        verbose_name=_("نتیجه امتحان"),
+        related_name="exam",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+
+    feedback = models.OneToOneField(
+        "ExamFeedback",
+        verbose_name=_("بازخورد امتحان"),
+        related_name="exam",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+
+    assigned_to = models.ForeignKey(
+        "account_module.Account",
+        verbose_name=_("دانش آموز"),
+        related_name="assigned_exams",
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self) -> str:
+        return f"{self.exam.title} - {self.assigned_to}"
+
+    def get_absolute_url(self) -> str:
+        return reverse("exam-detail-page", args=[self.uuid])
+
+    class Meta:
+        verbose_name = _("کاربر معین شده برای امتحان")
+        verbose_name_plural = _("کاربران معین شده برای امتحانات")
+
+
 class ExamResult(models.Model):
     correct_answers = models.IntegerField(verbose_name=_("جواب های درست"), null=False, blank=False, db_index=True)
     incorrect_answers = models.IntegerField(verbose_name=_("جواب های نادرست"), null=False, blank=False, db_index=True)
-    result_description = models.TextField(verbose_name=_("توضیحات نتیجه امتحان"), max_length=1500, null=True, blank=True)
+    description = models.TextField(verbose_name=_("توضیحات"), max_length=1500, null=True, blank=True)
     creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
     modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
     is_delete = models.BooleanField(verbose_name=_("حذف شده / نشده"), default=False, db_index=True)
     uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
 
-    exam = models.ForeignKey(
-        "Exam",
-        verbose_name=_("امتحان"),
-        related_name=_("student_results"),
-        on_delete=models.CASCADE,
-        db_index=True
-        )
-
-    student = models.ForeignKey(
-        "account_module.Account",
-        verbose_name=_("دانش آموز"),
-        related_name=_("exam_results"),
-        on_delete=models.CASCADE,
-        db_index=True
+    result = models.IntegerField(
+        verbose_name=_("نتیجه امتحان"),
+        default=1,
+        db_index=True,
+        validators=(
+            MinValueValidator(1),
+            MaxValueValidator(2),
+        ),
+        choices=[
+            (1, _("قبول شده")),
+            (2, _("رد شده")),
+        ],
     )
-
-    def __str__(self) -> str:
-        return  f"{self.student} - {self.exam}"
-
-    def get_absolute_url(self):
-        return reverse("exam-result", kwargs={"uuid": self.exam.uuid})
 
     class Meta:
         verbose_name = _("نتیجه امتحان")
         verbose_name_plural = _("نتیجه امتحانات")
+
+
+class ExamFeedback(models.Model):
+    description = models.TextField(verbose_name=_("توضیحات"), max_length=1500, null=True, blank=True)
+    creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
+    modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    is_delete = models.BooleanField(verbose_name=_("حذف شده / نشده"), default=False, db_index=True)
+    uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
+
+    class Meta:
+        verbose_name = _("بازخورد امتحان")
+        verbose_name_plural = _("بازخورد امتحان")
 
 
 class ExamResultFile(models.Model):
@@ -130,22 +264,50 @@ class ExamResultFile(models.Model):
     modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
     is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
 
-    assigned_exam = models.ForeignKey(
+    exam = models.ForeignKey(
         "ExamResult",
-        verbose_name=_("امتحان نتیجه"),
+        verbose_name=_("امتحان"),
         related_name="results",
         on_delete=models.CASCADE,
     )
 
-    result_file = models.FileField(
-        verbose_name=_("فایل های نتیجه امتحان"),
+    file = models.FileField(
+        verbose_name=_("فایل"),
         upload_to="exam_module/exam_results/",
+        validators=[MaxFileSize(3)],
         null=True,
     )
 
     def __str__(self):
-        return f"{self.assigned_exam} - {self.result_file}"
+        return f"{self.assigned_exam} - {self.file}"
 
     class Meta:
         verbose_name = _("فایل نتیجه امتحان")
-        verbose_name_plural = _("فایل های نتیجه امتحان")
+        verbose_name_plural = _("فایل های نتیجه امتحانات")
+
+
+class ExamFeedbackFile(models.Model):
+    creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
+    modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
+
+    exam = models.ForeignKey(
+        "ExamResult",
+        verbose_name=_("امتحان"),
+        related_name="results",
+        on_delete=models.CASCADE,
+    )
+
+    file = models.FileField(
+        verbose_name=_("فایل"),
+        upload_to="exam_module/exam_feedbacks/",
+        validators=[MaxFileSize(3)],
+        null=True,
+    )
+
+    def __str__(self):
+        return f"{self.assigned_exam} - {self.file}"
+
+    class Meta:
+        verbose_name = _("فایل بازخورد امتحان")
+        verbose_name_plural = _("فایل های بازخورد امتحانات")

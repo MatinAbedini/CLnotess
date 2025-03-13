@@ -1,11 +1,12 @@
 from django.views.generic import ListView, DetailView, UpdateView
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView
-from django.http import HttpRequest
-from django.db.models import Q
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models.functions import Concat
+from django.db.models import Q, F, Value
 
 from account_module.models import Account
 from lesson_module.models import Lesson
@@ -16,24 +17,17 @@ from .models import Exam, ExamResult
 # Create your views here.
 
 
-class ExamCreateView(CreateView):
+class ExamCreateView(LoginRequiredMixin, CreateView):
     model = Exam
     form_class = ExamForm
     template_name = "exam_module/create-exam.html"
     success_url = reverse_lazy("exam-list-page")
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect(reverse("login-page"))
-
-        return super().dispatch(request, *args, **kwargs)
 
     def get_form(self, form_class=None):
         user = self.request.user
         classes = (
             Class.objects.filter(
                 Q(teachers__teacher=user) | Q(created_by=user),
-                is_active=True,
                 is_delete=False
             ).only("class_name", "school_name", "id")
         )
@@ -56,7 +50,7 @@ class ExamCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ExamUpdateView(UpdateView):
+class ExamUpdateView(LoginRequiredMixin, UpdateView):
     model = Exam
     form_class = ExamForm
     template_name = "exam_module/update-exam.html"
@@ -64,17 +58,10 @@ class ExamUpdateView(UpdateView):
     slug_field = "uuid"
     slug_url_kwarg = "uuid"
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect(reverse("login-page"))
-
-        return  super().dispatch(request, *args, **kwargs)
-
     def get_form(self, form_class=None):
         classes = (
             Class.objects.filter(
                 teachers__teacher=self.request.user,
-                is_active=True,
                 is_delete=False
             ).only("class_name", "school_name", "id")
         )
@@ -89,111 +76,122 @@ class ExamUpdateView(UpdateView):
         base_query = super().get_queryset()
         base_query = base_query.filter(
             created_by=self.request.user,
-            is_active=True,
             is_delete=False
         )
 
         return base_query
 
 
-class ExamListView(ListView):
+class ExamListView(LoginRequiredMixin, ListView):
     template_name = "exam_module/exams-list.html"
     context_object_name = "exams"
-    model = Exam
     ordering = "status"
+    model = Exam
     paginate_by = 10
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect(reverse("login-page"))
-
-        return super().dispatch(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
+        # Save default contexts, difficulty, lessons and classes
         context = super().get_context_data(**kwargs)
         lessons = Lesson.objects.all().only("name")
+        exams = self.get_queryset()
 
-        context["difficulty_filter"] = self.request.GET.get("difficulty", "")
+        classes = set(
+            class_
+            for exam in exams
+            for class_ in exam.assigned_to.all().annotate(str=Concat(F("school_name"), Value(" "), F("class_name")))
+        )
+
+        # Save status, difficulty, lesson and classes which are going to get filtered
+        # And save lessons, classes and those filters in the context
+
         context["status_filter"] = self.request.GET.get("status", "")
+        context["difficulty_filter"] = self.request.GET.get("difficulty", "")
         context["lesson_filter"] = self.request.GET.get("lesson", "")
+        context["class_filter"] = self.request.GET.get("class_", "")
         context["lessons"] = [lesson.name for lesson in lessons]
+        context["classes"] = list(classes)
 
         return context
 
     def get_queryset(self):
-        # Save user and used filters
-        # Filters assigned and not deleted exams
+        # If the queryset isn't cached, save the queryset and cache it
+        # Else returns the cached values
 
-        user = self.request.user
-        difficulty_filter: str = self.request.GET.get("difficulty", "")
-        status_filter: str = self.request.GET.get("status", "")
-        lesson_filter: str = self.request.GET.get("lesson", "")
+        if not hasattr(self, "base_query"):
+            # Save user and used filters
+            # Filters assigned and not deleted exams
 
-        base_query = Exam.objects.filter(
-            assigned_to__assigned_to=user,
-            is_delete=False
-        )
+            user = self.request.user
+            difficulty_filter: str = self.request.GET.get("difficulty", "")
+            status_filter: str = self.request.GET.get("status", "")
+            lesson_filter: str = self.request.GET.get("lesson", "")
+            class_filter: str = self.request.GET.get("class_", "")
 
-        # Filter exams by difficulty, status and lesson field,
-        # If user has filter exams using them
+            self.base_query = Exam.objects.filter(
+                assigned_to__assigned_to=user,
+                is_delete=False
+            )
 
-        if difficulty_filter != "":
-            difficulty_filter = list(map(int, difficulty_filter.split(",")))
-            base_query = base_query.filter(difficulty__in=difficulty_filter)
+            # Filter exams by difficulty, status, lesson and class field,
+            # If user has filter exams using them
 
-        if status_filter != "":
-            status_filter = list(map(int, status_filter.split(",")))
-            base_query = base_query.filter(status__in=status_filter)
+            if difficulty_filter != "":
+                difficulty_filter = list(map(int, difficulty_filter.split(",")))
+                self.base_query = self.base_query.filter(difficulty__in=difficulty_filter)
 
-        if lesson_filter != "":
-            lesson_filter = lesson_filter.split(",")
-            base_query = base_query.filter(lesson__name__in=lesson_filter)
+            if status_filter != "":
+                status_filter = list(map(int, status_filter.split(",")))
+                self.base_query = self.base_query.filter(status__in=status_filter)
 
-        return base_query
+            if lesson_filter != "":
+                lesson_filter = lesson_filter.split(",")
+                self.base_query = self.base_query.filter(lesson__name__in=lesson_filter)
+
+            if class_filter != "":
+                class_filter = class_filter.split(",")
+                self.self.base_query = self.self.base_query.filter(class__str__in=class_filter)
+
+            return self.base_query
+
+        return self.base_query
 
 
-class ExamDetailView(DetailView):
+class ExamDetailView(LoginRequiredMixin, DetailView):
     model = Exam
     template_name = "exam_module/exam.html"
     context_object_name = "exam"
     slug_field = "uuid"
     slug_url_kwarg = "uuid"
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect(reverse("login-page"))
-
-        return super().dispatch(request, *args, **kwargs)
-
     def get_queryset(self):
-        user = self.request.user
-        base_query = super().get_queryset()
-        base_query = base_query.filter(
-            assigned_to__assigned_to=user,
-            is_active=True,
-            is_delete=False
-        )
+        # If the queryset isn't cached, save the queryset and cache it
+        # Else returns the cached values
 
-        return base_query
+        if not hasattr(self, "base_query"):
+            self.base_query = (
+                Exam.objects.filter(
+                    uuid=self.kwargs.get("uuid"),
+                    assigned_to__assigned_to=self.request.user,
+                    is_delete=False
+                )
+                .select_related("")
+            )
+
+            return self.base_query
+
+        return self.base_query
 
 
-class ExamResultCreateView(CreateView):
+class ExamResultCreateView(LoginRequiredMixin, CreateView):
     form_class = ExamResultForm
     template_name =  "exam_module/create-exam-result.html"
     success_url = reverse_lazy("index-page")
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect(reverse("login-page"))
-
-        return super().dispatch(request, *args, **kwargs)
-
     def get_form(self, form_class=None):
         user = self.request.user
         exams = (
             Exam.objects.filter(
                 created_by=user,
-                is_active=True,
                 is_delete=False
             )
             .only("title", "uuid")
@@ -226,7 +224,6 @@ class ExamResultCreateView(CreateView):
         exam_result.exam = (
             Exam.objects.get(
                 uuid=form.cleaned_data.get("exam"),
-                is_active=True,
                 is_delete=False
             )
         )
@@ -240,26 +237,18 @@ class ExamResultCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ExamResultUpdateView(UpdateView):
-    model = ExamResult
-    form_class = ExamResultForm
+class ExamResultUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "exam_module/edit-exam-result.html"
     success_url = reverse_lazy("index-page")
     context_object_name = "exam_result"
+    form_class = ExamResultForm
+    model = ExamResult
     slug_field = "uuid"
     slug_url_kwarg = "uuid"
-
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect(reverse("login-page"))
-
-        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         base_query = super().get_queryset()
         base_query = base_query.filter(
-            is_active=True,
             is_delete=False
         )
 
@@ -271,7 +260,6 @@ class ExamResultUpdateView(UpdateView):
         exams = (
             Exam.objects.filter(
                 created_by=user,
-                is_active=True,
                 is_delete=False
             )
             .only("title", "uuid")
@@ -303,7 +291,6 @@ class ExamResultUpdateView(UpdateView):
         exam_result.exam = (
             Exam.objects.get(
                 uuid=form.cleaned_data.get("exam"),
-                is_active=True,
                 is_delete=False
             )
         )
@@ -317,23 +304,16 @@ class ExamResultUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class ExamResultDetailView(DetailView):
+class ExamResultDetailView(LoginRequiredMixin, DetailView):
     model = ExamResult
     template_name = "exam_module/exam-result.html"
     context_object_name = "exam_result"
     slug_field = "uuid"
     slug_url_kwarg = "uuid"
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect(reverse("login-page"))
-
-        return super().dispatch(request, *args, **kwargs)
-
     def get_queryset(self):
         base_query = super().get_queryset()
         base_query = base_query.filter(
-            is_active=True,
             is_delete=False
         )
 
@@ -357,7 +337,6 @@ def done_exam(request, uuid):
     exam: Exam = get_object_or_404(
         Exam.objects.filter(
             assigned_to__assigned_to=user,
-            is_active=True,
             is_delete=False,
             uuid=uuid
         )
@@ -395,7 +374,6 @@ def not_done_exam(request, uuid):
     exam: Exam = get_object_or_404(
         Exam.objects.filter(
             assigned_to__assigned_to=user,
-            is_active=True,
             is_delete=False,
             uuid=uuid
         )
@@ -433,7 +411,6 @@ def delete_exam(request, uuid):
     exam: Exam = get_object_or_404(
         Exam.objects.filter(
             created_by=user,
-            is_active=True,
             is_delete=False,
             uuid=uuid
         )

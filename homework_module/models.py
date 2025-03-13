@@ -1,10 +1,12 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import gettext_lazy as _
-from account_module import models as account_models
 from django_jalali.db import models as jmodels
-from utils.validators import validate_file_size
+from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.db import models
+
+from utils.validators import MaxFileSize
+from class_module.models import Class
 from uuid import uuid4
 
 # Create your models here.
@@ -13,9 +15,9 @@ from uuid import uuid4
 class Homework(models.Model):
     title = models.CharField(verbose_name=_("موضوع"), max_length=100, null=False, blank=False, db_index=True)
     description = models.TextField(verbose_name=_("توضیحات"), max_length=1500, null=False, blank=False)
+    for_date = jmodels.jDateField(verbose_name=_("برای تاریخ"), null=False, blank=False)
     creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
     modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد تغییر"), auto_now=True, db_index=True)
-    for_date = jmodels.jDateField(verbose_name=_("برای تاریخ"), null=False, blank=False)
     is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
     uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
 
@@ -28,12 +30,18 @@ class Homework(models.Model):
     )
 
     created_by = models.ForeignKey(
-        account_models.Account,
+        "account_module.Account",
         verbose_name=_("ساخته شده توسط"),
         related_name="created_homeworks",
         on_delete=models.SET_NULL,
         editable=False,
-        null=True,
+        db_index=True,
+    )
+
+    assigned_class = models.ManyToManyField(
+        "class_module.Class",
+        verbose_name=_("برای کلاس"),
+        related_name="assigned_homeworks",
         db_index=True,
     )
 
@@ -48,9 +56,69 @@ class Homework(models.Model):
         verbose_name_plural = _("تکالیف")
 
 
+    def assign_homework(self, classes: QuerySet[Class]) -> None:
+        """Assigns the homework to students of entered classes.
+
+        Args:
+            classes: Classes which you want to assign homework to their students.
+        """
+
+        # Create HomeworkCreatedFor (relation table for homework and students),
+        # For each student of each classes
+
+        homeworks: QuerySet[HomeworkCreatedFor] = [
+            HomeworkCreatedFor(
+                homework=self,
+                assigned_class=class_,
+                assigned_to=student,
+                status=3
+            )
+
+            for class_ in classes
+            for student in class_.assigned_to.all()
+        ]
+
+        duplicated_homeworks = (
+            HomeworkCreatedFor.objects.filter(
+                homework=self,
+                assigned_class__in=self.assigned_class,
+                is_delete=True,
+            )
+        )
+
+        # If clear is true, it will unassign old classes and students from the homework,
+        # Else, it will assign new classes to the homework
+
+        duplicated_homeworks.update(is_delete=False, status=3)
+        duplicated_homeworks = duplicated_homeworks.values_list("assigned_to", flat=True)
+        homeworks.exclude(assigned_to=duplicated_homeworks)
+        Homework.objects.bulk_create(homeworks)
+        self.assigned_class.add(*classes)
+
+    def unassign_homework(self, classes: QuerySet[Class]) -> None:
+        """Unassigns a homework from students of entered classes
+
+        Args:
+            classes: Classes which you want to unassign homework from it.
+        """
+
+        # Unassign homework form students of entered classes (Set is_delete to True)
+        unassign_homeworks = (
+            HomeworkCreatedFor.objects.filter(
+                homework=self,
+                assigned_class__in=classes,
+                is_delete=False,
+            )
+        )
+
+        unassign_homeworks.update(is_delete=True)
+        self.assigned_class.remove(*classes)
+
+
 class HomeworkCreatedFor(models.Model):
     creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
     modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
+    is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
     uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
 
     status = models.IntegerField(
@@ -71,7 +139,7 @@ class HomeworkCreatedFor(models.Model):
     homework = models.ForeignKey(
         "Homework",
         verbose_name=_("تکلیف"),
-        related_name="for_class",
+        related_name="assigned_users",
         on_delete=models.CASCADE
     )
 
@@ -101,7 +169,7 @@ class HomeworkCreatedFor(models.Model):
     assigned_to = models.ForeignKey(
         "account_module.Account",
         verbose_name=_("دانش آموز"),
-        related_name="assigned_homework",
+        related_name="assigned_homeworks",
         on_delete=models.CASCADE,
     )
 
@@ -113,7 +181,7 @@ class HomeworkCreatedFor(models.Model):
 
     class Meta:
         verbose_name = _("کاربر معین شده برای تکلیف")
-        verbose_name_plural = _("کاربران معین شده برای تکلیف")
+        verbose_name_plural = _("کاربران معین شده برای تکالیف")
 
 
 class HomeworkResult(models.Model):
@@ -121,6 +189,7 @@ class HomeworkResult(models.Model):
     creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
     modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
     is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
+    uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
 
     result_status = models.IntegerField(
         verbose_name=_("وضعیت نتیجه تکلیف"),
@@ -128,7 +197,7 @@ class HomeworkResult(models.Model):
         db_index=True,
         validators=(
             MinValueValidator(1),
-            MaxValueValidator(2),
+            MaxValueValidator(3),
         ),
         choices=[
             (1, _("کامل")),
@@ -143,7 +212,7 @@ class HomeworkResult(models.Model):
 
 
 class HomeworkFeedback(models.Model):
-    description = models.TextField(verbose_name=_("توضیحات بازخورد تکلیف"), max_length=1500, null=True, blank=True)
+    description = models.TextField(verbose_name=_("توضیحات"), max_length=1500, null=True, blank=True)
     creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
     modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
     is_delete = models.BooleanField(verbose_name=_("حذف شده / نشده"), default=False, db_index=True)
@@ -168,9 +237,9 @@ class HomeworkResultFile(models.Model):
     )
 
     file = models.FileField(
-        verbose_name=_("فایل های نتیجه تکلیف"),
+        verbose_name=_("فایل"),
         upload_to="homework_module/homework_results/",
-        validators=[validate_file_size],
+        validators=[MaxFileSize(3)],
         db_index=True,
     )
 
@@ -179,7 +248,7 @@ class HomeworkResultFile(models.Model):
 
     class Meta:
         verbose_name = _("فایل نتیجه تکلیف")
-        verbose_name_plural = _("فایل های نتیجه تکلیف")
+        verbose_name_plural = _("فایل های نتیجه تکالیف")
 
 
 class HomeworkFeedbackFile(models.Model):
@@ -198,7 +267,7 @@ class HomeworkFeedbackFile(models.Model):
     file = models.FileField(
         verbose_name=_("فایل های بازخورد تکلیف"),
         upload_to="homework_module/homework_results/",
-        validators=[validate_file_size],
+        validators=[MaxFileSize(5)],
         db_index=True,
     )
 
@@ -207,4 +276,4 @@ class HomeworkFeedbackFile(models.Model):
 
     class Meta:
         verbose_name = _("فایل بازخورد تکلیف")
-        verbose_name_plural = _("فایل های بازخورد تکلیف")
+        verbose_name_plural = _("فایل های بازخورد تکالیف")
