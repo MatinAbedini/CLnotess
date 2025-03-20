@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_render_partial',
     'django_recaptcha',
-    "django_jalali",
+    'django_jalali',
     'sorl.thumbnail',
     'account_module',
     'user_panel_module',
@@ -129,6 +129,16 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': config("NAME"),
+#         'USER': config("USER"),
+#         'PASSWORD': config("PASSWORD"),
+#         'HOST': config("HOST"),
+#         'PORT': config("PORT"),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -148,6 +158,94 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'file_logging': {
+            'format': '{levelname} / {levelno} - {asctime} --- {pathname} in {lineno} --- {process:d} {thread:d} -- {message}',
+            'style': '{'
+        },
+        'email_logging': {
+            'format': '{levelname} at {asctime} --- {pathname} in {lineno} -- {message}',
+            'style': '{'
+        },
+    },
+    'filters': {
+        'debug_true_required': {
+            '()': 'django.utils.log.RequireDebugTrue'
+        }
+    },
+    'handlers': {
+        'full_handler': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/full.log',
+            'formatter': 'file_logging',
+        },
+        'critical_handler': {
+            'level': 'CRITICAL',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/critical.log',
+            'formatter': 'file_logging',
+        },
+        'error_handler': {
+            'level': 'ERROR',
+            'filters': ['debug_true_required',],
+            'class': 'logging.FileHandler',
+            'filename': 'logs/error.log',
+            'formatter': 'file_logging',
+        },
+        'critical_email_handler': {
+            'level': 'CRITICAL',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'email_logging',
+        },
+        'error_email_handler': {
+            'level': 'ERROR',
+            'filters': ['debug_true_required',],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'email_logging',
+        },
+    },
+    'loggers': {
+        'file_logger': {
+            'handlers': ['full_handler', 'critical_handler', 'error_handler'],
+            'level': 'INFO',
+            'propagate': True
+        },
+        'email_logger': {
+            'handlers': ['critical_email_handler', 'error_email_handler'],
+            'level': 'ERROR',
+            'propagate': True
+        },
+                'django': {
+            'handlers': ['full_handler', 'critical_handler', 'error_handler'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['full_handler', 'critical_handler', 'error_handler'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.server': {
+            'handlers': ['full_handler', 'critical_handler', 'error_handler'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.template': {
+            'handlers': ['full_handler', 'critical_handler', 'error_handler'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.db.backends': {
+            'handlers': ['full_handler', 'critical_handler', 'error_handler'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    }
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -193,9 +291,16 @@ EMAIL_USE_SSL = config('EMAIL_USE_SSL')
 EMAIL_PORT = config('EMAIL_PORT')
 
 # Google reCAPTCHA
-RECAPTCHA_PUBLIC_KEY =config('RECAPTCHA_PUBLIC_KEY')
-RECAPTCHA_PRIVATE_KEY =config('RECAPTCHA_PRIVATE_KEY')
+RECAPTCHA_PUBLIC_KEY = config('RECAPTCHA_PUBLIC_KEY')
+RECAPTCHA_PRIVATE_KEY = config('RECAPTCHA_PRIVATE_KEY')
 SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
 
 # Whitenoise settings
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Cache settings for static files
+
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+CACHE_MIDDLEWARE_ALIAS = 'default'
+CACHE_MIDDLEWARE_SECONDS = 86400  # 1 day
+CACHE_MIDDLEWARE_KEY_PREFIX = 'django'
