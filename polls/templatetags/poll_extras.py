@@ -17,3 +17,8 @@ def split(value, split_by=","):
 @register.filter(name="split_list")
 def split_list(value, split_by=","):
     return [split(val, split_by) for val in value]
+
+
+@register.filter(name="return_to_percent")
+def return_to_percent(value, total=20):
+    return round(value / total) * 100
