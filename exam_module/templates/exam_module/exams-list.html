@@ -10,48 +10,52 @@
 
 {% block content %}
     <div class="row">
-        {% include "exam_module/components/filter-tab.html" %}
-        <div class="col-lg-9 col-md-8 col-sm-7 col-xs-12">
-            <div class="panel panel-default card-view">
-                <div class="panel-wrapper collapse in">
-                    <div class="panel-body">
-                        <div class="table-wrap">
-                            <div class="table-responsive">
-                            <table class="table table-hover table-bordered mb-0">
-                                <thead>
-                                <tr>
-                                    <th scope="col" style="font-size: medium; font-weight: normal;">موضوع</th>
-                                    <th scope="col" style="font-size: medium; font-weight: normal;">معلم</th>
-                                    <th scope="col" style="font-size: medium; font-weight: normal;">سختی</th>
-                                    <th scope="col" style="font-size: medium; font-weight: normal;">وضعیت</th>
-                                    <th class="text-nowrap" style="font-size: medium; font-weight: normal;">عملیات ها</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                    {% if exams is not None %}
+        {% if exams.exists %}
+            {% include "exam_module/components/filter-tab.html" %}
+            <div class="col-lg-9 col-md-8 col-sm-7 col-xs-12">
+                <div class="panel panel-default card-view">
+                    <div class="panel-wrapper collapse in">
+                        <div class="panel-body">
+                            <div class="table-wrap">
+                                <div class="table-responsive">
+                                <table class="table table-hover table-bordered mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">موضوع</th>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">درس</th>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">معلم</th>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">برای تاریخ</th>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">سختی</th>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">وضعیت</th>
+                                        <th class="text-nowrap" style="font-size: medium; font-weight: normal;">عملیات ها</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
                                         {% for exam in exams %}
                                             <tr>
-                                                <td>{{ exam.title }}</td>
-                                                <td>{{ exam.created_by.get_full_name }}</td>
+                                                <td>{{ exam.exam.title }}</td>
+                                                <td>{{ exam.exam.lesson }}</td>
+                                                <td>{{ exam.exam.created_by.get_full_name }}</td>
+                                                <td>{{ exam.exam.for_date }}</td>
                                                 <td>
                                                     <span
                                                         class="label
-                                                            {% if exam.difficulty == 1 %} label-success
-                                                            {% elif exam.difficulty == 2 %} label-warning
+                                                            {% if exam.exam.difficulty == 1 %} label-success
+                                                            {% elif exam.exam.difficulty == 2 %} label-warning
                                                             {% else %} label-danger
                                                             {% endif %}"
                                                         style="font-size: smaller;">
-                                                        {{ exam.get_difficulty_display }}
+                                                        {{ exam.exam.get_difficulty_display }}
                                                     </span>
                                                 </td>
                                                 <td>
                                                     <span
                                                         class="label
-                                                            {% if exam.status == 1 %} label-success
+                                                            {% if exam.exam.status == 1 %} label-success
                                                             {% else %} label-danger
                                                             {% endif %}"
                                                         style="font-size: smaller;">
-                                                        {{ exam.get_status_display }}
+                                                        {{ exam.exam.get_status_display }}
                                                     </span>
                                                 </td>
 
@@ -59,26 +63,53 @@
                                                     <a href="{{ exam.get_absolute_url }}" class="mr-25" data-toggle="tooltip" data-original-title="مشاهده">
                                                         <i class="fa fa-eye text-inverse m-r-10"></i>
                                                     </a>
-                                                    <a href="{% url "edit-exam-page" exam.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
-                                                        <i class="fa fa-pencil text-inverse m-r-10"></i>
-                                                    </a>
-                                                    {% if exam.created_by == user %}
-                                                        <a href="{% url "delete-exam-page" exam.uuid %}" data-toggle="tooltip" data-original-title="حذف کردن">
+                                                    {% if exam.result is not None or exam.result.is_delete == True %}
+                                                        {% if exam.feedback is None or exam.feedback.is_delete == True %}
+                                                            <a href="{% url "create-exam-feedback-page" exam.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ثبت بازخورد">
+                                                                <i class="bi bi-chat-dots text-inverse m-r-10"></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <a href="{% url "edit-exam-feedback-page" exam.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ویرایش بازخورد">
+                                                                <i class="bi bi-pencil-square text-inverse m-r-10"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                    {% if exam.exam.created_by == user %}
+                                                        <a href="{% url "edit-exam-page" exam.exam.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="ایجاد تغییر">
+                                                            <i class="fa fa-pencil text-inverse m-r-10"></i>
+                                                        </a>
+                                                        <a href="{% url "exam-result-page" exam.exam.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="مشاهده نتایج">
+                                                            <i class="fa fa-check-square-o text-inverse"></i>
+                                                        </a>
+                                                        {% if exam.exam.status == 1 %}
+                                                            <a href="{% url "not-done-exam-page" exam.exam.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام نشده">
+                                                                <i class="fa fa-check text-danger"></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <a href="{% url "done-exam-page" exam.exam.uuid %}" class="mr-25" data-toggle="tooltip" data-original-title="انجام شده">
+                                                                <i class="fa fa-check text-success"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                        <a href="{% url "delete-exam-page" type="e" uuid=exam.exam.uuid %}" data-toggle="tooltip" data-original-title="حذف کردن">
                                                             <i class="fa fa-close text-danger"></i>
                                                         </a>
                                                     {% endif %}
                                                 </td>
                                             </tr>
                                         {% endfor %}
-                                    {% endif %}
-                                    </tbody>
-                                </table>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
+                            {% include "shared/includes/paginator.html" %}
                         </div>
-                        {% include "shared/includes/paginator.html" %}
                     </div>
                 </div>
             </div>
-        </div>
+        {% else %}
+            <div class="alert alert-warning" dir="rtl" role="alert">
+                هیچ امتحانی برای شما یافت نشد! برای ساخت امتحان <a href="{% url "create-exam-page" %}" class="btn-link">کلیک</a> کنید!
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

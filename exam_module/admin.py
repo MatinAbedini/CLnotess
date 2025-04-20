@@ -17,15 +17,43 @@ class ExamAdmin(admin.ModelAdmin):
         return super().save_model(request, obj, form, change)
 
 
+@admin.register(models.ExamCreatedFor)
+class ExamCreatedForAdmin(admin.ModelAdmin):
+    list_display = ("id", "exam", "assigned_to", "assigned_class", "creation_date", "modify_date", "exam__is_delete")
+    list_filter = ("creation_date", "modify_date", "exam__is_delete")
+    search_fields = ("exam", "assigned_to", "assigned_class",)
+
+    def save_model(self, request, obj, form, change):
+        # If a new Exam is created, then created_by will set to user
+        if not change:
+            obj.created_by = request.user
+
+        return super().save_model(request, obj, form, change)
+
+
 @admin.register(models.ExamResult)
 class ExamResultAdmin(admin.ModelAdmin):
-    list_display = ("id", "exam", "student", "correct_answers", "incorrect_answers", "is_delete")
-    list_filter = ( "correct_answers", "incorrect_answers", "is_delete")
-    search_fields = ("exam", "student", "result_description")
+    list_display = ("id", "result", "creation_date", "modify_date", "is_delete")
+    list_filter = ( "result", "creation_date", "modify_date", "is_delete")
+    search_fields = ("result_description",)
+
+
+@admin.register(models.ExamFeedback)
+class ExamFeedbackAdmin(admin.ModelAdmin):
+    list_display = ("id","creation_date", "modify_date", "is_delete")
+    list_filter = ("creation_date", "modify_date", "is_delete")
+    search_fields = ("feedback_description",)
 
 
 @admin.register(models.ExamResultFile)
 class ExamResultFileAdmin(admin.ModelAdmin):
     list_display = ("id", "creation_date", "modify_date", "is_delete")
     list_filter = ("creation_date", "modify_date","is_delete")
-    search_fields = ("assigned_exam",)
+    search_fields = ("exam",)
+
+
+@admin.register(models.ExamFeedbackFile)
+class ExamFeedbackFileAdmin(admin.ModelAdmin):
+    list_display = ("id", "creation_date", "modify_date", "is_delete")
+    list_filter = ("creation_date", "modify_date","is_delete")
+    search_fields = ("exam",)

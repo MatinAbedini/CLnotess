@@ -1,0 +1,63 @@
+{% extends "shared/_layout.html" %}
+{% load poll_extras %}
+{% load static %}
+
+{% block title %}لیست بازخورد امتحان{% endblock %}
+{% block content_title %}لیست بازخورد امتحان{% endblock %}
+{% block breadcrumb_option %}
+    <li><a href="index.html">Dashboard</a></li>
+    <li><a href="index.html">Exams</a></li>
+    <li><a href="index.html">Feedbacks</a></li>
+    <li class="active"><span>Files</span></li>
+{% endblock %}
+
+{% block content %}
+    {% if files.exists %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-default card-view">
+                    <div class="panel-heading">
+                        <div class="pull-right">
+                            <h6 class="panel-title txt-dark">لیست امتحان ها</h6>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="panel-wrapper collapse in">
+                        <div class="panel-body">
+                            <div class="table-wrap">
+                                <div class="table-responsive">
+                                <table class="table table-hover table-bordered mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">شماره</th>
+                                        <th scope="col" style="font-size: medium; font-weight: normal;">نوع</th>
+                                        <th class="text-nowrap" style="font-size: medium; font-weight: normal;">عملیات ها</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for file in files %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ file.file.path|get_file_type }}</td>
+                                                <td class="text-nowrap">
+                                                    <a href="{{ file.file.url }}" target="_blank" data-toggle="tooltip" data-original-title="دانلود کردن">
+                                                        <i class="fa fa-download text-warning"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning" dir="rtl" role="alert">
+            هیچ فایلی توسط دانش آموز ثبت نشده است!
+        </div>
+    {% endif %}
+{% endblock %}
