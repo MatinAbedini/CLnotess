@@ -1,14 +1,14 @@
 {% extends 'shared/_layout.html' %}
 {% load static %}
 
-{% block title %}ثبت نتیجه امتحان{% endblock %}
-{% block content_title %}ثبت نتیجه امتحان{% endblock %}
+{% block title %}ویرایش بازخورد امتحان{% endblock %}
+{% block content_title %}ویرایش بازخورد امتحان{% endblock %}
 
 {% block breadcrumb_option %}
     <li><a href="index.html">Dashboard</a></li>
     <li><a href="index.html">Exams</a></li>
-    <li><a href="index.html">Results</a></li>
-    <li class="active"><span>Create</span></li>
+    <li><a href="index.html">Feedbacks</a></li>
+    <li class="active"><span>Edit</span></li>
 {% endblock %}
 
 {% block content %}
@@ -21,23 +21,7 @@
                             <form method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <div class="row">
-                                    <div class="form-group">
-                                        <div class="form-group col-md-4" dir="rtl">
-                                            <label class="control-label mb-10" for="{{ form.incorrect_answers.id_for_label }}">{{ form.incorrect_answers.label }}</label>
-                                            {{ form.incorrect_answers }}
-                                        </div>
-                                        <div class="form-group col-md-4" dir="rtl">
-                                            <label class="control-label mb-10" for="{{ form.not_answered.id_for_label }}">{{ form.not_answered.label }}</label>
-                                            {{ form.not_answered }}
-                                        </div>
-                                        <div class="form-group col-md-4" dir="rtl">
-                                            <label class="control-label mb-10" for="{{ form.correct_answers.id_for_label }}">{{ form.correct_answers.label }}</label>
-                                            {{ form.correct_answers }}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group col-md-5" dir="rtl">
+                                    <div class="form-group col-md-12" dir="rtl">
                                         <label class="control-label mb-10" for="{{ form.files.id_for_label }}">{{ form.files.label }}</label>
                                         <div class="fileinput fileinput-new input-group" data-provides="fileinput">
                                             <div class="form-control" data-trigger="fileinput"> <i class="bi bi-file-earmark fileinput-exists"></i> <span class="fileinput-filename"></span></div>
@@ -45,14 +29,6 @@
                                             <input type="file" name="files" multiple>
                                             </span> <a href="" class="input-group-addon btn btn-danger btn-anim fileinput-exists" data-dismiss="fileinput"><i class="bi bi-trash"></i><span class="btn-text">حذف فایل ها</span></a>
                                         </div>
-                                    </div>
-                                    <div class="form-group col-md-3" dir="rtl">
-                                        <label class="control-label mb-10" for="{{ form.result.id_for_label }}">{{ form.result.label }}</label>
-                                        {{ form.result }}
-                                    </div>
-                                    <div class="form-group col-md-4" dir="rtl">
-                                        <label class="control-label mb-10" for="{{ form.student.id_for_label }}">{{ form.student.label }}</label>
-                                        {{ form.student }}
                                     </div>
                                 </div>
                                 <div class="row">

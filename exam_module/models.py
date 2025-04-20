@@ -102,6 +102,17 @@ class Exam(models.Model):
         # Create ExamCreatedFor (relation table for exam and students),
         # For each student of each classes
 
+        duplicated_exams = (
+            ExamCreatedFor.objects.filter(
+                exam=self,
+                assigned_class__in=self.assigned_class.all(),
+                is_delete=True,
+            )
+        )
+
+        duplicated_exams_assigned_to = set(duplicated_exams.values_list("assigned_to", flat=True))
+        duplicated_exams_assigned_class = set(duplicated_exams.values_list("assigned_class", flat=True))
+
         exams: QuerySet[ExamCreatedFor] = [
             ExamCreatedFor(
                 exam=self,
@@ -112,24 +123,14 @@ class Exam(models.Model):
 
             for class_ in classes
             for student in class_.assigned_to.all()
+            if class_ not in duplicated_exams_assigned_class and student not in duplicated_exams_assigned_to
         ]
-
-        duplicated_exams = (
-            ExamCreatedFor.objects.filter(
-                exam=self,
-                assigned_class__in=self.assigned_class,
-                is_delete=True,
-            )
-        )
 
         # If clear is true, it will unassign old classes and students from the exam,
         # Else, it will assign new classes to the exam
 
         duplicated_exams.update(is_delete=False, status=3)
-        duplicated_exams = duplicated_exams.values_list("assigned_to", flat=True)
-        exams.exclude(assigned_to=duplicated_exams)
-        
-        Exam.objects.bulk_create(exams)
+        ExamCreatedFor.objects.bulk_create(exams)
         self.assigned_class.add(*classes)
 
     def unassign_exam(self, classes: QuerySet[Class]) -> None:
@@ -150,6 +151,7 @@ class Exam(models.Model):
 
         unassign_exams.update(is_delete=True)
         self.assigned_class.remove(*classes)
+
 
 class ExamCreatedFor(models.Model):
     creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
@@ -220,8 +222,9 @@ class ExamCreatedFor(models.Model):
 
 
 class ExamResult(models.Model):
-    correct_answers = models.IntegerField(verbose_name=_("جواب های درست"), null=False, blank=False, db_index=True)
-    incorrect_answers = models.IntegerField(verbose_name=_("جواب های نادرست"), null=False, blank=False, db_index=True)
+    correct_answers = models.IntegerField(verbose_name=_("جواب های درست"), default=0, blank=False, db_index=True)
+    not_answered = models.IntegerField(verbose_name=_("جواب های داده نشده"), default=0, blank=False, db_index=True)
+    incorrect_answers = models.IntegerField(verbose_name=_("جواب های نادرست"), default=0, blank=False, db_index=True)
     description = models.TextField(verbose_name=_("توضیحات"), max_length=1500, null=True, blank=True)
     creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
     modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
@@ -279,7 +282,7 @@ class ExamResultFile(models.Model):
     )
 
     def __str__(self):
-        return f"{self.assigned_exam} - {self.file}"
+        return f"{self.exam} - {self.file}"
 
     class Meta:
         verbose_name = _("فایل نتیجه امتحان")
@@ -292,9 +295,9 @@ class ExamFeedbackFile(models.Model):
     is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
 
     exam = models.ForeignKey(
-        "ExamResult",
+        "ExamFeedback",
         verbose_name=_("امتحان"),
-        related_name="results",
+        related_name="feedbacks",
         on_delete=models.CASCADE,
     )
 
@@ -306,7 +309,7 @@ class ExamFeedbackFile(models.Model):
     )
 
     def __str__(self):
-        return f"{self.assigned_exam} - {self.file}"
+        return f"{self.exam} - {self.file}"
 
     class Meta:
         verbose_name = _("فایل بازخورد امتحان")

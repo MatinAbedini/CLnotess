@@ -1,0 +1,286 @@
+{% extends "shared/_layout.html" %}
+{% load static %}
+{% load poll_extras %}
+
+{% block title %}جزئیات امتحان{% endblock %}
+{% block content_title %}جزئیات امتحان{% endblock %}
+
+{% block breadcrumb_option %}
+    <li class="active"><span href="index.html">Dashboard</span></li>
+    <li class="active"><span href="index.html">Exams</span></li>
+    <li class="active"><span>Results</span></li>
+{% endblock %}
+
+{% block js_references %}
+        <script src="{% static "vendors/bower_components/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js" %}"></script>
+        <script>
+            $(function() {
+                $('#correct_answers').easyPieChart({
+                    barColor : 'rgba(139,195,74,1)',
+                    lineWidth: 2,
+                    animate: 2000,
+                    size: 100,
+                    lineCap: 'square',
+                    trackColor: false,
+                    scaleColor: false,
+                    onStep: function(from, to, percent) {
+                        $(this.el).find('.percent').text(Math.round(percent));
+                    }
+                });
+            });
+
+            $(function() {
+                $('#not_answered').easyPieChart({
+                    barColor : 'rgb(195, 153, 74)',
+                    lineWidth: 2,
+                    animate: 2000,
+                    size: 100,
+                    lineCap: 'square',
+                    trackColor: false,
+                    scaleColor: false,
+                    onStep: function(from, to, percent) {
+                        $(this.el).find('.percent').text(Math.round(percent));
+                    }
+                });
+            });
+
+            $(function() {
+                $('#incorrect_answers').easyPieChart({
+                    barColor : 'rgb(195, 74, 74)',
+                    lineWidth: 2,
+                    animate: 2000,
+                    size: 100,
+                    lineCap: 'square',
+                    trackColor: false,
+                    scaleColor: false,
+                    onStep: function(from, to, percent) {
+                        $(this.el).find('.percent').text(Math.round(percent));
+                    }
+                });
+            });
+
+            $(function() {
+                $('#failed').easyPieChart({
+                    barColor : 'rgb(195, 74, 74)',
+                    lineWidth: 2,
+                    animate: 2000,
+                    size: 100,
+                    lineCap: 'square',
+                    trackColor: false,
+                    scaleColor: false,
+                });
+            });
+
+            $(function() {
+                $('#passed').easyPieChart({
+                    barColor : 'rgba(139,195,74,1)',
+                    lineWidth: 2,
+                    animate: 2000,
+                    size: 100,
+                    lineCap: 'square',
+                    trackColor: false,
+                    scaleColor: false,
+                });
+            });
+        </script>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-6 col-sm-12 {% if result is None %} col-lg-offset-3 col-md-offset-3 {% endif %}">
+            <div class="panel panel-default contact-card card-view">
+                <div class="row">
+                    <div class="panel-heading row">
+                        <div class="emp-detail pl-15 pr-15">
+                            <div class="col-md-3 col-sm-3 mt-20 mb-20">
+                                {% if page_obj.has_previous %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-primary" href="?page={{ page_obj.previous_page_number }}">قبلی</a>
+                                {% else %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-primary disabled" href="">قبلی</a>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 col-sm-12 mt-20 mb-20">
+                                <p class="btn btn-block btn-default btn-rounded btn-outline disabled">{{ exam.title }}</p>
+                            </div>
+                            <div class="col-md-3 col-sm-3 mt-20 mb-20">
+                                {% if page_obj.has_next %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-danger" href="?page={{ page_obj.next_page_number }}">بعدی</a>
+                                {% else %}
+                                    <a class="btn btn-block btn-rounded btn-0 btn-danger disabled" href"">بعدی</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="light-grey-hr mt-20 mb-20">
+                    <div class="panel-wrapper collapse in">
+                        <div class="panel-body">
+                            <div class="user-others-details pl-15 pr-15" style="color: black;">
+                                <div class="row justify-content-center">
+                                    <div class="mr-50 ml-50" dir="rtl">
+                                        <p style="white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">{{ exam.description|linebreaksbr }}</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="col-md-8 col-md-offset-2 mt-70" style="text-align: center;">
+                                            <p>درس</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ exam.lesson }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="col-md-8 col-md-offset-2 mt-70" style="text-align: center;">
+                                            <p>تعداد سوالات</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ exam.questions }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="col-md-8 col-md-offset-2 mt-70" style="text-align: center;">
+                                            <p>سختی</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ exam.get_difficulty_display }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                            <p>برای تاریخ</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ exam.for_date.year }} / {{ exam.for_date.month }} / {{ exam.for_date.day }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        {% if result is not None %}
+                                            <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                                <p>دانش آموز</p>
+                                                <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                                <p>{{ result.exam.assigned_to.get_full_name }}</p>
+                                            </div>
+                                        {% else %}
+                                            <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                                <p>دانش آموز</p>
+                                                <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                                <p>------</p>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="light-grey-hr mt-20 mb-20"/>
+                            <div class="emp-detail pl-15 pr-15">
+                                <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                    <a class="btn btn-block btn-outline btn-rounded btn-0 btn-success" href="{% url "create-exam-result-page" exam.uuid %}">ثبت نتیجه امتحان</a>
+                                </div>
+                                <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                    <a class="btn btn-block btn-outline btn-rounded btn-0 btn-primary" href="{% url "edit-exam-page" exam.uuid %}">ویرایش</a>
+                                </div>
+                                <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                    <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-exam-page" type="e" uuid=exam.uuid %}">حذف</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if result is not None %}
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="panel panel-default contact-card card-view">
+                    <div class="row">
+                        <div class="panel-heading row">
+                            <div class="emp-detail pl-15 pr-15">
+                                <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                    <a class="btn btn-block btn-outline btn-rounded btn-0 btn-primary" href="{% url "edit-exam-result-page" result.exam.uuid %}">ویرایش</a>
+                                </div>
+                                <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                    <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "exam-result-list-page" result.uuid %}">دانلود</a>
+                                </div>
+                                <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                    <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-exam-page" type="r" uuid=result.uuid %}">حذف</a>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="light-grey-hr mt-20 mb-20">
+                        <div class="panel-wrapper collapse in">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                        <span id="incorrect_answers" class="easypiechart" data-percent="{{ result.incorrect_answers|return_to_percent:exam.questions }}">
+                                            <span class="percent head-font">100</span>
+                                        </span>
+                                        <p>جواب های نادرست</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                        <span id="not_answered" class="easypiechart" data-percent="{{ result.not_answered|return_to_percent:exam.questions }}">
+                                            <span class="percent head-font">100</span>
+                                        </span>
+                                        <p>جواب های داده نشده</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                        <span id="correct_answers" class="easypiechart" data-percent="{{ result.correct_answers|return_to_percent:exam.questions }}">
+                                            <span class="percent head-font">100</span>
+                                        </span>
+                                        <p>جواب های درست</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="user-others-details pl-15 pr-15" style="color: black;">
+                                    <div class="row justify-content-center">
+                                        <div class="mr-50 ml-50" dir="rtl">
+                                            <p>{{ result.description }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="mt-45 mb-20 col-md-6">
+                                            <a class="btn btn-block {% if result.result == 1 %} btn-success {% else %} btn-danger {% endif %} disabled"> {{ result.get_result_display }} </a>
+                                        </div>
+                                        <div class="mt-45 mb-20 col-md-6">
+                                            <a class="btn btn-block btn-default disabled"> {{ result.modify_date.year }} / {{ result.modify_date.month }} / {{ result.modify_date.day }}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if feedback is not None and feedback.is_delete == False %}
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="panel panel-default contact-card card-view">
+                    <div class="row">
+                        <div class="panel-heading row">
+                            <div class="emp-detail pl-15 pr-15">
+                                <div class="col-md-12 col-sm-12 mt-20 mb-20">
+                                    <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "exam-feedback-list-page" feedback.uuid %}">دانلود</a>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="light-grey-hr mt-20 mb-20">
+                        <div class="panel-wrapper collapse in">
+                            <div class="panel-body">
+                                <div class="user-others-details pl-15 pr-15" style="color: black;">
+                                    <div class="row justify-content-center">
+                                        <div class="mr-50 ml-50" dir="rtl">
+                                            <p>{{ feedback.description }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-30">
+                                        <a class="btn btn-block btn-default disabled"> {{ feedback.modify_date.year }} / {{ feedback.modify_date.month }} / {{ feedback.modify_date.day }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

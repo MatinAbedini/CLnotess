@@ -1,54 +1,75 @@
 {% extends 'shared/_layout.html' %}
 {% load static %}
 
-{% block title %}Update Exam Result{% endblock %}
-{% block content %}
-    <main class="app-main">
-        <div class="app-content-header">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <h3 class="mb-0">Update Exam Result</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="app-content">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <form method="post">
-                                    {% csrf_token %}
+{% block title %}ویرایش نتیجه امتحان{% endblock %}
+{% block content_title %}ویرایش نتیجه امتحان{% endblock %}
 
-                                    <div class="mb-3">
-                                        {{ form.exam.label }}
-                                        {{ form.exam }}
-                                        {{ form.exam.errors }}
+{% block breadcrumb_option %}
+    <li class="active"><span>Dashboard</span></li>
+    <li class="active"><span>Exams</span></li>
+    <li class="active"><span>Results</span></li>
+    <li class="active"><span>Edit</span></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <div class="panel panel-default card-view">
+                <div class="panel-wrapper collapse in">
+                    <div class="panel-body">
+                        <div class="form-wrap">
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="form-group col-md-4" dir="rtl">
+                                            <label class="control-label mb-10" for="{{ form.incorrect_answers.id_for_label }}">{{ form.incorrect_answers.label }}</label>
+                                            {{ form.incorrect_answers }}
+                                        </div>
+                                        <div class="form-group col-md-4" dir="rtl">
+                                            <label class="control-label mb-10" for="{{ form.not_answered.id_for_label }}">{{ form.not_answered.label }}</label>
+                                            {{ form.not_answered }}
+                                        </div>
+                                        <div class="form-group col-md-4" dir="rtl">
+                                            <label class="control-label mb-10" for="{{ form.correct_answers.id_for_label }}">{{ form.correct_answers.label }}</label>
+                                            {{ form.correct_answers }}
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        {{ form.student.label }}
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-5" dir="rtl">
+                                        <label class="control-label mb-10" for="{{ form.files.id_for_label }}">{{ form.files.label }}</label>
+                                        <div class="fileinput fileinput-new input-group" data-provides="fileinput">
+                                            <div class="form-control" data-trigger="fileinput"> <i class="bi bi-file-earmark fileinput-exists"></i> <span class="fileinput-filename"></span></div>
+                                            <span class="input-group-addon fileupload btn btn-info btn-anim btn-file"><i class="bi bi-upload"></i> <span class="fileinput-new btn-text">انتخاب فایل ها</span> <span class="fileinput-exists btn-text">تغییر دادن فایل ها</span>
+                                            <input type="file" name="files" multiple>
+                                            </span> <a href="" class="input-group-addon btn btn-danger btn-anim fileinput-exists" data-dismiss="fileinput"><i class="bi bi-trash"></i><span class="btn-text">حذف فایل ها</span></a>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-3" dir="rtl">
+                                        <label class="control-label mb-10" for="{{ form.result.id_for_label }}">{{ form.result.label }}</label>
+                                        {{ form.result }}
+                                    </div>
+                                    <div class="form-group col-md-4" dir="rtl">
+                                        <label class="control-label mb-10" for="{{ form.student.id_for_label }}">{{ form.student.label }}</label>
                                         {{ form.student }}
-                                        {{ form.student.errors }}
                                     </div>
-                                    <div class="mb-3">
-                                        {{ form.correct_answers.label }}
-                                        {{ form.correct_answers}}
-                                        {{ form.correct_answers.errors }}
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-12" dir="rtl">
+                                        <label class="control-label mb-10" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                                        {{ form.description }}
                                     </div>
-                                    <div class="mb-3">
-                                        {{ form.incorrect_answers.label }}
-                                        {{ form.incorrect_answers }}
-                                        {{ form.incorrect_answers.errors }}
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                </form>
-                            </div>
+                                </div>
+
+                                {{ form.errors }}
+
+                                <input type="submit" value="ذخیره" class="btn btn-block btn-success mt-40">
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 {% endblock %}

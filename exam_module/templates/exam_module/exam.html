@@ -1,5 +1,6 @@
 {% extends "shared/_layout.html" %}
 {% load static %}
+{% load poll_extras %}
 
 {% block title %}جزئیات امتحان{% endblock %}
 {% block content_title %}جزئیات امتحان{% endblock %}
@@ -10,36 +11,110 @@
     <li class="active"><span>Details</span></li>
 {% endblock %}
 
+{% block js_references %}
+        <script src="{% static "vendors/bower_components/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js" %}"></script>
+        <script>
+            $(function() {
+                $('#correct_answers').easyPieChart({
+                    barColor : 'rgba(139,195,74,1)',
+                    lineWidth: 2,
+                    animate: 2000,
+                    size: 100,
+                    lineCap: 'square',
+                    trackColor: false,
+                    scaleColor: false,
+                    onStep: function(from, to, percent) {
+                        $(this.el).find('.percent').text(Math.round(percent));
+                    }
+                });
+            });
+
+            $(function() {
+                $('#not_answered').easyPieChart({
+                    barColor : 'rgb(195, 153, 74)',
+                    lineWidth: 2,
+                    animate: 2000,
+                    size: 100,
+                    lineCap: 'square',
+                    trackColor: false,
+                    scaleColor: false,
+                    onStep: function(from, to, percent) {
+                        $(this.el).find('.percent').text(Math.round(percent));
+                    }
+                });
+            });
+
+            $(function() {
+                $('#incorrect_answers').easyPieChart({
+                    barColor : 'rgb(195, 74, 74)',
+                    lineWidth: 2,
+                    animate: 2000,
+                    size: 100,
+                    lineCap: 'square',
+                    trackColor: false,
+                    scaleColor: false,
+                    onStep: function(from, to, percent) {
+                        $(this.el).find('.percent').text(Math.round(percent));
+                    }
+                });
+            });
+
+            $(function() {
+                $('#failed').easyPieChart({
+                    barColor : 'rgb(195, 74, 74)',
+                    lineWidth: 2,
+                    animate: 2000,
+                    size: 100,
+                    lineCap: 'square',
+                    trackColor: false,
+                    scaleColor: false,
+                });
+            });
+
+            $(function() {
+                $('#passed').easyPieChart({
+                    barColor : 'rgba(139,195,74,1)',
+                    lineWidth: 2,
+                    animate: 2000,
+                    size: 100,
+                    lineCap: 'square',
+                    trackColor: false,
+                    scaleColor: false,
+                });
+            });
+        </script>
+{% endblock %}
+
 {% block content %}
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-6 col-sm-12 col-lg-offset-3 col-md-offset-3">
+        <div class="col-lg-6 col-md-6 col-sm-12 {% if exam.result is None or exam.result.is_delete == True %} col-lg-offset-3 col-md-offset-3 {% endif %}">
             <div class="panel panel-default contact-card card-view">
                 <div class="row">
                     <div class="panel-heading row">
                         <div class="emp-detail pl-15 pr-15">
-                            {% if exam.created_by == user %}
+                            {% if exam.exam.created_by == user %}
                                 <div class="col-md-3 col-sm-12 mt-20 mb-20">
                                     <a
                                         class="btn btn-block btn-rounded btn-0 btn-success
-                                            {% if exam.status == 1 %} disabled {% endif %}"
-                                        href="{% url 'done-exam-page' exam.uuid %}">
+                                            {% if exam.exam.status == 1 %} disabled {% endif %}"
+                                        href="{% url 'done-exam-page' exam.exam.uuid %}">
                                         انجام شده
                                     </a>
                                 </div>
                                 <div class="col-md-6 col-sm-12 mt-20 mb-20">
-                                    <p class="btn btn-block btn-default btn-rounded btn-outline disabled">{{ exam.title }}</p>
+                                    <p class="btn btn-block btn-default btn-rounded btn-outline disabled">{{ exam.exam.title }}</p>
                                 </div>
                                 <div class="col-md-3 col-sm-12 mt-20 mb-20">
                                     <a
                                         class="btn btn-block btn-rounded btn-0 btn-danger
-                                            {% if exam.status == 2 %} disabled {% endif %}"
-                                        href="{% url 'not-done-exam-page' exam.uuid %}">
+                                            {% if exam.exam.status == 2 %} disabled {% endif %}"
+                                        href="{% url 'not-done-exam-page' exam.exam.uuid %}">
                                         انجام نشده
                                     </a>
                                 </div>
                             {% else %}
                                 <div class="col-md-12 col-sm-12 mt-20 mb-20">
-                                    <p class="btn btn-block btn-default btn-rounded btn-outline disabled">{{ exam.title }}</p>
+                                    <p class="btn btn-block btn-default btn-rounded btn-outline disabled">{{ exam.exam.title }}</p>
                                 </div>
                             {% endif %}
                         </div>
@@ -50,64 +125,81 @@
                             <div class="user-others-details pl-15 pr-15" style="color: black;">
                                 <div class="row justify-content-center">
                                     <div class="mr-50 ml-50" dir="rtl">
-                                        <p style="white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">{{ exam.description|linebreaksbr }}</p>
+                                        <p style="white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">{{ exam.exam.description|linebreaksbr }}</p>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="col-md-8 col-md-offset-2 mt-70" style="text-align: center;">
-                                            <p>برای تاریخ</p>
-                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
-                                            <p>{{ exam.for_date.year }} / {{ exam.for_date.month }} / {{ exam.for_date.day }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="col-md-8 col-md-offset-2 mt-70" style="text-align: center;">
-                                            <p>استاد</p>
-                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
-                                            <p>{{ exam.created_by.get_full_name }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
                                             <p>درس</p>
                                             <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
-                                            <p>علوم</p>
+                                            <p>{{ exam.exam.lesson }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="col-md-8 col-md-offset-2 mt-70" style="text-align: center;">
+                                            <p>تعداد سوالات</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ exam.exam.questions }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="col-md-8 col-md-offset-2 mt-70" style="text-align: center;">
+                                            <p>سختی</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ exam.exam.get_difficulty_display }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                            <p>برای تاریخ</p>
+                                            <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
+                                            <p>{{ exam.exam.for_date.year }} / {{ exam.exam.for_date.month }} / {{ exam.exam.for_date.day }}</p>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
-                                            <p>سختی</p>
+                                            <p>استاد</p>
                                             <hr class="hr mt-20 mb-20" style="border-top: 1px solid #000000dd;"/>
-                                            <p>{{ exam.get_difficulty_display }}</p>
+                                            <p>{{ exam.exam.created_by.get_full_name }}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <hr class="light-grey-hr mt-20 mb-20"/>
                             <div class="emp-detail pl-15 pr-15">
-                                {% if exam.created_by == user %}
+                                {% if exam.exam.created_by == user %}
                                     <div class="col-md-4 col-sm-3 mt-20 mb-20">
-                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-success" href="#">ثبت نتیجه امتحان</a>
+                                        {% if exam.result is not None and exam.result.is_delete == False and exam.feedback is None %}
+                                            <a class="btn btn-block btn-outline btn-rounded btn-0 btn-success" href="{% url "create-exam-feedback-page" exam.uuid %}">ثبت بازخورد امتحان</a>
+                                        {% elif exam.result is not None and exam.result.is_delete == False and exam.feedback.is_delete == True %}
+                                            <a class="btn btn-block btn-outline btn-rounded btn-0 btn-success" href="{% url "create-exam-feedback-page" exam.uuid %}">ثبت بازخورد امتحان</a>
+                                        {% else %}
+                                            <a class="btn btn-block btn-outline btn-rounded disabled btn-0 btn-default" href="#">ثبت بازخورد امتحان</a>
+                                        {% endif %}
                                     </div>
                                     <div class="col-md-4 col-sm-3 mt-20 mb-20">
                                         <a
                                             class="btn btn-block btn-outline btn-rounded btn-0
-                                                {% if exam.created_by != user %} disabled btn-default
+                                                {% if exam.exam.created_by != user %} disabled btn-default
                                                 {% else %} btn-primary
                                                 {% endif %}"
-                                            href="#">
+                                            href="{% url "edit-exam-page" exam.exam.uuid %}">
                                             ویرایش
                                         </a>
                                     </div>
                                     <div class="col-md-4 col-sm-3 mt-20 mb-20">
-                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-exam-page" exam.uuid %}">حذف</a>
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-exam-page" type="e" uuid=exam.exam.uuid %}">حذف</a>
                                     </div>
                                 {% else %}
                                     <div class="col-md-12 col-sm-12 mt-20 mb-20">
-                                        <a class="btn btn-block btn-rounded btn-0 btn-success" href="#">ثبت نتیجه امتحان</a>
+                                        {% if exam.result is not None and exam.result.is_delete == False and exam.feedback is None or exam.feedback.is_delete == True %}
+                                            <a class="btn btn-block btn-rounded btn-0 btn-success" href="{% url "create-exam-feedback-page" exam.uuid %}">ثبت بازخورد امتحان</a>
+                                        {% else %}
+                                            <a class="btn btn-block btn-rounded btn-default disabled" href="#">ثبت بازخورد امتحان</a>
+                                        {% endif %}
                                     </div>
                                 {% endif %}
                             </div>
@@ -116,5 +208,120 @@
                 </div>
             </div>
         </div>
+        {% if exam.result is not None and exam.result.is_delete == False %}
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="panel panel-default contact-card card-view">
+                    <div class="row">
+                        <div class="panel-heading row">
+                            <div class="emp-detail pl-15 pr-15">
+                                {% if exam.exam.created_by == user %}
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-primary" href="{% url "edit-exam-result-page" exam.uuid %}">ویرایش</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "exam-result-list-page" exam.result.uuid %}">دانلود</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-exam-page" type="r" uuid=exam.result.uuid %}">حذف</a>
+                                    </div>
+                                {% else %}
+                                    <div class="col-md-12 col-sm-12 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "exam-result-list-page" exam.result.uuid %}">دانلود</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <hr class="light-grey-hr mt-20 mb-20">
+                        <div class="panel-wrapper collapse in">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                        <span id="incorrect_answers" class="easypiechart" data-percent="{{ exam.result.incorrect_answers|return_to_percent:exam.exam.questions }}">
+                                            <span class="percent head-font">100</span>
+                                        </span>
+                                        <p>جواب های نادرست</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                        <span id="not_answered" class="easypiechart" data-percent="{{ exam.result.not_answered|return_to_percent:exam.exam.questions }}">
+                                            <span class="percent head-font">100</span>
+                                        </span>
+                                        <p>جواب های داده نشده</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="col-md-8 col-md-offset-2 mb-70 mt-70" style="text-align: center;">
+                                        <span id="correct_answers" class="easypiechart" data-percent="{{ exam.result.correct_answers|return_to_percent:exam.exam.questions }}">
+                                            <span class="percent head-font">100</span>
+                                        </span>
+                                        <p>جواب های درست</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="user-others-details pl-15 pr-15" style="color: black;">
+                                    <div class="row justify-content-center">
+                                        <div class="mr-50 ml-50" dir="rtl">
+                                            <p>{{ exam.result.description }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="mt-45 mb-20 col-md-6">
+                                            <a class="btn btn-block {% if exam.result.result == 1 %} btn-success {% else %} btn-danger {% endif %} disabled"> {{ exam.result.get_result_display }} </a>
+                                        </div>
+                                        <div class="mt-45 mb-20 col-md-6">
+                                            <a class="btn btn-block btn-default disabled"> {{ exam.result.modify_date.year }} / {{ exam.result.modify_date.month }} / {{ exam.result.modify_date.day }}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if exam.feedback is not None and exam.feedback.is_delete == False %}
+            <div class="col-lg-6 col-md-6">
+                <div class="panel panel-default contact-card card-view">
+                    <div class="row">
+                        <div class="panel-heading row">
+                            <div class="emp-detail pl-15 pr-15">
+                                {% if exam.assigned_to == user %}
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-primary" href="{% url "edit-exam-feedback-page" exam.uuid %}">ویرایش</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "exam-feedback-list-page" exam.feedback.uuid %}">دانلود</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-exam-page" type="f" uuid=exam.feedback.uuid %}">حذف</a>
+                                    </div>
+                                {% else %}
+                                    <div class="col-md-12 col-sm-12 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "exam-feedback-list-page" exam.feedback.uuid %}">دانلود</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <hr class="light-grey-hr mt-20 mb-20">
+                        <div class="panel-wrapper collapse in">
+                            <div class="panel-body">
+                                <div class="user-others-details pl-15 pr-15" style="color: black;">
+                                    <div class="row justify-content-center">
+                                        <div class="mr-50 ml-50" dir="rtl">
+                                            <p>{{ exam.feedback.description }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-30">
+                                        <a class="btn btn-block btn-default disabled"> {{ exam.feedback.modify_date.year }} / {{ exam.feedback.modify_date.month }} / {{ exam.feedback.modify_date.day }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}
