@@ -51,3 +51,10 @@ class HomeworkResultFileAdmin(admin.ModelAdmin):
     list_display = ("id", "creation_date", "modify_date", "is_delete")
     list_filter = ("creation_date", "modify_date","is_delete")
     search_fields = ("homework",)
+
+
+@admin.register(models.HomeworkFeedbackFile)
+class HomeworkFeedbackFileAdmin(admin.ModelAdmin):
+    list_display = ("id", "creation_date", "modify_date", "is_delete")
+    list_filter = ("creation_date", "modify_date","is_delete")
+    search_fields = ("homework",)

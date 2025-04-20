@@ -1,14 +1,14 @@
 {% extends 'shared/_layout.html' %}
 {% load static %}
 
-{% block title %}ثبت نتیجه تکلیف{% endblock %}
-{% block content_title %}ثبت نتیجه تکلیف{% endblock %}
+{% block title %}ویرایش نتیجه تکلیف{% endblock %}
+{% block content_title %}ویرایش نتیجه تکلیف{% endblock %}
 
 {% block breadcrumb_option %}
     <li><a href="index.html">Dashboard</a></li>
     <li><a href="index.html">Homeworks</a></li>
     <li><a href="index.html">Results</a></li>
-    <li class="active"><span>edit</span></li>
+    <li class="active"><span>Edit</span></li>
 {% endblock %}
 
 {% block content %}
@@ -21,27 +21,25 @@
                             <form method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <div class="row">
-                                    <div class="form-group">
-                                        {% if form.homework is not None %}
-                                            <div class="form-group col-md-6">
-                                                <label class="control-label mb-10 text-left" for="{{ form.homework.id_for_label }}">{{ form.homework.label }}</label>
-                                                {{ form.homework }}
-                                            </div>
-                                        {% endif %}
-                                        <div class="form-group col-md-6">
-                                            <label class="control-label mb-10" for="{{ form.files.id_for_label }}">{{ form.files.label }}</label>
-                                            {{ form.files }}
+                                    <div class="form-group col-md-12" dir="rtl">
+                                        <label class="control-label mb-10" for="{{ form.files.id_for_label }}">{{ form.files.label }}</label>
+                                        <div class="fileinput fileinput-new input-group" data-provides="fileinput">
+                                            <div class="form-control" data-trigger="fileinput"> <i class="bi bi-file-earmark fileinput-exists"></i> <span class="fileinput-filename"></span></div>
+                                            <span class="input-group-addon fileupload btn btn-info btn-anim btn-file"><i class="bi bi-upload"></i> <span class="fileinput-new btn-text">انتخاب فایل ها</span> <span class="fileinput-exists btn-text">تغییر دادن فایل ها</span>
+                                            <input type="file" name="files" multiple>
+                                            </span> <a href="" class="input-group-addon btn btn-danger btn-anim fileinput-exists" data-dismiss="fileinput"><i class="bi bi-trash"></i><span class="btn-text">حذف فایل ها</span></a>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="form-group col-md-6">
+                                    <div class="form-group col-md-12" dir="rtl">
                                         <label class="control-label mb-10" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
                                         {{ form.description }}
                                     </div>
                                 </div>
 
                                 {{ form.errors }}
+
                                 <input type="submit" value="ذخیره" class="btn btn-block btn-success mt-40">
                             </form>
                         </div>
