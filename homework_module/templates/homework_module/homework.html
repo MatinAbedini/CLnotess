@@ -13,7 +13,7 @@
 
 {% block content %}
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-6 col-sm-12 {% if homework.result is None %} col-lg-offset-3 col-md-offset-3 {% endif %}">
+        <div class="col-lg-6 col-md-6 col-sm-12 {% if homework.result is None or homework.result.is_delete == True %} col-lg-offset-3 col-md-offset-3 {% endif %}">
             <div class="panel panel-default contact-card card-view">
                 <div class="row">
                     <div class="panel-heading row">
@@ -78,7 +78,11 @@
                             <div class="emp-detail pl-15 pr-15">
                                 {% if homework.homework.created_by == user %}
                                     <div class="col-md-4 col-sm-4 mt-20 mb-20">
-                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-success" href="{% url "create-homework-result-page" homework.uuid %}">ثبت نتیجه تکلیف</a>
+                                        {% if homework.result is not None and homework.result.is_delete == False %}
+                                            <a class="btn btn-block btn-outline btn-rounded disabled btn-0 btn-default" href="#">ثبت نتیجه تکلیف</a>
+                                        {% else %}
+                                            <a class="btn btn-block btn-outline btn-rounded btn-0 btn-success" href="{% url "create-homework-result-page" homework.uuid %}">ثبت نتیجه تکلیف</a>
+                                        {% endif %}
                                     </div>
                                     <div class="col-md-4 col-sm-4 mt-20 mb-20">
                                         <a
@@ -91,11 +95,15 @@
                                         </a>
                                     </div>
                                     <div class="col-md-4 col-sm-4 mt-20 mb-20">
-                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-homework-page" homework.homework.uuid %}">حذف</a>
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-homework-page" type="h" uuid=homework.homework.uuid %}">حذف</a>
                                     </div>
                                 {% else %}
                                     <div class="col-md-12 col-sm-4 mt-20 mb-20">
-                                        <a class="btn btn-block btn-rounded btn-0 btn-success" href="{% url "create-homework-result-page" homework.uuid %}">ثبت نتیجه تکلیف</a>
+                                        {% if homework.result is not None and homework.result.is_delete == False %}
+                                            <a class="btn btn-block btn-rounded btn-default disabled" href="#">ثبت نتیجه تکلیف</a>
+                                        {% else %}
+                                            <a class="btn btn-block btn-rounded btn-0 btn-success" href="{% url "create-homework-result-page" homework.uuid %}">ثبت نتیجه تکلیف</a>
+                                        {% endif %}
                                     </div>
                                 {% endif %}
                             </div>
@@ -104,7 +112,7 @@
                 </div>
             </div>
         </div>
-        {% if homework.result is not None %}
+        {% if homework.result is not None and homework.result.is_delete == False %}
             <div class="col-lg-6 col-md-6 col-sm-12">
                 <div class="panel panel-default contact-card card-view">
                     <div class="row">
@@ -115,14 +123,14 @@
                                         <a class="btn btn-block btn-outline btn-rounded btn-0 btn-primary" href="{% url 'edit-homework-result-page' homework.uuid %}">ویرایش</a>
                                     </div>
                                     <div class="col-md-4 col-sm-3 mt-20 mb-20">
-                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "homework-result-list-page" homework.homework.uuid %}">دانلود</a>
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "homework-result-list-page" homework.result.uuid %}">دانلود</a>
                                     </div>
                                     <div class="col-md-4 col-sm-3 mt-20 mb-20">
-                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-homework-page" homework.homework.uuid %}">حذف</a>
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-homework-page" type="r" uuid=homework.result.uuid %}">حذف</a>
                                     </div>
                                 {% else %}
                                     <div class="col-md-4 col-sm-3 mt-20 mb-20">
-                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "delete-homework-page" homework.homework.uuid %}">دانلود</a>
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "homework-result-list-page" homework.result.uuid %}">دانلود</a>
                                     </div>
                                 {% endif %}
                             </div>
@@ -136,7 +144,10 @@
                                             <p>{{ homework.result.description }}</p>
                                         </div>
                                     </div>
-                                    <div class="mt-30">
+                                    <div class="mt-45 mb-20 col-md-6">
+                                        <a class="btn btn-block {% if homework.result.result_status == 1 %} btn-success {% elif homework.result.result_status == 2 %} btn-warning {% else %} btn-danger {% endif %} disabled"> {{ homework.result.get_result_status_display }} </a>
+                                    </div>
+                                    <div class="mt-45 mb-20 col-md-6">
                                         <a class="btn btn-block btn-default disabled"> {{ homework.result.modify_date.year }} / {{ homework.result.modify_date.month }} / {{ homework.result.modify_date.day }}</a>
                                     </div>
                                 </div>
@@ -146,15 +157,27 @@
                 </div>
             </div>
         {% endif %}
-        {% if homework.feedback is not None %}
+        {% if homework.feedback is not None and homework.feedback.is_delete == False %}
             <div class="col-lg-6 col-md-6 col-sm-12">
                 <div class="panel panel-default contact-card card-view">
                     <div class="row">
                         <div class="panel-heading row">
                             <div class="emp-detail pl-15 pr-15">
-                                <div class="col-md-12 col-sm-12 mt-20 mb-20">
-                                    <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "delete-homework-page" homework.homework.uuid %}">دانلود</a>
-                                </div>
+                                {% if homework.homework.created_by == user %}
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-primary" href="{% url 'edit-homework-feedback-page' homework.uuid %}">ویرایش</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "homework-feedback-list-page" homework.feedback.uuid %}">دانلود</a>
+                                    </div>
+                                    <div class="col-md-4 col-sm-3 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-danger" href="{% url "delete-homework-page" type="f" uuid=homework.feedback.uuid %}">حذف</a>
+                                    </div>
+                                {% else %}
+                                    <div class="col-md-12 col-sm-12 mt-20 mb-20">
+                                        <a class="btn btn-block btn-outline btn-rounded btn-0 btn-warning" href="{% url "homework-feedback-list-page" homework.feedback.uuid %}">دانلود</a>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                         <hr class="light-grey-hr mt-20 mb-20">

@@ -2,12 +2,12 @@
 {% load poll_extras %}
 {% load static %}
 
-{% block title %}لیست نتیجه تکالیف{% endblock %}
-{% block content_title %}لیست نتیجه تکالیف{% endblock %}
+{% block title %}لیست بازخورد تکالیف{% endblock %}
+{% block content_title %}لیست بازخورد تکالیف{% endblock %}
 {% block breadcrumb_option %}
     <li><a href="index.html">Dashboard</a></li>
     <li><a href="index.html">Homeworks</a></li>
-    <li><a href="index.html">Results</a></li>
+    <li><a href="index.html">Feedbacks</a></li>
     <li class="active"><span>Files</span></li>
 {% endblock %}
 
@@ -54,10 +54,12 @@
                     </div>
                 </div>
             </div>
+            <!-- /Bordered Table -->
+
         </div>
     {% else %}
         <div class="alert alert-warning" dir="rtl" role="alert">
-            هیچ فایلی توسط دانش آموز ثبت نشده است!
+            هیچ فایلی توسط معلم ثبت نشده است!
         </div>
     {% endif %}
 {% endblock %}

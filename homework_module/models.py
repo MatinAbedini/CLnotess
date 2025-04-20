@@ -22,10 +22,10 @@ class Homework(models.Model):
     uuid = models.UUIDField(verbose_name=_("شناسه"), default=uuid4, editable=False, unique=True, db_index=True)
 
     lesson = models.ForeignKey(
-        "lesson_module.lesson",
+        "lesson_module.Lesson",
         verbose_name=_("درس"),
         related_name="homeworks",
-        on_delete=models.SET_DEFAULT,
+        on_delete=models.CASCADE,
         default=1,
     )
 
@@ -35,6 +35,7 @@ class Homework(models.Model):
         related_name="created_homeworks",
         on_delete=models.SET_NULL,
         editable=False,
+        null=True,
         db_index=True,
     )
 
@@ -66,6 +67,17 @@ class Homework(models.Model):
         # Create HomeworkCreatedFor (relation table for homework and students),
         # For each student of each classes
 
+        duplicated_homeworks = (
+            HomeworkCreatedFor.objects.filter(
+                homework=self,
+                assigned_class__in=self.assigned_class.all(),
+                is_delete=True,
+            )
+        )
+
+        duplicated_homeworks_assigned_to = set(duplicated_homeworks.values_list("assigned_to", flat=True))
+        duplicated_homeworks_assigned_class = set(duplicated_homeworks.values_list("assigned_class", flat=True))
+
         homeworks: QuerySet[HomeworkCreatedFor] = [
             HomeworkCreatedFor(
                 homework=self,
@@ -76,23 +88,15 @@ class Homework(models.Model):
 
             for class_ in classes
             for student in class_.assigned_to.all()
+            if class_ not in duplicated_homeworks_assigned_class and student not in duplicated_homeworks_assigned_to
         ]
 
-        duplicated_homeworks = (
-            HomeworkCreatedFor.objects.filter(
-                homework=self,
-                assigned_class__in=self.assigned_class,
-                is_delete=True,
-            )
-        )
 
         # If clear is true, it will unassign old classes and students from the homework,
         # Else, it will assign new classes to the homework
 
         duplicated_homeworks.update(is_delete=False, status=3)
-        duplicated_homeworks = duplicated_homeworks.values_list("assigned_to", flat=True)
-        homeworks.exclude(assigned_to=duplicated_homeworks)
-        Homework.objects.bulk_create(homeworks)
+        HomeworkCreatedFor.objects.bulk_create(homeworks)
         self.assigned_class.add(*classes)
 
     def unassign_homework(self, classes: QuerySet[Class]) -> None:
@@ -266,7 +270,7 @@ class HomeworkFeedbackFile(models.Model):
 
     file = models.FileField(
         verbose_name=_("فایل های بازخورد تکلیف"),
-        upload_to="homework_module/homework_results/",
+        upload_to="homework_module/homework_feedbacks/",
         validators=[MaxFileSize(5)],
         db_index=True,
     )

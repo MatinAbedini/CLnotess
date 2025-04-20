@@ -1,26 +1,9 @@
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
-from django_jalali import forms as jforms
 from django import forms
+
+from utils.form_fields import MultipleFileField
 from .models import *
-
-
-class MultipleFileInput(forms.ClearableFileInput):
-    allow_multiple_selected = True
-
-
-class MultipleFileField(forms.FileField):
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("widget", MultipleFileInput())
-        super().__init__(*args, **kwargs)
-
-    def clean(self, data, initial=None):
-        single_file_clean = super().clean
-        if isinstance(data, (list, tuple)):
-            result = [single_file_clean(d, initial) for d in data]
-        else:
-            result = [single_file_clean(data, initial)]
-        return result
 
 
 class HomeworkForm(forms.ModelForm):
@@ -59,15 +42,6 @@ class HomeworkForm(forms.ModelForm):
 
 
 class HomeworkResultForm(forms.ModelForm):
-    homework = forms.ChoiceField(
-        required=True,
-        label=_("تکلیف"),
-        widget=forms.Select(attrs={
-            "class": "form-control",
-            "dir": "rtl",
-        })
-    )
-
     files = MultipleFileField(label=_("فایل ها"))
 
     class Meta:
@@ -82,12 +56,14 @@ class HomeworkResultForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        show_homework = kwargs.pop("show_homework", False)
+        # Makes files optional or required,
+        # Depending of entered value of files_required in form kwargs.
 
+        files_required = kwargs.pop("files_required", True)
         super().__init__(*args, **kwargs)
 
-        if not show_homework:
-            self.fields.pop("homework")
+        if not files_required:
+            self.fields.get("files").required = False
 
     def clean_files(self):
         """If uploaded files are more that 25, raises a validation error"""
@@ -104,15 +80,6 @@ class HomeworkResultForm(forms.ModelForm):
 
 
 class HomeworkFeedbackForm(forms.ModelForm):
-    homework = forms.ChoiceField(
-        required=True,
-        label=_("تکلیف"),
-        widget=forms.Select(attrs={
-            "class": "form-control",
-            "dir": "rtl",
-        })
-    )
-
     files = MultipleFileField(label=_("فایل ها"))
 
     class Meta:
@@ -127,12 +94,11 @@ class HomeworkFeedbackForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        show_homework = kwargs.pop("show_homework", False)
-
+        files_required = kwargs.pop("files_required", True)
         super().__init__(*args, **kwargs)
 
-        if not show_homework:
-            self.fields.pop("homework")
+        if not files_required:
+            self.fields.get("files").required = False
 
     def clean_files(self):
         """If uploaded files are more that 25, raises a validation error"""

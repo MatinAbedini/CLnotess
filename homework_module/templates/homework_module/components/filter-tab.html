@@ -54,23 +54,6 @@
                             </ul>
                         </li>
                     </ul>
-                    <ul>
-                        <li>
-                            <a href="javascript:void(0);" data-toggle="collapse" data-target="#maps_dr" style="font-size: 18px; font-weight: normal;">
-                                کلاس
-                                <div class="pull-left"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
-                            <ul id="maps_dr" class="collapse collapse-level-1 ml-25" style="font-size: 15.30px;">
-                                <li>
-                                    {% for class in classes %}
-                                        <div class="checkbox checkbox-primary checkbox-circle">
-                                            <input id="{{ class }}" type="checkbox" {% if class in class_filter %} checked {% endif %}>
-                                            <label for="{{ class }}"> {{ class }} </label>
-                                        </div>
-                                    {% endfor %}
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
                 </ul>
             </div>
             <div class="row">
@@ -79,9 +62,8 @@
                         <input type="hidden" name="page" id="page" value="{{ page_obj.number }}">
                         <input type="hidden" name="status" id="status" value="{{ status_filter }}">
                         <input type="hidden" name="lesson" id="lesson" value="{{ lesson_filter }}">
-                        <input type="hidden" name="class_" id="class_" value="{{ class_filter }}">
                     </form>
-                    <button class="btn btn-primary btn-rounded btn-outline btn-block" onclick="filterHomeworks({{ lessons }}, {{ classes }})">فیلتر</button>
+                    <button class="btn btn-primary btn-rounded btn-outline btn-block" onclick="filterHomeworks({{ lessons }})">فیلتر</button>
                 </div>
             </div>
         </div>

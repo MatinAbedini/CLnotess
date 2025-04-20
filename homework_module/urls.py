@@ -10,14 +10,14 @@ urlpatterns = [
     path("result/<uuid>", HomeworkResultDetailView.as_view(), name="homework-result-page"),
 
     # Homework Result views
-    path("create-result/", HomeworkResultCreateView.as_view(), name="create-homework-result-page"),
-    path("edit-result/<uuid>", HomeworkResultUpdateView.as_view(), name="edit-homework-result-page"),
     path("create-result/<uuid>", HomeworkResultCreateView.as_view(), name="create-homework-result-page"),
-    path("result-files/", HomeworkResultFileListView.as_view(), name="homework-result-list-page"),
+    path("edit-result/<uuid>", HomeworkResultUpdateView.as_view(), name="edit-homework-result-page"),
     path("result-files/<uuid>", HomeworkResultFileListView.as_view(), name="homework-result-list-page"),
 
     # Homework Feedback views
     path("create-feedback/<uuid>", HomeworkFeedbackCreateView.as_view(), name="create-homework-feedback-page"),
+    path("edit-feedback/<uuid>", HomeworkFeedbackUpdateView.as_view(), name="edit-homework-feedback-page"),
+    path("feedback-files/<uuid>", HomeworkFeedbackFileListView.as_view(), name="homework-feedback-list-page"),
 
     # Actions
     path("done/<uuid>", view=done_homework, name="done-homework-page"),
@@ -26,7 +26,5 @@ urlpatterns = [
     path("complete/<uuid>", view=complete_homework, name="complete-homework-page"),
     path("waiting/<uuid>", view=waiting_homework, name="waiting-homework-page"),
     path("not-complete/<uuid>", view=not_complete_homework, name="not-complete-homework-page"),
-    path("delete/<uuid>", view=delete_homework, name="delete-homework-page"),
-    path("download/r/<url_path>", view=download_homework_result, name="download-homework-result-page"),
-    path("download/f/<url_path>", view=download_homework_feedback, name="download-feedback-homework-page")
+    path("delete/<type>/<uuid>", view=delete_homework, name="delete-homework-page"),
 ]
