@@ -21,7 +21,7 @@ class Account(AbstractUser):
     settings = models.OneToOneField(
         "AccountSettings",
         on_delete=models.CASCADE,
-        verbose_name=_("توضیحات"),
+        verbose_name=_("تنضیمات"),
         related_name="account",
         null=True
     )

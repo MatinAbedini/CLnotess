@@ -2,11 +2,13 @@ from django.utils.translation.trans_null import gettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from utils.mail_service import send_mail_service
 from django.shortcuts import redirect, render
+from django.http import HttpResponseForbidden
 from django.urls import reverse, reverse_lazy
-from django.contrib.auth import logout
 from django.views.generic.edit import FormView
 from django.contrib.auth.views import LoginView
-from django.http import HttpResponseForbidden
+from django.contrib.auth import login
+from django.contrib.auth import logout
+
 from .forms import RegisterForm, LoginForm
 from .models import Account
 from uuid import uuid4
@@ -16,7 +18,7 @@ from uuid import uuid4
 
 class RegisterView(FormView):
     template_name = "account_module/register.html"
-    success_url = reverse_lazy("class-list-page")
+    success_url = reverse_lazy("login-page")
     form_class = RegisterForm
 
     def dispatch(self, request, *args, **kwargs):
@@ -60,7 +62,7 @@ class RegisterView(FormView):
             )
 
         else:
-            form.add_error("email",  _("کابری با این ایمیل وجود دارد."))
+            form.add_error("email",  _("کاربری با این ایمیل وجود دارد."))
 
         return super().form_valid(form)
 
@@ -86,8 +88,7 @@ def activation_view(request, active_code):
             user.is_active = True
             user.active_code = uuid4()
             user.save()
-
-            return redirect(reverse("index-page"))
+            login(request, user)
 
         return redirect(reverse("index-page"))
 
