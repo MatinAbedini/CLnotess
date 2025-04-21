@@ -2,13 +2,6 @@
     <div class="panel panel-default card-view">
         <div class="panel-wrapper collapse in">
             <div class="row">
-                <div class="mt-20 mb-20 ml-15 mr-15">
-                    <a href="{% url "create-homework-page" %}" class="btn btn-success btn-block">
-                    اضافه کردن دعوت
-                    </a>
-                </div>
-            </div>
-            <div class="row">
                 <ul class="inbox-nav">
                     <ul>
                         <li>
@@ -54,24 +47,6 @@
                                         <input id="teacher" type="checkbox" {% if "2" in invitation_filter %} checked {% endif %}>
                                         <label for="teacher"> عضویت معلم </label>
                                     </div>
-                                </li>
-
-                            </ul>
-                        </li>
-                    </ul>
-                    <ul>
-                        <li>
-                            <a href="javascript:void(0);" data-toggle="collapse" data-target="#table_dr" style="font-size: 18px; font-weight: normal;">
-                                درس
-                                <div class="pull-left"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
-                            <ul id="table_dr" class="collapse collapse-level-1 ml-25" style="font-size: 15.30px;">
-                                <li>
-                                    {% for lesson in lessons %}
-                                        <div class="checkbox checkbox-primary checkbox-circle">
-                                            <input id="{{ lesson }}" type="checkbox" {% if lesson in lesson_filter %} checked {% endif %}>
-                                            <label for="{{ lesson }}"> {{ lesson }} </label>
-                                        </div>
-                                    {% endfor %}
                                 </li>
                             </ul>
                         </li>

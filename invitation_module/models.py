@@ -2,7 +2,6 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
 from account_module.models import Account
 from django_jalali.db import models as jmodels
-from class_module.models import Class
 from django.db import models
 from uuid import uuid4
 
@@ -24,7 +23,7 @@ class Invitation(models.Model):
     )
 
     assigned_class = models.ForeignKey(
-        Class,
+        "class_module.Class",
         on_delete=models.CASCADE,
         related_name="assigned_invitations",
         verbose_name=_("معین شده برای کلاس"),
@@ -47,6 +46,52 @@ class Invitation(models.Model):
 
     def __str__(self):
         return f"{self.pk} - {self.created_by}"
+
+
+    def assign_users(assigned_class, created_by, assigned_users, is_teacher=False):
+        """
+        Creates invitations for assigned users,
+        to join the class, as a student.
+
+        Args:
+            assigned_class: The class which users will receive the invitation to join.
+            created_by: The user who wants to invite others to their class.
+            assigned_users: Users who will receive the invitation.
+            is_teacher: If the invitation is for teachers. Default = False
+        """
+
+        # Create A new Invitation named base_invitation
+        # Find assigned users using their full name, And save it as assigned_users
+        # If the invitation already exists, use it instead of creating a new one
+
+        type = 2 if is_teacher else 1
+
+        base_invitation = Invitation.objects.filter(
+            assigned_class=assigned_class,
+            created_by=created_by,
+            type=type
+        )
+
+        if not base_invitation.exists():
+            base_invitation = Invitation(
+                assigned_class=assigned_class,
+                created_by=created_by,
+                type=type
+            )
+
+        # Assign Invitation to students
+
+        invitations = [
+            InvitationAssignedTo(
+                invitation=base_invitation,
+                assigned_to=assigned_user,
+            )
+            for assigned_user in assigned_users
+        ]
+
+        # Save the base invitation and send (assign) the invitation to users
+        base_invitation.save()
+        InvitationAssignedTo.objects.bulk_create(invitations)
 
 
 class InvitationAssignedTo(models.Model):
