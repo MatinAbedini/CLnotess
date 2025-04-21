@@ -1,0 +1,40 @@
+{% extends 'shared/_layout.html' %}
+{% load static %}
+
+{% block title %}Edit Class{% endblock %}
+{% block content_title %}ویرایش کلاس{% endblock %}
+
+{% block breadcrumb_option %}
+    <li><a href="index.html">Classes</a></li>
+    <li class="active"><span>Edit</span></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-10 col-md-10 col-sm-push-1 col-md-push-1">
+            <div class="panel panel-default card-view">
+                <div class="panel-wrapper collapse in">
+                    <div class="panel-body">
+                        <div class="form-wrap">
+                            <form method="post">
+                                {% csrf_token %}
+
+                                <div class="mt-15">
+                                    <label class="control-label mb-10 text-left" for="id_title">نام کلاس :</label>
+                                    {{ form.class_name }}
+                                </div>
+                                <div class="mt-25">
+                                    <label class="control-label mb-10 text-left" for="id_title">(مدرسه) نام آموزشگاه :</label>
+                                    {{ form.school_name }}
+                                </div>
+                                <input type="submit" value="ذخیره" class="btn btn-block btn-success mt-40">
+
+                                {{ form.errors }}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
