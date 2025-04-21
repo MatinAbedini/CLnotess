@@ -1,42 +1,41 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect
-from utils.class_service import add_students, add_teachers
+from django.views.generic.edit import CreateView, UpdateView
 from django.utils.translation import gettext_lazy as _
-from django.views.generic.edit import CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView
-from django.http import HttpResponseForbidden
 from django.urls import reverse, reverse_lazy
-from .forms import ClassForm, AddUserForm
+
+from invitation_module.models import Invitation
+from .forms import ClassForm
 from .models import Class
 
 # Create your views here.
 
 
-class ClassCreateView(CreateView):
-    form_class = ClassForm
+class ClassCreateView(LoginRequiredMixin, CreateView):
     template_name = "class_module/create-class.html"
-    success_url = reverse_lazy("index-page")
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return HttpResponseForbidden(_("شما به این صفحه دسترسی ندارید."))
-
-        return super().dispatch(request, *args, **kwargs)
+    success_url = reverse_lazy("class-list-page")
+    form_class = ClassForm
+    model = Class
 
     def form_valid(self, form):
-
         # If the class already exists, return an error
 
-        new_Class_exists: bool = (
+        duplicated_class = (
             Class.objects.filter(
                 class_name=form.data.get("class_name"),
-                school_name=form.data.get("school_name")
+                school_name=form.data.get("school_name"),
+                created_by=self.request.user,
+                is_delete=True,
             )
-            .exists()
+
         )
 
-        if new_Class_exists:
-            form.add_error("class_name", _("این کلاس قبلا ثبت شده است."))
+        if duplicated_class.exists():
+            duplicated_class.is_delete = False
+            duplicated_class.save()
+
             return self.form_invalid(form)
 
 
@@ -57,82 +56,77 @@ class ClassCreateView(CreateView):
         # If teachers or students are not empty
 
         if teachers != "":
-            add_teachers(new_class, user, teachers, False)
+            new_class.assign_users(user, teachers)
         if students != "":
-            add_students(new_class, user, students, False)
+            new_class.assign_users(user, students)
 
         return super().form_valid(form)
 
 
-class AddStudentView(CreateView):
-    form_class = AddUserForm
-    template_name = "class_module/add-student.html"
-    success_url = reverse_lazy("index-page")
-
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect(reverse("login-page"))
-
-        return super().dispatch(request, *args, **kwargs)
+class ClassUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "class_module/edit-class.html"
+    success_url = reverse_lazy("class-list-page")
+    form_class = ClassForm
+    model = Class
+    slug_field = "uuid"
+    slug_url_kwarg = "uuid"
 
     def form_valid(self, form):
-        user = self.request.user
-        students = form.cleaned_data.get("students")
-        add_students(self.kwargs.get("uuid"), user, students)
+        # If the class already exists, return an error
 
-        return super().form_valid(form)
+        duplicated_class = (
+            Class.objects.filter(
+                class_name=form.data.get("class_name"),
+                school_name=form.data.get("school_name"),
+                created_by=self.request.user,
+                is_delete=True,
+            )
 
+        )
 
-class AddTeacherView(CreateView):
-    form_class = AddUserForm
-    template_name = "class_module/add-teacher.html"
-    success_url = reverse_lazy("index-page")
+        if duplicated_class.exists():
+            duplicated_class.is_delete = False
+            duplicated_class.save()
 
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect(reverse("login-page"))
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        try:
-            user = self.request.user
-            teachers, lesson = form.cleaned_data.get("teachers").split(" - ")
-            add_teachers(self.kwargs.get("uuid"), user, teachers, lesson)
-
-        except:
-            form.add_error("teachers", _("لطفا معلم را به همراه درس مربوطه بنویسید و آنها را حتما با ' - ' جدا کنید. محد رضایی - شیمی"))
             return self.form_invalid(form)
 
+
+        # Save user and new class
+        user = self.request.user
+        new_class: Class = form.save(commit=False)
+
+        # save entered teachers and students
+        students = form.data.get("students")
+        teachers = form.data.get("teachers")
+
+        # Assigned the class to teachers and students
+        # If teachers or students are not empty
+
+        if teachers != "":
+            new_class.assign_users(user, teachers)
+        if students != "":
+            new_class.assign_users(user, students)
+
         return super().form_valid(form)
 
 
-class ClassListView(ListView):
-    model = Class
+class ClassListView(LoginRequiredMixin, ListView):
     template_name = "class_module/class-list.html"
     context_object_name = "classes"
+    model = Class
     ordering = "creation_date"
     paginate_by = 10
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect(reverse("login-page"))
-
-        return super().dispatch(request, *args, **kwargs)
-
     def get_queryset(self):
-        user = self.request.user
-        base_query = (
-            Class.objects.filter(
-                assigned_to=user,
-                is_active=True,
-                is_delete=False
-            ).only("class_name", "school_name")
-        )
+        if not hasattr(self, "base_query"):
+            self.base_query = (
+                Class.objects.filter(
+                    assigned_to=self.request.user,
+                    is_delete=False,
+                ).only("class_name", "school_name")
+            )
 
-        return base_query
+        return self.base_query
 
 
 @login_required
@@ -152,7 +146,6 @@ def delete_class(request, uuid):
     class_: Class = get_object_or_404(
         Class.objects.filter(
             created_by=user,
-            is_active=True,
             is_delete=False,
             uuid=uuid
         )
@@ -190,7 +183,6 @@ def leave_class(request, uuid):
     class_: Class = get_object_or_404(
         Class.objects.filter(
             assigned_to=user,
-            is_active=True,
             is_delete=False,
             uuid=uuid
         )
