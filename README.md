@@ -1,16 +1,18 @@
-# CLnotes 0.0.0
+# CLnotes V1.0.0
 
 ## A project written in Python using the Django framework to manage school classes and classes outside of school.
 
-This is a **Web Application** project, that is build for **[Kharazmi festival](https://en.wikipedia.org/wiki/Khwarizmi_International_Award)** (A competition between all of students from 7th 9th grade) , using **Python** and the **Django** framework to make the relationship between students and teachers easier.
+This is a **Web Application** project, that is build for **[Kharazmi festival](https://en.wikipedia.org/wiki/Khwarizmi_International_Award)** (A competition between all of students from 7th 9th grade) , using **Python** and **Django** framework, with goal of making relationship between students and teachers easier and better.
 
 ### Capabilities
 
-* Create and edit Classes
-* Create and edit Homeworks (For your self or for students in a class)
-* Create and edit Exams (For your self or for students in a class)
-* Set results for exams which are created by you (For each assigned students)
-* Set results for assigned Homeworks
+* Create classes, and invite students and teachers to the class
+* Create and edit Homeworks
+* Submit result of homework for teacher (creator) of that homework
+* Submit feedback of students result of a homework
+* Create and edit Exams
+* Submit result of exam for each assigned student to that exam
+* Submit feedback of teacher result of an exam
 
 ## How to install:
 
