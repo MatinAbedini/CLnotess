@@ -1,7 +1,6 @@
-function filterHomeworks(lessons, classes) {
+function filterHomeworks(lessons) {
     // Get selected statuses and save them inside a list
     // Get selected lessons and save them inside a list
-    // Get selected classes and save them inside a list
 
     const selected_statuses = [
         $("#done").prop("checked") ? 1: "",
@@ -13,27 +12,19 @@ function filterHomeworks(lessons, classes) {
         .map(lesson => $(`#${lesson}`).prop("checked") ? lesson: "")
         .filter(Boolean);
 
-    const selected_classes = classes
-        .map(class_ => $(`#${class_}`).prop("checked") ? class_: "")
-        .filter(Boolean);
-
-
-    // Set statuses, lessons and classes which are going to get filtered,
+    // Set statuses and lessons which are going to get filtered,
     // And save them in form fields
     // And submit the form
 
     $("#status").val(selected_statuses.join(","));
     $("#lesson").val(selected_lessons.join(","));
-    $("#class_").val(selected_classes.join(","));
     $("#filter_form").submit();
 }
 
-function filterExams(lessons, classes) {
+function filterExams(lessons) {
     // Get selected statuses and save them inside a list
     // Get selected difficulties and save them inside a list
     // Get selected lessons and save them inside a list
-    // Get selected classes and save them inside a list
-    debugger;
 
     const selected_statuses = [
         $("#done").prop("checked") ? 1: "",
@@ -50,18 +41,13 @@ function filterExams(lessons, classes) {
         .map(lesson => $(`#${lesson}`).prop("checked") ? lesson: "")
         .filter(Boolean);
 
-    const selected_classes = classes
-        .map(class_ => $(`#${class_}`).prop("checked") ? class_: "")
-        .filter(Boolean);
-
-    // Set statuses, difficulties, lessons and classes, which are going to get filtered,
+    // Set statuses, difficulties and lessons, which are going to get filtered,
     // And save them in form fields
     // And submit the form
 
     $("#difficulty").val(selected_difficulties.join(","));
     $("#status").val(selected_statuses.join(","));
     $("#lesson").val(selected_lessons.join(","));
-    $("#class_").val(selected_classes.join(","));
     $("#filter_form").submit();
 }
 

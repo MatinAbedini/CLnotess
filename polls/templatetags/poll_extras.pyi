@@ -18,7 +18,7 @@ def split_list(value: list[str], split_by: str) -> list[str]:
     """
     ...
 
-def split_list(value: list[str], total: int = 20) -> list[str]:
+def split_list(value: list[str], total : int = 20) -> list[str]:
     """Converts a num to percentage (percentage = value / total * 100).
 
     Args:

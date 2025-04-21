@@ -19,7 +19,7 @@ class UserPanelEditUser(LoginRequiredMixin, UpdateView):
     model = Account
 
     def get_object(self, queryset=None):
-        return self.request.user  # Automatically get the logged-in user
+        return self.request.user  # Automatically gets the logged-in user
 
 
 class UserPanelAppearanceSettings(LoginRequiredMixin, UpdateView):

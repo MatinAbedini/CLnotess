@@ -25,7 +25,7 @@
 
                             ویرایش حساب کاربری</a>
                         </li>
-                        <li class="{% if request.resolver_match.url_name == "change-email-page" %} active {% endif %}">
+                        {% comment %} <li class="{% if request.resolver_match.url_name == "change-email-page" %} active {% endif %}">
                             <a href="{% url "change-email-page" %}"><i class="
                                 bi
                                 {% if request.resolver_match.url_name == "change-email-page" %}
@@ -35,7 +35,7 @@
                                 {% endif %}"></i>
 
                             تغییر ایمیل</a>
-                        </li>
+                        </li> {% endcomment %}
                         <li class="{% if request.resolver_match.url_name == "change-password-page" %} active {% endif %}">
                             <a href="{% url "change-password-page" %}"><i class="
                                 bi

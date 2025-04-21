@@ -6,7 +6,7 @@
     <head>
         <title>CLnotess | {% block title %}{% endblock %}</title>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
         <meta name="description" content="CLnotess is a web application for managing classes." />
         <meta name="keywords" content="CLnotess, class, school, class managing, school managing, dashboard" />
         <meta name="author" content="Matin Abedini"/>
@@ -24,7 +24,6 @@
         <div class="wrapper {{ user.settings.sidebar_navbar_theme }} {{ user.settings.sidebar_primary_color }}">
             {% render_partial "home_module.views.navbar_partial" %}
             {% render_partial "home_module.views.left_sidebar_partial" %}
-            {% render_partial "home_module.views.right_sidebar_partial" %}
 
             <!-- Main Content -->
             <div class="page-wrapper">
@@ -42,7 +41,6 @@
                         </div>
                     </div>
                     {% block content %}{% endblock %}
-                    {% render_partial "home_module.views.footer_partial" %}
                 </div>
             </div>
         </div>

@@ -35,7 +35,6 @@ class EditAccountForm(forms.ModelForm):
                 "placeholder": _("نام کاربری"),
                 "dir": "rtl",
             }),
-            "username": forms.FileInput(attrs={}),
         }
 
 

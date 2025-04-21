@@ -1,16 +1,13 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import gettext_lazy as _
-from django_recaptcha.fields import ReCaptchaField
-from .models import Account
+from .models import Contact
 from django import forms
 
 
-class RegisterForm(UserCreationForm):
-    captcha = ReCaptchaField()
-
+class ContactForm(forms.ModelForm):
     class Meta:
-        model = Account
+        model = Contact
         fields = ("name", "email", "title", "message")
 
         widgets = {
@@ -21,7 +18,7 @@ class RegisterForm(UserCreationForm):
                     "data-validation":"required"
                 }
             ),
-            "title": forms.EmailInput(
+            "title": forms.TextInput(
                 attrs={
                     "class": "form-control",
                     "placeholder": _("ایمیل"),

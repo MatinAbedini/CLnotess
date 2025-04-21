@@ -1,0 +1,49 @@
+{% extends "shared/_layout.html" %}
+{% load render_partial %}
+{% load static %}
+
+{% block title %}پنل کاربری{% endblock %}
+{% block content_title %}پنل کاربری{% endblock %}
+{% block breadcrumb_option %}
+    <li><a href="{% url "homework-list-page" %}">Dashboard</a></li>
+    <li class="active"><span>user panel</span></li>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        {% render_partial "user_panel_module.views.user_panel_menu_partial" %}
+
+        <div class="col-lg-9 col-md-8 col-sm-7 col-xs-12">
+            <div class="panel panel-default card-view">
+                <div class="panel-wrapper collapse in">
+                    <div class="panel-body">
+                        <div class="form-wrap">
+                            <form method="post">
+                                {% csrf_token %}
+
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="form-group col-md-6">
+                                            <label class="control-label mb-10 pull-right" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                                            {{ form.email }}
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label class="control-label mb-10 pull-right" for="{{ form.old_email.id_for_label }}">{{ form.old_email.label }}</label>
+                                            {{ form.old_email }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group pull-right">
+                                    {{ form.captcha }}
+                                </div>
+                                {{ form.errors }}
+                                <input type="submit" value="ذخیره" class="btn btn-block btn-success mt-40">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
