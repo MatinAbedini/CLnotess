@@ -4,7 +4,7 @@
 
 This is a **Web Application** project, that is build for **[Kharazmi festival](https://en.wikipedia.org/wiki/Khwarizmi_International_Award)** (A competition between all of students from 7th 9th grade) , using **Python** and **Django** framework, with goal of making relationship between students and teachers easier and better.
 
-### Capabilities
+### Capabilities ✅ :
 
 * Create classes, and invite students and teachers to the class
 * Create and edit Homeworks
@@ -14,7 +14,7 @@ This is a **Web Application** project, that is build for **[Kharazmi festival](h
 * Submit result of exam for each assigned student to that exam
 * Submit feedback of teacher result of an exam
 
-### Future Plans
+### Future Plans 📅 :
 
 * Create and edit notes for students in a class
 * Create and edit sample questions for students in a class
@@ -27,7 +27,7 @@ This is a **Web Application** project, that is build for **[Kharazmi festival](h
 * Login and register via SMS
 * Compatibility with every language
 
-## How to install:
+## How to install 📖 :
 
 1. Clone the Repository
 2. Go to project Root
@@ -41,11 +41,11 @@ This is a **Web Application** project, that is build for **[Kharazmi festival](h
 10. Run Project: ```python manage.py runserver```
 11. Open your browser and navigate to: ```127.0.0.1:8000```
 
-# Commands:
+# Commands ⌨️ :
 
 1. Add default lessons: ```python manage.py add_lessons``` (They are in persian)
 2. Create superuser: ```python manage.py createsuperuser```
 3. run the project: ```python manage.py runserver```
 
-## Find a bug ?
-If you found an issue or would like to submit improvements to this project, please make an issue using Issues tab. If you want to submit a Pull Request Fix, make sure you create an issue in Issues tab.
+## Find a bug 🐞 ?
+If you found some issues in CLnotess, before submitting it in **[issue page](https://github.com/MatinAbedini/CLnotess/issues)**, make sure that its not created in the past (Check open and closed issues), also before submitting a PR fix for a bug, make sure you have created an issue for that bug.
