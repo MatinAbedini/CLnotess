@@ -46,7 +46,7 @@ class Note(models.Model):
     assigned_to = models.ForeignKey(
         "account_module.Account",
         verbose_name=_("دانش آموز"),
-        related_name="assigned_exams",
+        related_name="assigned_notes",
         on_delete=models.CASCADE,
     )
 
