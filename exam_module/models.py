@@ -278,7 +278,7 @@ class ExamResultFile(models.Model):
         verbose_name=_("فایل"),
         upload_to="exam_module/exam_results/",
         validators=[MaxFileSize(3)],
-        null=True,
+        null=False,
     )
 
     def __str__(self):
@@ -305,7 +305,7 @@ class ExamFeedbackFile(models.Model):
         verbose_name=_("فایل"),
         upload_to="exam_module/exam_feedbacks/",
         validators=[MaxFileSize(3)],
-        null=True,
+        null=False,
     )
 
     def __str__(self):
