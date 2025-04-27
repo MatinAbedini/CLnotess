@@ -244,7 +244,7 @@ class HomeworkResultFile(models.Model):
         verbose_name=_("فایل"),
         upload_to="homework_module/homework_results/",
         validators=[MaxFileSize(3)],
-        db_index=True,
+        null=False,
     )
 
     def __str__(self):
@@ -272,7 +272,7 @@ class HomeworkFeedbackFile(models.Model):
         verbose_name=_("فایل های بازخورد تکلیف"),
         upload_to="homework_module/homework_feedbacks/",
         validators=[MaxFileSize(5)],
-        db_index=True,
+        null=False,
     )
 
     def __str__(self):
