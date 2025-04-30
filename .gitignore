@@ -3,10 +3,14 @@ venv
 .env
 .idea
 .vscode
-db.sqlite3
 dressing-templates.html
 blank.html
 
 # python (django)
 __pycache__
 /media
+
+# log
+critical.log
+error.log
+full.log
