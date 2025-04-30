@@ -12,7 +12,7 @@ from uuid import uuid4
 
 class Note(models.Model):
     title = models.CharField(verbose_name=_("موضوع"), max_length=100, null=False, blank=False, db_index=True)
-    text = models.TextField(verbose_name=_("موضوع"), max_length=10000, null=True, blank=True)
+    text = models.TextField(verbose_name=_("متن"), max_length=10000, null=True, blank=True)
     creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
     modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ویرایش"), auto_now=True)
     is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
@@ -39,7 +39,7 @@ class Note(models.Model):
     assigned_class = models.ManyToManyField(
         "class_module.Class",
         verbose_name=_("برای کلاس"),
-        related_name="assigned_note s",
+        related_name="assigned_notes",
         db_index=True,
     )
 
@@ -54,14 +54,14 @@ class Note(models.Model):
         verbose_name = _("نکات درسی")
         verbose_name_plural = _("نکات درسی")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.title
 
     def get_absolute_url(self):
         return reverse("note_detail", kwargs={"uuid": self.uuid})
 
 
-class ExamResultFile(models.Model):
+class NoteFiles(models.Model):
     creation_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now_add=True, db_index=True)
     modify_date = jmodels.jDateTimeField(verbose_name=_("تاریخ ایجاد شدن"), auto_now=True, db_index=True)
     is_delete = models.BooleanField(verbose_name=_("حذف شده / حذف نشده"), default=False, db_index=True)
@@ -79,3 +79,10 @@ class ExamResultFile(models.Model):
         validators=[MaxFileSize(3)],
         null=False,
     )
+
+    class Meta:
+        verbose_name = _("فایل نکات درسی")
+        verbose_name_plural = _("فایل های نکات درسی")
+
+    def __str__(self) -> str:
+        return f"{self.note.tile} - {self.file}"

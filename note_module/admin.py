@@ -1,3 +1,24 @@
 from django.contrib import admin
+from . import models
 
 # Register your models here.
+
+
+@admin.register(models.Note)
+class NoteAdmin(admin.ModelAdmin):
+    list_display = ("id", "title", "created_by", "creation_date", "modify_date", "lesson", "is_delete")
+    list_filter = ("is_delete", "creation_date", "modify_date")
+    search_fields = ("title", "text")
+
+    def save_model(self, request, obj, form, change):
+        # If a new Homework is created, then created_by will set to user
+        if not change:
+            obj.created_by = request.user
+
+        return super().save_model(request, obj, form, change)
+
+
+@admin.register(models.NoteFiles)
+class NoteFilesAdmin(admin.ModelAdmin):
+    list_display = ("id", "creation_date", "modify_date", "note", "is_delete")
+    list_filter = ("is_delete", "creation_date", "modify_date")
