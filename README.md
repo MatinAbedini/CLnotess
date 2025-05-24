@@ -25,7 +25,7 @@ This is a **Web Application** project, that is build for **[Kharazmi festival](h
 * Ranking students in classes
 * Login and register via Gmail
 * Login and register via SMS
-* Compatibility with every language
+* Compatibility with every language exept Hebrew (langauge of isreal)
 
 ## How to install 📖 :
 
